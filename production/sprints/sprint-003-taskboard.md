@@ -31,4 +31,5 @@ Platform: Local native smoke (browser tests removed by direction)
 - Must-Have epics complete and validated in local native smoke runs
 - Optional S3.S2 reward-card microcopy polish completed
 - Optional S3.N1 encounter intro flavor polish completed
-- Next: prepare branch for push/review (or tackle optional S3.N2)
+- Optional S3.N2 alternate card-style skin toggle completed (V hotkey)
+- Next: prepare branch for push/review

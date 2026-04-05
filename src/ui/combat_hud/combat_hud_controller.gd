@@ -20,6 +20,12 @@ const DEFEND_BG := Color("#1f3550")
 const DEFEND_BORDER := Color("#7ec6ff")
 const OTHER_BG := Color("#4d3b1f")
 const OTHER_BORDER := Color("#ffd36a")
+const ALT_STRIKE_BG := Color("#2f2146")
+const ALT_STRIKE_BORDER := Color("#d6a4ff")
+const ALT_DEFEND_BG := Color("#15384a")
+const ALT_DEFEND_BORDER := Color("#8de2ff")
+const ALT_OTHER_BG := Color("#27412a")
+const ALT_OTHER_BORDER := Color("#9af2a9")
 const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png"
 const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
 const CREST_PATH := "res://src/ui/combat_hud/assets/banner_crest_steward_064.png"
@@ -30,6 +36,7 @@ var runner: Variant
 var previous_vm: Dictionary = {}
 var fx_tweens: Dictionary = {}
 var next_encounter_transition_pending: bool = false
+var card_style_variant: String = "classic"
 
 func bind_runner(runtime_runner: Variant) -> void:
 	runner = runtime_runner
@@ -191,14 +198,9 @@ func _apply_neutral_button_style(button: Button, font_size: int, min_height: int
 	button.custom_minimum_size = Vector2(0, min_height)
 
 func _apply_card_button_style(button: Button, card_id: String, disabled: bool) -> void:
-	var bg_color := OTHER_BG
-	var border_color := OTHER_BORDER
-	if card_id.begins_with("strike"):
-		bg_color = STRIKE_BG
-		border_color = STRIKE_BORDER
-	elif card_id.begins_with("defend"):
-		bg_color = DEFEND_BG
-		border_color = DEFEND_BORDER
+	var palette: Dictionary = _card_palette(card_id)
+	var bg_color: Color = palette.get("bg", OTHER_BG)
+	var border_color: Color = palette.get("border", OTHER_BORDER)
 
 	button.add_theme_stylebox_override("normal", _build_button_style(bg_color, border_color))
 	button.add_theme_stylebox_override("hover", _build_button_style(bg_color, TEXT_PRIMARY))
@@ -212,6 +214,20 @@ func _apply_card_button_style(button: Button, card_id: String, disabled: bool) -
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.custom_minimum_size = Vector2(0, 104)
 	button.disabled = disabled
+
+func _card_palette(card_id: String) -> Dictionary:
+	if card_style_variant == "alt":
+		if card_id.begins_with("strike"):
+			return {"bg": ALT_STRIKE_BG, "border": ALT_STRIKE_BORDER}
+		if card_id.begins_with("defend"):
+			return {"bg": ALT_DEFEND_BG, "border": ALT_DEFEND_BORDER}
+		return {"bg": ALT_OTHER_BG, "border": ALT_OTHER_BORDER}
+
+	if card_id.begins_with("strike"):
+		return {"bg": STRIKE_BG, "border": STRIKE_BORDER}
+	if card_id.begins_with("defend"):
+		return {"bg": DEFEND_BG, "border": DEFEND_BORDER}
+	return {"bg": OTHER_BG, "border": OTHER_BORDER}
 
 func _apply_progress_bar_style(path: String, fill_color: Color) -> void:
 	var node = get_node_or_null(path)
@@ -602,7 +618,7 @@ func _hand_text(vm: Dictionary) -> String:
 	if mappings.is_empty():
 		mappings.append("1-5=(empty)")
 	mappings.append("Enter=End Turn")
-	return "HAND • %d cards\nHotkeys: %s" % [hand.size(), " • ".join(mappings)]
+	return "HAND • %d cards\nHotkeys: %s\nStyle: %s (V toggle)" % [hand.size(), " • ".join(mappings), _card_style_label()]
 
 func _event_log_text(vm: Dictionary) -> String:
 	var lines: Array = vm.get("recent_events", [])
@@ -741,6 +757,15 @@ func _card_display_name(card_id: String) -> String:
 		return card_id
 	return rendered
 
+func _card_style_label() -> String:
+	return "Classic" if card_style_variant == "classic" else "Alt"
+
+func _toggle_card_style_variant() -> void:
+	card_style_variant = "alt" if card_style_variant == "classic" else "classic"
+	if previous_vm.is_empty():
+		return
+	refresh(previous_vm)
+
 func _reason_text(reason_code: String) -> String:
 	match reason_code:
 		"ERR_RESOLVE_LOCKED":
@@ -778,6 +803,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key_event: InputEventKey = event
 	if not key_event.pressed or key_event.echo:
+		return
+
+	if _is_style_toggle_key(key_event):
+		_toggle_card_style_variant()
+		var viewport_style := get_viewport()
+		if viewport_style != null:
+			viewport_style.set_input_as_handled()
 		return
 
 	var handled: bool = _handle_reward_hotkey(key_event)
@@ -841,6 +873,9 @@ func _key_to_slot_index(key_event: InputEventKey) -> int:
 
 func _is_enter_key(key_event: InputEventKey) -> bool:
 	return key_event.keycode == KEY_ENTER or key_event.keycode == KEY_KP_ENTER
+
+func _is_style_toggle_key(key_event: InputEventKey) -> bool:
+	return key_event.keycode == KEY_V
 
 func _on_hand_card_pressed(button: Button) -> void:
 	if runner == null:

@@ -116,6 +116,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing KEYBOARD_HOTKEY_PROBE output")
         return json.loads(probe_line)
 
+    def _run_card_style_toggle_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_card_style_toggle_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("CARD_STYLE_TOGGLE_PROBE="):
+                probe_line = line[len("CARD_STYLE_TOGGLE_PROBE="):]
+        self.assertTrue(probe_line, "missing CARD_STYLE_TOGGLE_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -215,6 +233,16 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("1=Strike", probe.get("hand_hotkey_label", ""))
         self.assertIn("2=Defend", probe.get("hand_hotkey_label", ""))
         self.assertIn("Enter=End Turn", probe.get("hand_hotkey_label", ""))
+
+    def test_card_style_toggle_switches_palette_and_label(self):
+        probe = self._run_card_style_toggle_probe()
+        self.assertEqual(probe.get("style_after_first_toggle"), "alt")
+        self.assertEqual(probe.get("style_after_second_toggle"), "classic")
+        self.assertNotEqual(probe.get("classic_bg_color"), probe.get("alt_bg_color"))
+        self.assertEqual(probe.get("classic_bg_color"), probe.get("classic_again_bg_color"))
+        self.assertIn("Style: Classic", probe.get("classic_label", ""))
+        self.assertIn("Style: Alt", probe.get("alt_label", ""))
+        self.assertIn("V toggle", probe.get("alt_label", ""))
 
 
 if __name__ == "__main__":
