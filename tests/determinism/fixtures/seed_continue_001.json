@@ -1,0 +1,22 @@
+{
+  "fixture_id": "seed_continue_001",
+  "seed_root": 13371337,
+  "inputs": [
+    {"turn": 1, "action": "play", "card_id": "strike_01", "target": "enemy_01"},
+    {"turn": 1, "action": "pass"},
+    {"turn": 2, "action": "play", "card_id": "defend_01", "target": "self"},
+    {"turn": 2, "action": "pass"}
+  ],
+  "post_combat_inputs": [
+    {"action": "pick_reward", "offer_index": 0},
+    {"action": "continue_reward"}
+  ],
+  "expected": {
+    "final_state_hash": "3023541776",
+    "event_sequence_hash": "4070408882",
+    "rng_cursor_snapshot": {
+      "encounter.intent": 4,
+      "reward.card": 3
+    }
+  }
+}

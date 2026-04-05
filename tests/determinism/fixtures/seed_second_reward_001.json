@@ -1,0 +1,23 @@
+{
+  "fixture_id": "seed_second_reward_001",
+  "seed_root": 13371337,
+  "inputs": [
+    {"turn": 1, "action": "play", "card_id": "strike_01", "target": "enemy_01"},
+    {"turn": 1, "action": "pass"},
+    {"turn": 2, "action": "play", "card_id": "defend_01", "target": "self"},
+    {"turn": 2, "action": "pass"}
+  ],
+  "post_combat_inputs": [
+    {"action": "pick_reward", "offer_index": 0},
+    {"action": "continue_reward"},
+    {"action": "auto_finish", "max_turns": 12}
+  ],
+  "expected": {
+    "final_state_hash": "3739079097",
+    "event_sequence_hash": "508378962",
+    "rng_cursor_snapshot": {
+      "encounter.intent": 5,
+      "reward.card": 6
+    }
+  }
+}

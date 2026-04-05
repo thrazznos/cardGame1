@@ -1,9 +1,9 @@
 {
   "fixture_id": "seed_smoke_002",
-  "notes": "Baseline generated via headless Godot 4.6.2 on 2026-04-05 (playable prototype loop).",
-  "final_state_hash": "2173799707",
-  "event_sequence_hash": "658515892",
+  "final_state_hash": "684156568",
+  "event_sequence_hash": "3609107460",
   "rng_cursor_snapshot": {
-    "encounter.intent": 2
+    "encounter.intent": 2,
+    "reward.card": 3
   }
 }

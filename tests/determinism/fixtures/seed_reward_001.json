@@ -1,5 +1,5 @@
 {
-  "fixture_id": "seed_smoke_001",
+  "fixture_id": "seed_reward_001",
   "seed_root": 13371337,
   "inputs": [
     {
@@ -23,9 +23,19 @@
       "action": "pass"
     }
   ],
+  "post_combat_inputs": [
+    {
+      "action": "pick_reward",
+      "offer_index": 0
+    },
+    {
+      "action": "pick_reward",
+      "offer_index": 0
+    }
+  ],
   "expected": {
-    "final_state_hash": "2007395487",
-    "event_sequence_hash": "2273514819",
+    "final_state_hash": "2309800822",
+    "event_sequence_hash": "383836919",
     "rng_cursor_snapshot": {
       "encounter.intent": 3,
       "reward.card": 3
