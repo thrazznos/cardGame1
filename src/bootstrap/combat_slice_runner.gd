@@ -16,6 +16,12 @@ const HAND_SIZE_TARGET := 5
 const TURN_ENERGY := 3
 const STARTER_RUN_DECK := [
 	"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
+	"strike_04", "defend_03", "strike_05", "defend_04", "strike_06",
+	"gem_hybrid_ruby_strike_a", "gem_hybrid_sapphire_guard_a"
+]
+
+const FIXTURE_STARTER_RUN_DECK := [
+	"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
 	"strike_04", "defend_03", "strike_05", "defend_04", "strike_06"
 ]
 
@@ -427,6 +433,9 @@ func run_fixture(path: String) -> Dictionary:
 		return {"ok": false, "reason": "ERR_FIXTURE_READ_FAILED", "path": path}
 
 	reset_battle(int(fixture.get("seed_root", 0)))
+	# Keep fixture baselines stable even as live starter deck evolves.
+	run_master_deck = FIXTURE_STARTER_RUN_DECK.duplicate(true)
+	_bootstrap_demo_state()
 
 	var inputs: Array = fixture.get("inputs", [])
 	for step in inputs:
