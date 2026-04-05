@@ -44,6 +44,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing DRAW_LOG_PROBE output")
         return json.loads(probe_line)
 
+    def _run_card_identity_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_card_identity_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("CARD_IDENTITY_PROBE="):
+                probe_line = line[len("CARD_IDENTITY_PROBE="):]
+        self.assertTrue(probe_line, "missing CARD_IDENTITY_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -103,6 +121,15 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("ok"))
         self.assertEqual(probe.get("drawn_card"), "strike_probe")
         self.assertIn("Drew: strike_probe.", probe.get("effect_resolve_line", ""))
+
+    def test_card_identity_markers_render_for_core_card_types(self):
+        probe = self._run_card_identity_probe()
+        self.assertIn("[ATK]", probe.get("strike_text", ""))
+        self.assertIn("[DEF]", probe.get("defend_text", ""))
+        self.assertIn("[UTL]", probe.get("utility_text", ""))
+        self.assertIn("Attack card", probe.get("strike_tooltip", ""))
+        self.assertIn("Defense card", probe.get("defend_tooltip", ""))
+        self.assertIn("Utility card", probe.get("utility_tooltip", ""))
 
 
 if __name__ == "__main__":

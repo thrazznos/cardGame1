@@ -666,18 +666,42 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 		continue_button.disabled = reward_state != "applied"
 
 func _card_button_text(card_id: String) -> String:
+	var marker: String = _card_role_marker(card_id)
 	if card_id.begins_with("strike"):
-		return "Strike\n6 damage • Cost 1"
+		return "%s Strike\nAttack • 6 dmg • Cost 1" % marker
 	if card_id.begins_with("defend"):
-		return "Defend\n5 block • Cost 1"
-	return "%s\nDraw 1 • Cost 1" % card_id
+		return "%s Defend\nDefense • 5 block • Cost 1" % marker
+	return "%s %s\nUtility • Draw 1 • Cost 1" % [marker, _card_display_name(card_id)]
 
 func _card_tooltip(card_id: String) -> String:
+	var marker: String = _card_role_marker(card_id)
 	if card_id.begins_with("strike"):
-		return "Strike: deal 6 damage."
+		return "%s Attack card: deal 6 damage." % marker
 	if card_id.begins_with("defend"):
-		return "Defend: gain 5 block."
-	return "%s: draw 1." % card_id
+		return "%s Defense card: gain 5 block." % marker
+	return "%s Utility card: draw 1 card." % marker
+
+func _card_role_marker(card_id: String) -> String:
+	if card_id.begins_with("strike"):
+		return "[ATK]"
+	if card_id.begins_with("defend"):
+		return "[DEF]"
+	return "[UTL]"
+
+func _card_display_name(card_id: String) -> String:
+	if card_id.begins_with("strike"):
+		return "Strike"
+	if card_id.begins_with("defend"):
+		return "Defend"
+	var words: PackedStringArray = PackedStringArray()
+	for part in card_id.split("_"):
+		if part == "":
+			continue
+		words.append(part.capitalize())
+	var rendered: String = " ".join(words)
+	if rendered == "":
+		return card_id
+	return rendered
 
 func _reason_text(reason_code: String) -> String:
 	match reason_code:
