@@ -593,7 +593,13 @@ func _hint_text(vm: Dictionary) -> String:
 
 func _hand_text(vm: Dictionary) -> String:
 	var hand: Array = vm.get("hand", [])
-	return "HAND • %d cards" % hand.size()
+	var mappings: Array = []
+	for i in range(min(hand.size(), 5)):
+		mappings.append("%d=%s" % [i + 1, _card_display_name(str(hand[i]))])
+	if mappings.is_empty():
+		mappings.append("1-5=(empty)")
+	mappings.append("Enter=End Turn")
+	return "HAND • %d cards\nHotkeys: %s" % [hand.size(), " • ".join(mappings)]
 
 func _event_log_text(vm: Dictionary) -> String:
 	var lines: Array = vm.get("recent_events", [])
@@ -655,7 +661,7 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 
 	var reward_title: String = "Victory Reward" if reward_state == "presented" else "Checkpoint Complete"
 	var reward_subtitle: String = "Choose 1 card to permanently add to this run's deck." if reward_state == "presented" else "Reward secured for next encounter."
-	var reward_state_text: String = "Role tags: [ATK] damage, [DEF] block, [UTL] utility. Pick one card." if reward_state == "presented" else str(vm.get("reward_summary_text", "Reward applied."))
+	var reward_state_text: String = "Role tags: [ATK] damage, [DEF] block, [UTL] utility. Hotkeys: 1-3 pick reward." if reward_state == "presented" else "%s\nHotkey: Enter starts next encounter." % str(vm.get("reward_summary_text", "Reward applied."))
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardTitle", reward_title)
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardSubtitle", reward_subtitle)
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardState", reward_state_text)
@@ -761,6 +767,77 @@ func _combat_result_text(result: String) -> String:
 			return "Defeat"
 		_:
 			return "In Progress"
+
+func _unhandled_input(event: InputEvent) -> void:
+	if runner == null:
+		return
+	if not (event is InputEventKey):
+		return
+	var key_event: InputEventKey = event
+	if not key_event.pressed or key_event.echo:
+		return
+
+	var handled: bool = _handle_reward_hotkey(key_event)
+	if not handled:
+		handled = _handle_combat_hotkey(key_event)
+	if handled:
+		var viewport := get_viewport()
+		if viewport != null:
+			viewport.set_input_as_handled()
+
+func _handle_reward_hotkey(key_event: InputEventKey) -> bool:
+	var reward_state: String = str(previous_vm.get("reward_state", "none"))
+	if reward_state == "presented":
+		var reward_offer: Array = previous_vm.get("reward_offer", [])
+		var reward_index: int = _key_to_slot_index(key_event)
+		if reward_index < 0:
+			return false
+		if reward_index >= reward_offer.size() or reward_index >= 3:
+			return true
+		if runner.has_method("choose_reward_by_index"):
+			runner.choose_reward_by_index(reward_index)
+		return true
+	if reward_state in ["applied", "closed"] and _is_enter_key(key_event):
+		_on_reward_continue()
+		return true
+	return false
+
+func _handle_combat_hotkey(key_event: InputEventKey) -> bool:
+	var reward_state: String = str(previous_vm.get("reward_state", "none"))
+	if reward_state in ["presented", "applied", "closed"]:
+		return false
+	if _is_enter_key(key_event):
+		runner.player_pass()
+		return true
+	var hand_index: int = _key_to_slot_index(key_event)
+	if hand_index < 0:
+		return false
+	var hand: Array = previous_vm.get("hand", [])
+	if hand_index >= hand.size():
+		return true
+	var card_id: String = str(hand[hand_index])
+	if card_id == "":
+		return true
+	runner.player_play_card(card_id)
+	return true
+
+func _key_to_slot_index(key_event: InputEventKey) -> int:
+	match key_event.keycode:
+		KEY_1, KEY_KP_1:
+			return 0
+		KEY_2, KEY_KP_2:
+			return 1
+		KEY_3, KEY_KP_3:
+			return 2
+		KEY_4, KEY_KP_4:
+			return 3
+		KEY_5, KEY_KP_5:
+			return 4
+		_:
+			return -1
+
+func _is_enter_key(key_event: InputEventKey) -> bool:
+	return key_event.keycode == KEY_ENTER or key_event.keycode == KEY_KP_ENTER
 
 func _on_hand_card_pressed(button: Button) -> void:
 	if runner == null:
