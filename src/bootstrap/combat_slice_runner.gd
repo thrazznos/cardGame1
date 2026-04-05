@@ -7,6 +7,7 @@ const ACTION_QUEUE_SCRIPT := preload("res://src/core/tsre/action_queue.gd")
 const RSGC_SCRIPT := preload("res://src/core/rng/rsgc.gd")
 const ERP_SCRIPT := preload("res://src/core/erp/erp.gd")
 const DLS_SCRIPT := preload("res://src/core/dls/deck_lifecycle.gd")
+const GSM_SCRIPT := preload("res://src/core/gsm/gem_stack_machine.gd")
 const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
 
 const PLAYER_MAX_HP := 40
@@ -23,6 +24,7 @@ var queue: Variant
 var rng: Variant
 var erp: Variant
 var dls: Variant
+var gsm: Variant
 var reward_draft: Variant
 var hud: Variant
 
@@ -56,6 +58,7 @@ func _ready() -> void:
 	rng = RSGC_SCRIPT.new()
 	erp = ERP_SCRIPT.new()
 	dls = DLS_SCRIPT.new()
+	gsm = GSM_SCRIPT.new()
 	reward_draft = REWARD_DRAFT_SCRIPT.new()
 	hud = $CombatHud
 	hud.bind_runner(self)
@@ -65,6 +68,7 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	rng.bootstrap(seed_root)
 	event_stream.clear()
 	effect_resolve_draw_annotations.clear()
+	gsm = GSM_SCRIPT.new()
 
 	tsre.phase = tsre.PHASE_TURN_START
 	tsre.turn_index = 1
@@ -127,6 +131,9 @@ func get_view_model() -> Dictionary:
 			"exhaust": dls.exhaust_pile.size(),
 			"limbo": dls.limbo.size(),
 		},
+		"focus": gsm.focus_snapshot(),
+		"gem_stack": gsm.stack_snapshot(),
+		"gem_stack_top": _gem_stack_top_window(3),
 		"queue_preview": queue.snapshot(),
 		"last_resolved_queue_item": last_resolved_queue_item.duplicate(true),
 		"play_gate_reason": _get_play_gate_reason(),
@@ -283,7 +290,7 @@ func _resolve_queue_once() -> void:
 	var item: Dictionary = queue.dequeue()
 	last_resolved_queue_item = item.duplicate(true)
 	var effect: Dictionary = item.get("effect", {})
-	var result: Dictionary = erp.resolve_effect(effect, {})
+	var result: Dictionary = erp.resolve_effect(effect, {"gsm": gsm})
 	var drawn_cards: Array = _apply_effect_result(result)
 	dls.finalize_play(str(item.get("source_instance_id", "")), "discard")
 	_record_event("effect_resolve", {"item": item, "result": result})
@@ -493,6 +500,20 @@ func _card_to_effect(card_id: String) -> Dictionary:
 		return {"type": "deal_damage", "amount": 6}
 	if card_id.begins_with("defend"):
 		return {"type": "gain_block", "amount": 5}
+	if card_id.begins_with("gem_produce_ruby"):
+		return {"type": "gem_produce", "gem": "Ruby", "count": 1}
+	if card_id.begins_with("gem_produce_sapphire"):
+		return {"type": "gem_produce", "gem": "Sapphire", "count": 1}
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return {"type": "gem_consume_top", "gem": "Ruby"}
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return {"type": "gem_consume_top", "gem": "Sapphire"}
+	if card_id.begins_with("gem_focus"):
+		return {"type": "gem_gain_focus", "amount": 1}
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Ruby"}
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Sapphire"}
 	return {"type": "draw_n", "amount": 1}
 
 func _auto_finish_combat(max_turns: int) -> void:
@@ -658,6 +679,16 @@ func _record_event(kind: String, payload: Dictionary) -> void:
 		"kind": kind,
 		"payload": payload,
 	})
+
+func _gem_stack_top_window(limit: int) -> Array:
+	var stack: Array = gsm.stack_snapshot()
+	if stack.is_empty() or limit <= 0:
+		return []
+	var start: int = max(0, stack.size() - limit)
+	var window: Array = []
+	for i in range(start, stack.size()):
+		window.append(stack[i])
+	return window
 
 func _read_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):

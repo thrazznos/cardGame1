@@ -152,6 +152,42 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing ENCOUNTER_TOAST_PROBE output")
         return json.loads(probe_line)
 
+    def _run_gsm_core_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_gsm_core_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("GSM_CORE_PROBE="):
+                probe_line = line[len("GSM_CORE_PROBE="):]
+        self.assertTrue(probe_line, "missing GSM_CORE_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_gsm_integration_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_gsm_integration_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("GSM_INTEGRATION_PROBE="):
+                probe_line = line[len("GSM_INTEGRATION_PROBE="):]
+        self.assertTrue(probe_line, "missing GSM_INTEGRATION_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -268,6 +304,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("visible_after_delay"))
         self.assertFalse(probe.get("visible_after_enter"))
         self.assertEqual(probe.get("pass_calls"), 0)
+
+    def test_gsm_core_supports_lifo_and_focus_gate(self):
+        probe = self._run_gsm_core_probe()
+        self.assertTrue(probe.get("consume_top_ok"))
+        self.assertEqual(probe.get("consume_top_gem"), "Sapphire")
+        self.assertEqual(probe.get("consume_top_reject_reason"), "ERR_STACK_TOP_MISMATCH")
+        self.assertEqual(probe.get("advanced_without_focus_reason"), "ERR_FOCUS_REQUIRED")
+        self.assertTrue(probe.get("advanced_with_focus_ok"))
+        self.assertEqual(probe.get("advanced_with_focus_gem"), "Ruby")
+        self.assertEqual(probe.get("final_stack"), ["Sapphire"])
+
+    def test_gsm_runner_integration_resolves_focus_gated_cards(self):
+        probe = self._run_gsm_integration_probe()
+        self.assertEqual(probe.get("focus_gate_reason"), "ERR_FOCUS_REQUIRED")
+        self.assertEqual(probe.get("focus_after_focus_card"), 1)
+        self.assertEqual(probe.get("focus_after_advanced_consume"), 0)
+        self.assertEqual(probe.get("stack_after_advanced_consume"), ["Sapphire"])
+        self.assertEqual(probe.get("vm_stack_top"), ["Sapphire"])
 
 
 if __name__ == "__main__":
