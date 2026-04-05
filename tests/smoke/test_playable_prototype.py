@@ -4,7 +4,7 @@ import unittest
 
 
 class PlayablePrototypeSmokeTests(unittest.TestCase):
-    def test_seed_smoke_reports_playable_player_win(self):
+    def _run_fixture(self, fixture_path: str) -> dict:
         cmd = [
             "godot4",
             "--headless",
@@ -12,6 +12,8 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
             ".",
             "-s",
             "res://tests/determinism/run_fixture.gd",
+            "--",
+            fixture_path,
         ]
         proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
@@ -20,11 +22,19 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
             if line.startswith("DETERMINISM_REPORT="):
                 report_line = line[len("DETERMINISM_REPORT="):]
         self.assertTrue(report_line, "missing DETERMINISM_REPORT output")
+        return json.loads(report_line)
 
-        report = json.loads(report_line)
-
-        # Playable baseline contract (RED first: currently missing these keys)
+    def test_seed_smoke_001_reports_playable_player_win(self):
+        report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
+        self.assertEqual(report["fixture_id"], "seed_smoke_001")
+        self.assertEqual(report["combat_result"], "player_win")
+        self.assertGreater(report["turns_completed"], 0)
+
+    def test_seed_smoke_002_reports_playable_player_win(self):
+        report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_002.json")
+        self.assertTrue(report.get("ok"))
+        self.assertEqual(report["fixture_id"], "seed_smoke_002")
         self.assertEqual(report["combat_result"], "player_win")
         self.assertGreater(report["turns_completed"], 0)
 
