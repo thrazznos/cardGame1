@@ -89,6 +89,70 @@ def build_policy_compare(rows: list[dict]) -> list[dict]:
     return out
 
 
+def build_guardrails(rows: list[dict], run_count: int) -> dict:
+    key_to_hashes: dict[tuple, set[str]] = defaultdict(set)
+    selector_ambiguity_count = 0
+    producer_base_split_out_of_band_count = 0
+    rare_spike_index_above_cap_count = 0
+
+    for row in rows:
+        key = (
+            str(row.get("scenario_id", "")),
+            str(row.get("deck_id", "")),
+            int(row.get("seed_root", 0)),
+            str(row.get("policy_runtime_id", row.get("policy_id", ""))),
+            str(row.get("enemy_profile_id", "")),
+        )
+        key_to_hashes[key].add(str(row.get("determinism_hash", "")))
+
+        selector_ambiguity_count += int(row.get("selector_ambiguity_count", 0) or 0)
+
+        producer_base_split_pct = row.get("producer_base_split_pct", None)
+        if producer_base_split_pct is not None:
+            val = float(producer_base_split_pct)
+            if val < 0.65 or val > 0.85:
+                producer_base_split_out_of_band_count += 1
+
+        rare_spike_index = row.get("rare_spike_index", None)
+        if rare_spike_index is not None and float(rare_spike_index) > 2.1:
+            rare_spike_index_above_cap_count += 1
+
+    determinism_drift_count = sum(1 for hashes in key_to_hashes.values() if len(hashes) > 1)
+
+    focus_gate_rejects = sum(float(r.get("focus_gate_rejects", 0)) for r in rows)
+    focus_gate_reject_rate = (focus_gate_rejects / run_count) if run_count else 0.0
+
+    hard_fail = {
+        "determinism_drift_count": determinism_drift_count,
+        "unresolved_selector_ambiguity_count": selector_ambiguity_count,
+    }
+    warnings = {
+        "producer_base_split_out_of_band_count": producer_base_split_out_of_band_count,
+        "rare_spike_index_above_cap_count": rare_spike_index_above_cap_count,
+        "low_sample_size": run_count < 100,
+        "high_focus_gate_reject_rate": focus_gate_reject_rate > 0.2,
+    }
+
+    hard_fail_active = (
+        hard_fail["determinism_drift_count"] > 0
+        or hard_fail["unresolved_selector_ambiguity_count"] > 0
+    )
+    warning_active = any(bool(v) for v in warnings.values())
+
+    if hard_fail_active:
+        status = "fail"
+    elif warning_active:
+        status = "warn"
+    else:
+        status = "pass"
+
+    return {
+        "status": status,
+        "hard_fail": hard_fail,
+        "warnings": warnings,
+    }
+
+
 def build_summary(rows: list[dict], card_metrics: list[dict], policy_compare: list[dict]) -> dict:
     run_count = len(rows)
     wins = sum(1 for row in rows if str(row.get("result", "")) == "player_win")
@@ -109,6 +173,7 @@ def build_summary(rows: list[dict], card_metrics: list[dict], policy_compare: li
     card_outliers_over = list(reversed(outliers_sorted[-3:]))
 
     win_ci_low, win_ci_high = report_utils.proportion_confidence_interval_95(wins, run_count)
+    guardrails = build_guardrails(rows, run_count)
 
     summary = {
         "summary_kpis": {
@@ -126,7 +191,7 @@ def build_summary(rows: list[dict], card_metrics: list[dict], policy_compare: li
         "card_outliers_under": card_outliers_under,
         "rarity_curve_health": {
             "status": "not_modeled_yet",
-            "note": "Rarity-annotated card metadata wiring lands in M4.",
+            "note": "Rarity-annotated card metadata wiring lands in a future pass.",
         },
         "gem_engine_diagnostics": {
             "gems_produced_total": gems_produced_total,
@@ -141,6 +206,7 @@ def build_summary(rows: list[dict], card_metrics: list[dict], policy_compare: li
             "run_count": run_count,
             "guidance": "Interpret win-rate and outliers cautiously below 100 runs.",
         },
+        "guardrails": guardrails,
     }
     return summary
 

@@ -85,6 +85,11 @@ class BalanceReportMetricsTests(unittest.TestCase):
             },
         ]
 
+    def _write_fixture_jsonl(self, path: Path) -> None:
+        with path.open("w", encoding="utf-8") as f:
+            for row in self._fixture_rows():
+                f.write(json.dumps(row) + "\n")
+
     def test_report_utils_summarizes_and_computes_ci(self):
         stats = report_utils.summarize_series([1, 2, 3, 4, 5])
         self.assertEqual(stats["count"], 5)
@@ -102,9 +107,7 @@ class BalanceReportMetricsTests(unittest.TestCase):
             input_path = tmpdir_path / "raw.jsonl"
             output_dir = tmpdir_path / "reports"
 
-            with input_path.open("w", encoding="utf-8") as f:
-                for row in self._fixture_rows():
-                    f.write(json.dumps(row) + "\n")
+            self._write_fixture_jsonl(input_path)
 
             cmd = [
                 "python3",
@@ -132,6 +135,7 @@ class BalanceReportMetricsTests(unittest.TestCase):
             self.assertIn("gem_engine_diagnostics", summary)
             self.assertIn("policy_comparison", summary)
             self.assertIn("confidence_notes", summary)
+            self.assertIn("guardrails", summary)
             self.assertEqual(summary["summary_kpis"]["run_count"], 3)
 
             with card_csv_path.open("r", encoding="utf-8") as f:
@@ -146,6 +150,43 @@ class BalanceReportMetricsTests(unittest.TestCase):
             self.assertIn("policy_runtime_id", rows[0])
             self.assertIn("win_rate", rows[0])
 
+    def test_guardrail_flags_include_hard_fail_and_warnings(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            input_path = tmpdir_path / "raw.jsonl"
+            output_dir = tmpdir_path / "reports"
+
+            rows = self._fixture_rows()
+            # Inject determinism drift: same key tuple, different hash.
+            rows.append(
+                {
+                    **rows[0],
+                    "simulation_id": "s1_dup",
+                    "determinism_hash": "h1_drift",
+                }
+            )
+            with input_path.open("w", encoding="utf-8") as f:
+                for row in rows:
+                    f.write(json.dumps(row) + "\n")
+
+            subprocess.run(
+                [
+                    "python3",
+                    "src/tools/balance/aggregate_reports.py",
+                    "--input",
+                    str(input_path),
+                    "--output-dir",
+                    str(output_dir),
+                ],
+                check=True,
+            )
+
+            summary = json.loads((output_dir / "summary.json").read_text(encoding="utf-8"))
+            guardrails = summary["guardrails"]
+            self.assertIn("hard_fail", guardrails)
+            self.assertIn("warnings", guardrails)
+            self.assertGreaterEqual(guardrails["hard_fail"]["determinism_drift_count"], 1)
+
     def test_markdown_renderer_includes_required_sections(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
@@ -153,9 +194,7 @@ class BalanceReportMetricsTests(unittest.TestCase):
             output_dir = tmpdir_path / "reports"
             output_dir.mkdir(parents=True, exist_ok=True)
 
-            with input_path.open("w", encoding="utf-8") as f:
-                for row in self._fixture_rows():
-                    f.write(json.dumps(row) + "\n")
+            self._write_fixture_jsonl(input_path)
 
             subprocess.run(
                 [
@@ -191,7 +230,29 @@ class BalanceReportMetricsTests(unittest.TestCase):
             self.assertIn("## Card Outliers", body)
             self.assertIn("## Rarity Curve Health", body)
             self.assertIn("## Gem Engine Diagnostics", body)
+            self.assertIn("## Guardrails", body)
             self.assertIn("## Recommendations", body)
+
+    def test_pipeline_runner_generates_full_report_bundle(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            output_dir = tmpdir_path / "pipeline_reports"
+            subprocess.run(
+                [
+                    "python3",
+                    "src/tools/balance/run_pipeline.py",
+                    "--scenario",
+                    "res://tests/sim/scenarios/baseline_commons_v1.json",
+                    "--output-dir",
+                    str(output_dir),
+                ],
+                check=True,
+            )
+
+            self.assertTrue((output_dir / "summary.json").exists())
+            self.assertTrue((output_dir / "card_metrics.csv").exists())
+            self.assertTrue((output_dir / "policy_compare.csv").exists())
+            self.assertTrue((output_dir / "balance_report.md").exists())
 
 
 if __name__ == "__main__":

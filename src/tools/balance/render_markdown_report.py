@@ -18,6 +18,7 @@ def render_markdown(summary: dict, card_rows: list[dict], policy_rows: list[dict
     gem_diag = summary.get("gem_engine_diagnostics", {})
     over = summary.get("card_outliers_over", [])
     under = summary.get("card_outliers_under", [])
+    guardrails = summary.get("guardrails", {})
 
     lines: list[str] = []
     lines.append("# Balance Simulation Report")
@@ -52,6 +53,26 @@ def render_markdown(summary: dict, card_rows: list[dict], policy_rows: list[dict
     lines.append(f"- FOCUS Gate Reject Rate: {_fmt_pct(float(gem_diag.get('focus_gate_reject_rate', 0.0)))}")
     lines.append("")
 
+    lines.append("## Guardrails")
+    lines.append(f"- Status: {guardrails.get('status', 'unknown')}")
+    hard_fail = guardrails.get("hard_fail", {})
+    warnings = guardrails.get("warnings", {})
+    lines.append(
+        "- Hard Fail Checks: determinism_drift_count={0}, unresolved_selector_ambiguity_count={1}".format(
+            hard_fail.get("determinism_drift_count", 0),
+            hard_fail.get("unresolved_selector_ambiguity_count", 0),
+        )
+    )
+    lines.append(
+        "- Warning Checks: producer_base_split_out_of_band_count={0}, rare_spike_index_above_cap_count={1}, low_sample_size={2}, high_focus_gate_reject_rate={3}".format(
+            warnings.get("producer_base_split_out_of_band_count", 0),
+            warnings.get("rare_spike_index_above_cap_count", 0),
+            warnings.get("low_sample_size", False),
+            warnings.get("high_focus_gate_reject_rate", False),
+        )
+    )
+    lines.append("")
+
     lines.append("## Recommendations")
     if float(kpis.get("win_rate", 0.0)) < 0.4:
         lines.append("- Overall win rate is low; review common-card base floors and enemy pressure.")
@@ -62,6 +83,9 @@ def render_markdown(summary: dict, card_rows: list[dict], policy_rows: list[dict
         lines.append("- High FOCUS gate reject rate; consider adding more FOCUS enablers.")
     else:
         lines.append("- FOCUS gate reject pressure is acceptable in this sample.")
+
+    if hard_fail.get("determinism_drift_count", 0) > 0:
+        lines.append("- Determinism drift detected: investigate engine ordering and hash inputs before tuning numbers.")
 
     if policy_rows:
         lines.append("- Compare policy deltas in policy_compare.csv for sequencing skill signal.")
