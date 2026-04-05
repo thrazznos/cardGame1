@@ -14,6 +14,10 @@ config/name="Dungeon Steward"
 run/main_scene="res://scenes/combat/combat_slice.tscn"
 config/features=PackedStringArray("4.6")
 
+[display]
+
+window/size/mode=2
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
