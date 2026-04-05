@@ -724,6 +724,20 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 
 func _card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_produce_ruby"):
+		return "%s Ember Jab\nGem setup • Produce 1 Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_produce_sapphire"):
+		return "%s Ward Polish\nGem setup • Produce 1 Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return "%s Split Cut\nConsume top Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return "%s Shell Brace\nConsume top Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_focus"):
+		return "%s Vault Focus\nGain FOCUS 1 • Cost 1" % marker
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return "%s Offset Scalpel\n[FOCUS] Consume offset 1 Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return "%s Seam Pull\n[FOCUS] Consume offset 1 Sapphire • Cost 1" % marker
 	if card_id.begins_with("strike"):
 		return "%s Strike\nAttack • 6 dmg • Cost 1" % marker
 	if card_id.begins_with("defend"):
@@ -732,6 +746,20 @@ func _card_button_text(card_id: String) -> String:
 
 func _card_tooltip(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_produce_ruby"):
+		return "%s Gem producer: add 1 Ruby to the stack." % marker
+	if card_id.begins_with("gem_produce_sapphire"):
+		return "%s Gem producer: add 1 Sapphire to the stack." % marker
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return "%s Gem consumer: consume top Ruby." % marker
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return "%s Gem consumer: consume top Sapphire." % marker
+	if card_id.begins_with("gem_focus"):
+		return "%s Stability/enabler: gain FOCUS 1." % marker
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return "%s Advanced consume: requires FOCUS and consumes Ruby at top offset 1." % marker
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return "%s Advanced consume: requires FOCUS and consumes Sapphire at top offset 1." % marker
 	if card_id.begins_with("strike"):
 		return "%s Attack card: deal 6 damage." % marker
 	if card_id.begins_with("defend"):
@@ -740,6 +768,20 @@ func _card_tooltip(card_id: String) -> String:
 
 func _reward_card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_produce_ruby"):
+		return "%s Ember Jab\nAdd to deck • Produce 1 Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_produce_sapphire"):
+		return "%s Ward Polish\nAdd to deck • Produce 1 Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return "%s Split Cut\nAdd to deck • Consume top Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return "%s Shell Brace\nAdd to deck • Consume top Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_focus"):
+		return "%s Vault Focus\nAdd to deck • Gain FOCUS 1 • Cost 1" % marker
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return "%s Offset Scalpel\nAdd to deck • [FOCUS] Offset Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return "%s Seam Pull\nAdd to deck • [FOCUS] Offset Sapphire • Cost 1" % marker
 	if card_id.begins_with("strike"):
 		return "%s Strike\nAdd to deck • Deal 6 dmg • Cost 1" % marker
 	if card_id.begins_with("defend"):
@@ -750,6 +792,10 @@ func _reward_card_tooltip(card_id: String) -> String:
 	return "%s\nReward effect: permanently add this card to your run deck." % _card_tooltip(card_id)
 
 func _card_role_marker(card_id: String) -> String:
+	if card_id.begins_with("gem_produce_ruby") or card_id.begins_with("gem_consume_top_ruby"):
+		return "[ATK]"
+	if card_id.begins_with("gem_produce_sapphire") or card_id.begins_with("gem_consume_top_sapphire"):
+		return "[DEF]"
 	if card_id.begins_with("strike"):
 		return "[ATK]"
 	if card_id.begins_with("defend"):
@@ -757,6 +803,20 @@ func _card_role_marker(card_id: String) -> String:
 	return "[UTL]"
 
 func _card_display_name(card_id: String) -> String:
+	if card_id.begins_with("gem_produce_ruby"):
+		return "Ember Jab"
+	if card_id.begins_with("gem_produce_sapphire"):
+		return "Ward Polish"
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return "Split Cut"
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return "Shell Brace"
+	if card_id.begins_with("gem_focus"):
+		return "Vault Focus"
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return "Offset Scalpel"
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return "Seam Pull"
 	if card_id.begins_with("strike"):
 		return "Strike"
 	if card_id.begins_with("defend"):

@@ -188,6 +188,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing GSM_INTEGRATION_PROBE output")
         return json.loads(probe_line)
 
+    def _run_reward_pool_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_reward_pool_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("REWARD_POOL_PROBE="):
+                probe_line = line[len("REWARD_POOL_PROBE="):]
+        self.assertTrue(probe_line, "missing REWARD_POOL_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -326,6 +344,12 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Gem Top", probe.get("zones_text", ""))
         self.assertIn("Sapphire", probe.get("zones_text", ""))
         self.assertIn("Consumed Ruby", probe.get("advanced_event_line", ""))
+        self.assertIn("Produce 1 Ruby", probe.get("gem_producer_button_text", ""))
+
+    def test_reward_pool_keeps_gsm_cards_opt_in(self):
+        probe = self._run_reward_pool_probe()
+        self.assertFalse(probe.get("normal_has_gsm"))
+        self.assertTrue(probe.get("gsm_all_are_gsm"))
 
 
 if __name__ == "__main__":

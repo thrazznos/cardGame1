@@ -610,6 +610,20 @@ func _reward_offer_has_card(card_id: String) -> bool:
 	return false
 
 func _display_name_for_card(card_id: String) -> String:
+	if card_id.begins_with("gem_produce_ruby"):
+		return "Ember Jab"
+	if card_id.begins_with("gem_produce_sapphire"):
+		return "Ward Polish"
+	if card_id.begins_with("gem_consume_top_ruby"):
+		return "Split Cut"
+	if card_id.begins_with("gem_consume_top_sapphire"):
+		return "Shell Brace"
+	if card_id.begins_with("gem_focus"):
+		return "Vault Focus"
+	if card_id.begins_with("gem_offset_consume_ruby"):
+		return "Offset Scalpel"
+	if card_id.begins_with("gem_offset_consume_sapphire"):
+		return "Seam Pull"
 	if card_id.begins_with("strike"):
 		return "Strike"
 	if card_id.begins_with("defend"):

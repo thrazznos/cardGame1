@@ -9,15 +9,28 @@ const BASE_CARD_POOL := [
 	{"card_id": "scheme_flow", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
 ]
 
+# Sprint 004 strategy: keep GSM cards out of normal reward progression by default.
+# They are opt-in for dedicated GSM checkpoints/tests only.
+const GSM_CARD_POOL := [
+	{"card_id": "gem_produce_ruby_a", "rarity": "common", "unlock_key": "gsm_set", "weight_base": 1.0},
+	{"card_id": "gem_produce_sapphire_a", "rarity": "common", "unlock_key": "gsm_set", "weight_base": 1.0},
+	{"card_id": "gem_focus_a", "rarity": "uncommon", "unlock_key": "gsm_set", "weight_base": 0.9},
+	{"card_id": "gem_offset_consume_ruby_ok", "rarity": "uncommon", "unlock_key": "gsm_set", "weight_base": 0.9},
+]
+
 func build_card_offer(rng: Variant, checkpoint_id: String, reward_history: Array = []) -> Dictionary:
+	var pool: Array = BASE_CARD_POOL.duplicate(true)
+	if checkpoint_id.begins_with("gsm_"):
+		pool.append_array(GSM_CARD_POOL.duplicate(true))
+
 	var available: Array[Dictionary] = []
-	for entry in BASE_CARD_POOL:
+	for entry in pool:
 		var card: Dictionary = entry.duplicate(true)
 		if not reward_history.has(str(card.get("card_id", ""))):
 			available.append(card)
 
 	if available.size() < 3:
-		for entry in BASE_CARD_POOL:
+		for entry in pool:
 			available.append(entry.duplicate(true))
 			if available.size() >= 3:
 				break

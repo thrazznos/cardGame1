@@ -31,6 +31,11 @@ func _init() -> void:
 	node.set("energy", 10)
 	node.call("refresh_hud")
 
+	var gem_producer_button_text: String = ""
+	var hand_button_node: Node = node.get_node_or_null("CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card1")
+	if hand_button_node is Button:
+		gem_producer_button_text = (hand_button_node as Button).text
+
 	node.call("player_play_card", "gem_produce_ruby_a")
 	node.call("player_play_card", "gem_produce_sapphire_a")
 	node.call("player_play_card", "gem_offset_consume_ruby_fail")
@@ -65,6 +70,7 @@ func _init() -> void:
 		"vm_stack_top": vm_after_consume.get("gem_stack_top", []),
 		"zones_text": zones_text,
 		"advanced_event_line": advanced_event_line,
+		"gem_producer_button_text": gem_producer_button_text,
 	}
 
 	print("GSM_INTEGRATION_PROBE=" + JSON.stringify(payload))
