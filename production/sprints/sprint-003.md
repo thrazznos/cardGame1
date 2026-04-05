@@ -22,7 +22,7 @@ Advance the combat vertical slice from “readable and rewarding” to “visual
 ### Should Have
 | ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
 |----|------|-------------|-----------|--------------|---------------------|
-| S3.S1 | Lightweight browser-target smoke path for combat readability checks | qa-tester + tools-programmer | 1.0 | S3.M1 | One browser-run smoke procedure is documented and repeatable on this machine |
+| S3.S1 | Lightweight local smoke path for combat readability checks | qa-tester + tools-programmer | 1.0 | S3.M1 | One local-run smoke procedure is documented and repeatable on this machine |
 | S3.S2 | Reward-card identity polish (micro-copy/tooltip refinement) | ui-programmer | 0.5 | S3.M1 | Reward options communicate role/value clearly with reduced ambiguity |
 
 ### Nice to Have
