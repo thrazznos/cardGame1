@@ -5,11 +5,12 @@ import tempfile
 import unittest
 
 from src.tools.determinism_report_compare import compare_report_to_expected
+from src.tools.godot_test_runner import resolve_godot_executable
 
 
 def _run_fixture(fixture_path: str) -> dict:
     cmd = [
-        "godot4",
+        resolve_godot_executable(),
         "--headless",
         "--path",
         ".",
@@ -45,6 +46,24 @@ class FixtureCompareTests(unittest.TestCase):
         self._assert_fixture_matches_expected(
             "res://tests/determinism/fixtures/seed_smoke_002.json",
             "tests/determinism/fixtures/seed_smoke_002.expected.json",
+        )
+
+    def test_seed_reward_001_matches_expected_baseline(self):
+        self._assert_fixture_matches_expected(
+            "res://tests/determinism/fixtures/seed_reward_001.json",
+            "tests/determinism/fixtures/seed_reward_001.expected.json",
+        )
+
+    def test_seed_continue_001_matches_expected_baseline(self):
+        self._assert_fixture_matches_expected(
+            "res://tests/determinism/fixtures/seed_continue_001.json",
+            "tests/determinism/fixtures/seed_continue_001.expected.json",
+        )
+
+    def test_seed_second_reward_001_matches_expected_baseline(self):
+        self._assert_fixture_matches_expected(
+            "res://tests/determinism/fixtures/seed_second_reward_001.json",
+            "tests/determinism/fixtures/seed_second_reward_001.expected.json",
         )
 
 

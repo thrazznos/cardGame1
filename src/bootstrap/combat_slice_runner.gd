@@ -7,17 +7,23 @@ const ACTION_QUEUE_SCRIPT := preload("res://src/core/tsre/action_queue.gd")
 const RSGC_SCRIPT := preload("res://src/core/rng/rsgc.gd")
 const ERP_SCRIPT := preload("res://src/core/erp/erp.gd")
 const DLS_SCRIPT := preload("res://src/core/dls/deck_lifecycle.gd")
+const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
 
 const PLAYER_MAX_HP := 40
 const ENEMY_MAX_HP := 24
 const HAND_SIZE_TARGET := 5
 const TURN_ENERGY := 3
+const STARTER_RUN_DECK := [
+	"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
+	"strike_04", "defend_03", "strike_05", "defend_04", "strike_06"
+]
 
 var tsre: Variant
 var queue: Variant
 var rng: Variant
 var erp: Variant
 var dls: Variant
+var reward_draft: Variant
 var hud: Variant
 
 var event_stream: Array[Dictionary] = []
@@ -30,6 +36,18 @@ var energy: int = TURN_ENERGY
 var enemy_intent_damage: int = 6
 var combat_result: String = "in_progress"
 var last_event_text: String = "Battle ready"
+var last_reject_reason: String = ""
+var last_resolved_queue_item: Dictionary = {}
+var run_master_deck: Array = []
+var reward_state: String = "none"
+var reward_checkpoint_id: String = ""
+var reward_draft_instance_id: String = ""
+var reward_offer: Array[Dictionary] = []
+var reward_selected_card_id: String = ""
+var reward_summary_text: String = ""
+var reward_checkpoint_count: int = 0
+var reward_commit_count: int = 0
+var encounter_index: int = 1
 
 func _ready() -> void:
 	tsre = TSRE_SCRIPT.new()
@@ -37,6 +55,7 @@ func _ready() -> void:
 	rng = RSGC_SCRIPT.new()
 	erp = ERP_SCRIPT.new()
 	dls = DLS_SCRIPT.new()
+	reward_draft = REWARD_DRAFT_SCRIPT.new()
 	hud = $CombatHud
 	hud.bind_runner(self)
 	reset_battle(13371337)
@@ -57,16 +76,26 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	energy = TURN_ENERGY
 	combat_result = "in_progress"
 	last_event_text = "Battle ready"
+	last_reject_reason = ""
+	last_resolved_queue_item = {}
+	run_master_deck = STARTER_RUN_DECK.duplicate(true)
+	reward_state = "none"
+	reward_checkpoint_id = ""
+	reward_draft_instance_id = ""
+	reward_offer = []
+	reward_selected_card_id = ""
+	reward_summary_text = ""
+	reward_checkpoint_count = 0
+	reward_commit_count = 0
+	encounter_index = 1
 
 	_bootstrap_demo_state()
 	enemy_intent_damage = _roll_enemy_intent_damage()
+	_record_event("encounter_start", {"encounter_index": encounter_index, "turn": tsre.turn_index})
 	refresh_hud()
 
 func _bootstrap_demo_state() -> void:
-	dls.draw_pile = [
-		"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
-		"strike_04", "defend_03", "strike_05", "defend_04", "strike_06"
-	]
+	dls.draw_pile = run_master_deck.duplicate(true)
 	dls.hand = []
 	dls.discard_pile = []
 	dls.exhaust_pile = []
@@ -78,14 +107,40 @@ func get_view_model() -> Dictionary:
 	return {
 		"turn": tsre.turn_index,
 		"phase": tsre.phase,
+		"ui_phase_text": tsre.get_ui_phase_label(),
 		"resolve_lock": tsre.resolve_lock,
 		"player_hp": player_hp,
+		"player_max_hp": PLAYER_MAX_HP,
 		"player_block": player_block,
 		"enemy_hp": enemy_hp,
+		"enemy_max_hp": ENEMY_MAX_HP,
 		"enemy_block": enemy_block,
 		"energy": energy,
+		"turn_energy_max": TURN_ENERGY,
 		"enemy_intent_damage": enemy_intent_damage,
 		"hand": dls.hand.duplicate(true),
+		"zones": {
+			"draw": dls.draw_pile.size(),
+			"discard": dls.discard_pile.size(),
+			"exhaust": dls.exhaust_pile.size(),
+			"limbo": dls.limbo.size(),
+		},
+		"queue_preview": queue.snapshot(),
+		"last_resolved_queue_item": last_resolved_queue_item.duplicate(true),
+		"play_gate_reason": _get_play_gate_reason(),
+		"pass_gate_reason": _get_pass_gate_reason(),
+		"last_reject_reason": last_reject_reason,
+		"recent_events": _get_recent_event_lines(4),
+		"reward_state": reward_state,
+		"reward_checkpoint_id": reward_checkpoint_id,
+		"reward_draft_instance_id": reward_draft_instance_id,
+		"reward_offer": reward_offer.duplicate(true),
+		"reward_selected_card_id": reward_selected_card_id,
+		"reward_summary_text": reward_summary_text,
+		"reward_checkpoint_count": reward_checkpoint_count,
+		"reward_commit_count": reward_commit_count,
+		"run_master_deck_size": run_master_deck.size(),
+		"encounter_index": encounter_index,
 		"combat_result": combat_result,
 		"last_event_text": last_event_text,
 	}
@@ -95,10 +150,11 @@ func refresh_hud() -> void:
 		hud.refresh(get_view_model())
 
 func player_play_card(card_id: String) -> Dictionary:
-	if combat_result != "in_progress":
-		return {"ok": false, "reason": "ERR_COMBAT_COMPLETE"}
-	if energy <= 0:
-		return {"ok": false, "reason": "ERR_NOT_ENOUGH_ENERGY"}
+	var play_gate_reason: String = _get_play_gate_reason()
+	if play_gate_reason != "":
+		_remember_reject(play_gate_reason)
+		refresh_hud()
+		return {"ok": false, "reason": play_gate_reason}
 
 	var resolved_card_id: String = card_id
 	if not _hand_has_exact(card_id):
@@ -108,12 +164,17 @@ func player_play_card(card_id: String) -> Dictionary:
 
 	var submit: Dictionary = tsre.submit_play_intent({"card_id": resolved_card_id})
 	if not submit.get("ok", false):
+		_remember_reject(str(submit.get("reason", "")))
+		refresh_hud()
 		return submit
 
 	var committed: Dictionary = dls.commit_play(resolved_card_id)
 	if not committed.get("ok", false):
+		_remember_reject(str(committed.get("reason", "")))
+		refresh_hud()
 		return committed
 
+	_clear_reject()
 	energy -= 1
 	queue.enqueue({
 		"turn_index": tsre.turn_index,
@@ -132,12 +193,18 @@ func player_play_card(card_id: String) -> Dictionary:
 	return {"ok": true}
 
 func player_pass() -> Dictionary:
-	if combat_result != "in_progress":
-		return {"ok": false, "reason": "ERR_COMBAT_COMPLETE"}
+	var pass_gate_reason: String = _get_pass_gate_reason()
+	if pass_gate_reason != "":
+		_remember_reject(pass_gate_reason)
+		refresh_hud()
+		return {"ok": false, "reason": pass_gate_reason}
 	var pass_result: Dictionary = tsre.submit_pass()
 	if not pass_result.get("ok", false):
+		_remember_reject(str(pass_result.get("reason", "")))
+		refresh_hud()
 		return pass_result
 
+	_clear_reject()
 	_record_event("pass", {"turn": tsre.turn_index})
 	tsre.transition_to(tsre.PHASE_ENEMY)
 	_enemy_take_turn()
@@ -182,6 +249,7 @@ func _resolve_queue_once() -> void:
 	if not queue.has_items():
 		return
 	var item: Dictionary = queue.dequeue()
+	last_resolved_queue_item = item.duplicate(true)
 	var effect: Dictionary = item.get("effect", {})
 	var result: Dictionary = erp.resolve_effect(effect, {})
 	_apply_effect_result(result)
@@ -206,14 +274,90 @@ func _apply_effect_result(result: Dictionary) -> void:
 			dls.draw_one()
 
 func _check_combat_end() -> void:
+	if combat_result != "in_progress":
+		return
 	if enemy_hp <= 0:
 		combat_result = "player_win"
 		tsre.transition_to(tsre.PHASE_COMBAT_END)
 		_record_event("combat_end", {"result": combat_result, "turn": tsre.turn_index})
+		_present_reward_checkpoint()
 	elif player_hp <= 0:
 		combat_result = "player_lose"
 		tsre.transition_to(tsre.PHASE_COMBAT_END)
 		_record_event("combat_end", {"result": combat_result, "turn": tsre.turn_index})
+
+func choose_reward_by_index(offer_index: int) -> Dictionary:
+	if offer_index < 0 or offer_index >= reward_offer.size():
+		_remember_reject("ERR_INVALID_REWARD_SELECTION")
+		refresh_hud()
+		return {"ok": false, "reason": "ERR_INVALID_REWARD_SELECTION", "offer_index": offer_index}
+	var reward: Dictionary = reward_offer[offer_index]
+	return choose_reward(str(reward.get("card_id", "")))
+
+func choose_reward(card_id: String) -> Dictionary:
+	if reward_state != "presented":
+		_remember_reject("ERR_REWARD_NOT_AVAILABLE")
+		refresh_hud()
+		return {"ok": false, "reason": "ERR_REWARD_NOT_AVAILABLE"}
+	if not _reward_offer_has_card(card_id):
+		_remember_reject("ERR_INVALID_REWARD_SELECTION")
+		refresh_hud()
+		return {"ok": false, "reason": "ERR_INVALID_REWARD_SELECTION", "card_id": card_id}
+
+	_clear_reject()
+	reward_selected_card_id = card_id
+	reward_commit_count += 1
+	reward_state = "applied"
+	run_master_deck.append(card_id)
+	dls.discard_pile.append(card_id)
+	reward_summary_text = "Added %s to discard. Deck now %d cards." % [_display_name_for_card(card_id), run_master_deck.size()]
+	_record_event("reward_pick", {
+		"draft_instance_id": reward_draft_instance_id,
+		"checkpoint_id": reward_checkpoint_id,
+		"card_id": card_id,
+		"run_master_deck_size": run_master_deck.size(),
+	})
+	refresh_hud()
+	return {"ok": true, "card_id": card_id}
+
+func dismiss_reward_checkpoint() -> void:
+	if reward_state != "applied":
+		return
+	reward_state = "closed"
+	_record_event("reward_checkpoint_closed", {
+		"draft_instance_id": reward_draft_instance_id,
+		"checkpoint_id": reward_checkpoint_id,
+		"selected_card_id": reward_selected_card_id,
+	})
+	refresh_hud()
+
+func start_next_encounter() -> void:
+	if reward_state != "applied" and reward_state != "closed":
+		_remember_reject("ERR_REWARD_NOT_AVAILABLE")
+		refresh_hud()
+		return
+	encounter_index += 1
+	combat_result = "in_progress"
+	reward_state = "none"
+	reward_checkpoint_id = ""
+	reward_draft_instance_id = ""
+	reward_offer = []
+	reward_summary_text = "Using rewarded card in the next encounter."
+	last_reject_reason = ""
+	last_resolved_queue_item = {}
+	tsre.phase = tsre.PHASE_TURN_START
+	tsre.turn_index = 1
+	tsre.phase_index = 0
+	tsre.resolve_lock = false
+	player_hp = PLAYER_MAX_HP
+	player_block = 0
+	enemy_hp = ENEMY_MAX_HP
+	enemy_block = 0
+	energy = TURN_ENERGY
+	_bootstrap_demo_state()
+	enemy_intent_damage = _roll_enemy_intent_damage()
+	_record_event("encounter_start", {"encounter_index": encounter_index, "turn": tsre.turn_index, "reward_card_id": reward_selected_card_id})
+	refresh_hud()
 
 func run_fixture(path: String) -> Dictionary:
 	var fixture: Dictionary = _read_json(path)
@@ -230,6 +374,10 @@ func run_fixture(path: String) -> Dictionary:
 
 	_auto_finish_combat(12)
 
+	var post_combat_inputs: Array = fixture.get("post_combat_inputs", [])
+	for step in post_combat_inputs:
+		_apply_step(step)
+
 	var final_state: Dictionary = {
 		"phase": tsre.phase,
 		"turn_index": tsre.turn_index,
@@ -244,6 +392,16 @@ func run_fixture(path: String) -> Dictionary:
 		"enemy_block": enemy_block,
 		"energy": energy,
 		"combat_result": combat_result,
+		"run_master_deck": run_master_deck,
+		"reward_state": reward_state,
+		"reward_checkpoint_id": reward_checkpoint_id,
+		"reward_draft_instance_id": reward_draft_instance_id,
+		"reward_offer_card_ids": _reward_offer_card_ids(),
+		"reward_selected_card_id": reward_selected_card_id,
+		"reward_summary_text": reward_summary_text,
+		"reward_checkpoint_count": reward_checkpoint_count,
+		"reward_commit_count": reward_commit_count,
+		"encounter_index": encounter_index,
 	}
 
 	var final_state_hash: String = str(hash(JSON.stringify(final_state)))
@@ -258,6 +416,14 @@ func run_fixture(path: String) -> Dictionary:
 		"event_count": event_stream.size(),
 		"combat_result": combat_result,
 		"turns_completed": tsre.turn_index,
+		"reward_state": reward_state,
+		"reward_offer_card_ids": _reward_offer_card_ids(),
+		"reward_selected_card_id": reward_selected_card_id,
+		"reward_checkpoint_count": reward_checkpoint_count,
+		"reward_commit_count": reward_commit_count,
+		"run_master_deck_size": run_master_deck.size(),
+		"encounter_index": encounter_index,
+		"hand": dls.hand,
 	}
 
 func _apply_step(step: Dictionary) -> void:
@@ -270,6 +436,14 @@ func _apply_step(step: Dictionary) -> void:
 				_record_event("play_reject", result)
 		"pass":
 			player_pass()
+		"pick_reward":
+			var pick_result: Dictionary = choose_reward_by_index(int(step.get("offer_index", -1)))
+			if not pick_result.get("ok", false):
+				_record_event("reward_reject", pick_result)
+		"continue_reward":
+			start_next_encounter()
+		"auto_finish":
+			_auto_finish_combat(int(step.get("max_turns", 12)))
 		_:
 			_record_event("unknown_action", step)
 
@@ -307,6 +481,130 @@ func _hand_has_exact(card_id: String) -> bool:
 		if str(c) == card_id:
 			return true
 	return false
+
+func _get_play_gate_reason() -> String:
+	if combat_result != "in_progress":
+		return "ERR_COMBAT_COMPLETE"
+	var input_gate: Dictionary = tsre.get_input_gate()
+	if not input_gate.get("ok", false):
+		return str(input_gate.get("reason", ""))
+	if energy <= 0:
+		return "ERR_NOT_ENOUGH_ENERGY"
+	return ""
+
+func _get_pass_gate_reason() -> String:
+	if combat_result != "in_progress":
+		return "ERR_COMBAT_COMPLETE"
+	var input_gate: Dictionary = tsre.get_input_gate()
+	if not input_gate.get("ok", false):
+		return str(input_gate.get("reason", ""))
+	return ""
+
+func _remember_reject(reason: String) -> void:
+	last_reject_reason = reason
+
+func _clear_reject() -> void:
+	last_reject_reason = ""
+
+func _present_reward_checkpoint() -> void:
+	reward_checkpoint_count += 1
+	reward_checkpoint_id = "combat_clear_%d" % tsre.turn_index
+	var draft: Dictionary = reward_draft.build_card_offer(rng, reward_checkpoint_id, [])
+	reward_draft_instance_id = str(draft.get("draft_instance_id", ""))
+	reward_offer = draft.get("offers", []).duplicate(true)
+	reward_selected_card_id = ""
+	reward_summary_text = "Choose 1 of 3 cards to add to your deck."
+	reward_state = "presented"
+	_record_event("reward_offer", {
+		"checkpoint_id": reward_checkpoint_id,
+		"draft_instance_id": reward_draft_instance_id,
+		"offer_card_ids": _reward_offer_card_ids(),
+	})
+
+func _reward_offer_card_ids() -> Array:
+	var ids: Array = []
+	for offer in reward_offer:
+		ids.append(str(offer.get("card_id", "")))
+	return ids
+
+func _reward_offer_has_card(card_id: String) -> bool:
+	for offer in reward_offer:
+		if str(offer.get("card_id", "")) == card_id:
+			return true
+	return false
+
+func _display_name_for_card(card_id: String) -> String:
+	if card_id.begins_with("strike"):
+		return "Strike"
+	if card_id.begins_with("defend"):
+		return "Defend"
+	if card_id.begins_with("scheme"):
+		return "Scheme"
+	return card_id.capitalize()
+
+func _get_recent_event_lines(limit: int = 4) -> Array:
+	var lines: Array = []
+	var start: int = max(0, event_stream.size() - limit)
+	for i in range(start, event_stream.size()):
+		lines.append(_format_event_line(event_stream[i]))
+	if lines.is_empty():
+		lines.append("Battle ready.")
+	return lines
+
+func _format_event_line(event: Dictionary) -> String:
+	var order_index: int = int(event.get("order_index", 0))
+	var kind: String = str(event.get("kind", "event"))
+	var payload: Dictionary = event.get("payload", {})
+	match kind:
+		"play_commit":
+			return "#%d Played %s. Energy %d." % [
+				order_index,
+				str(payload.get("card_id", "-")),
+				int(payload.get("energy_after", 0)),
+			]
+		"effect_resolve":
+			var item: Dictionary = payload.get("item", {})
+			return "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
+				order_index,
+				str(item.get("source_instance_id", "-")),
+				int(item.get("timing_window_priority", 0)),
+				int(item.get("speed_class_priority", 0)),
+				int(item.get("enqueue_sequence_id", 0)),
+			]
+		"enemy_attack":
+			return "#%d Enemy hit for %d (%d blocked, %d HP lost)." % [
+				order_index,
+				int(payload.get("incoming", 0)),
+				int(payload.get("blocked", 0)),
+				int(payload.get("hp_loss", 0)),
+			]
+		"pass":
+			return "#%d Passed turn." % order_index
+		"turn_start":
+			return "#%d Turn %d. Enemy intent %d." % [
+				order_index,
+				int(payload.get("turn", 0)),
+				int(payload.get("enemy_intent_damage", 0)),
+			]
+		"combat_end":
+			return "#%d Combat ended: %s." % [
+				order_index,
+				str(payload.get("result", "-")),
+			]
+		"reward_offer":
+			return "#%d Reward checkpoint opened: %s." % [
+				order_index,
+				", ".join(payload.get("offer_card_ids", [])),
+			]
+		"reward_pick":
+			return "#%d Reward claimed: %s." % [
+				order_index,
+				_display_name_for_card(str(payload.get("card_id", "-"))),
+			]
+		"reward_checkpoint_closed":
+			return "#%d Reward panel closed." % order_index
+		_:
+			return "#%d %s" % [order_index, kind]
 
 func _record_event(kind: String, payload: Dictionary) -> void:
 	last_event_text = "%s %s" % [kind, JSON.stringify(payload)]

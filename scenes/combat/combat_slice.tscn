@@ -21,75 +21,306 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("2_hud")
 
-[node name="VBox" type="VBoxContainer" parent="CombatHud"]
+[node name="Margin" type="MarginContainer" parent="CombatHud"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
 
-[node name="Title" type="Label" parent="CombatHud/VBox"]
+[node name="VBox" type="VBoxContainer" parent="CombatHud/Margin"]
 layout_mode = 2
-text = "Dungeon Steward - Combat Prototype"
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
 
-[node name="Status" type="Label" parent="CombatHud/VBox"]
+[node name="Banner" type="PanelContainer" parent="CombatHud/Margin/VBox"]
+layout_mode = 2
+
+[node name="BannerRow" type="HBoxContainer" parent="CombatHud/Margin/VBox/Banner"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="BannerCrest" type="TextureRect" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
+layout_mode = 2
+text = "Dungeon Steward"
+
+[node name="Spacer" type="Control" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Status" type="Label" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
 layout_mode = 2
 text = "Turn 1"
 
-[node name="PlayerStats" type="Label" parent="CombatHud/VBox"]
+[node name="ResolveLock" type="Label" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
+layout_mode = 2
+text = "INPUT READY"
+
+[node name="StatsRow" type="HBoxContainer" parent="CombatHud/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="PlayerPanel" type="PanelContainer" parent="CombatHud/Margin/VBox/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayerVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlayerStats" type="Label" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
 layout_mode = 2
 text = "Player"
 
-[node name="EnemyStats" type="Label" parent="CombatHud/VBox"]
+[node name="PlayerPortrait" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+
+[node name="PlayerHpBar" type="ProgressBar" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+show_percentage = false
+max_value = 40.0
+value = 40.0
+
+[node name="EnergyBar" type="ProgressBar" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+show_percentage = false
+max_value = 3.0
+value = 3.0
+
+[node name="EnemyPanel" type="PanelContainer" parent="CombatHud/Margin/VBox/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnemyVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EnemyStats" type="Label" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel/EnemyVBox"]
 layout_mode = 2
 text = "Enemy"
 
-[node name="Hand" type="Label" parent="CombatHud/VBox"]
+[node name="EnemyPortrait" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel/EnemyVBox"]
+custom_minimum_size = Vector2(88, 88)
+layout_mode = 2
+
+[node name="EnemyHpBar" type="ProgressBar" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel/EnemyVBox"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+show_percentage = false
+max_value = 24.0
+value = 24.0
+
+[node name="ZonesPanel" type="PanelContainer" parent="CombatHud/Margin/VBox/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="Zones" type="Label" parent="CombatHud/Margin/VBox/StatsRow/ZonesPanel"]
+layout_mode = 2
+text = "Zones"
+
+[node name="QueuePanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
+layout_mode = 2
+
+[node name="Queue" type="Label" parent="CombatHud/Margin/VBox/QueuePanel"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Queue"
+
+[node name="ReasonPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
+layout_mode = 2
+
+[node name="Hint" type="Label" parent="CombatHud/Margin/VBox/ReasonPanel"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Hint"
+
+[node name="HandPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
+layout_mode = 2
+
+[node name="HandVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/HandPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Hand" type="Label" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
 text = "Hand"
 
-[node name="HandButtons" type="HBoxContainer" parent="CombatHud/VBox"]
+[node name="HandButtons" type="HBoxContainer" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
-[node name="Card1" type="Button" parent="CombatHud/VBox/HandButtons"]
+[node name="Card1" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "(empty)"
 
-[node name="Card2" type="Button" parent="CombatHud/VBox/HandButtons"]
+[node name="Card2" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "(empty)"
 
-[node name="Card3" type="Button" parent="CombatHud/VBox/HandButtons"]
+[node name="Card3" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "(empty)"
 
-[node name="Card4" type="Button" parent="CombatHud/VBox/HandButtons"]
+[node name="Card4" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "(empty)"
 
-[node name="Card5" type="Button" parent="CombatHud/VBox/HandButtons"]
+[node name="Card5" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "(empty)"
 
-[node name="EventLog" type="Label" parent="CombatHud/VBox"]
+[node name="EventPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EventLog" type="Label" parent="CombatHud/Margin/VBox/EventPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
 text = "Last: Battle ready"
 
-[node name="Hint" type="Label" parent="CombatHud/VBox"]
+[node name="Buttons" type="HBoxContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
-text = "Hint"
+theme_override_constants/separation = 12
 
-[node name="Buttons" type="HBoxContainer" parent="CombatHud/VBox"]
+[node name="Pass" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Pass" type="Button" parent="CombatHud/VBox/Buttons"]
-layout_mode = 2
+size_flags_horizontal = 3
 text = "Pass Turn"
 
-[node name="Restart" type="Button" parent="CombatHud/VBox/Buttons"]
+[node name="Restart" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Restart"
+
+[node name="RewardOverlay" type="Control" parent="CombatHud"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="Scrim" type="ColorRect" parent="CombatHud/RewardOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="Center" type="CenterContainer" parent="CombatHud/RewardOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RewardPanel" type="PanelContainer" parent="CombatHud/RewardOverlay/Center"]
+custom_minimum_size = Vector2(920, 0)
+layout_mode = 2
+
+[node name="RewardVBox" type="VBoxContainer" parent="CombatHud/RewardOverlay/Center/RewardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="RewardTitle" type="Label" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+layout_mode = 2
+text = "Victory Reward"
+
+[node name="RewardSealRow" type="CenterContainer" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+layout_mode = 2
+
+[node name="RewardSeal" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardSealRow"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+
+[node name="RewardSubtitle" type="Label" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Choose 1 of 3 cards to add to your deck."
+
+[node name="RewardChoices" type="HBoxContainer" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Reward1" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reward 1"
+
+[node name="Reward2" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reward 2"
+
+[node name="Reward3" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reward 3"
+
+[node name="RewardState" type="Label" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="RewardContinue" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+text = "Continue"
+
+[node name="TransitionToastLayer" type="Control" parent="CombatHud"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ToastStrip" type="CenterContainer" parent="CombatHud/TransitionToastLayer"]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 120.0
+grow_horizontal = 2
+
+[node name="ToastPanel" type="PanelContainer" parent="CombatHud/TransitionToastLayer/ToastStrip"]
+layout_mode = 2
+
+[node name="ToastLabel" type="Label" parent="CombatHud/TransitionToastLayer/ToastStrip/ToastPanel"]
+layout_mode = 2
+text = "Encounter 2 Begins"
