@@ -20,10 +20,10 @@ const DEFEND_BG := Color("#1f3550")
 const DEFEND_BORDER := Color("#7ec6ff")
 const OTHER_BG := Color("#4d3b1f")
 const OTHER_BORDER := Color("#ffd36a")
-const PLAYER_PORTRAIT_PATH := "res://tools/imagegen/output/prototype_ui/player_cat_steward_bust_128.png"
-const ENEMY_PORTRAIT_PATH := "res://tools/imagegen/output/pixellab/characters/badger_warden/rotations/south.png"
-const CREST_PATH := "res://tools/imagegen/output/test_pack_a/ui_crest_steward_064.png"
-const REWARD_SEAL_PATH := "res://tools/imagegen/output/prototype_ui/reward_wax_seal_centered_112.png"
+const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png"
+const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
+const CREST_PATH := "res://src/ui/combat_hud/assets/banner_crest_steward_064.png"
+const REWARD_SEAL_PATH := "res://src/ui/combat_hud/assets/reward_wax_seal_centered_112.png"
 
 var runner: Variant
 var previous_vm: Dictionary = {}

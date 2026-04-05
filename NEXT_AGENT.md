@@ -26,8 +26,9 @@ What just landed
 Files most relevant right now
 - `scenes/combat/combat_slice.tscn`
 - `src/ui/combat_hud/combat_hud_controller.gd`
+- `src/ui/combat_hud/assets/`
 - `src/bootstrap/combat_slice_runner.gd`
-- `tools/imagegen/output/prototype_ui/`
+- `tools/imagegen/output/prototype_ui/` (source/generated crops only, not the tracked runtime copies)
 
 Important implementation notes
 - The new juice is intentionally presentation-only.
