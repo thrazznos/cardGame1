@@ -26,6 +26,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(report_line, "missing DETERMINISM_REPORT output")
         return json.loads(report_line)
 
+    def _run_draw_log_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_draw_log_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("DRAW_LOG_PROBE="):
+                probe_line = line[len("DRAW_LOG_PROBE="):]
+        self.assertTrue(probe_line, "missing DRAW_LOG_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -79,6 +97,12 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(report["run_master_deck_size"], 11)
         self.assertEqual(report["reward_selected_card_id"], "")
         self.assertEqual(len(report["reward_offer_card_ids"]), 3)
+
+    def test_draw_effect_event_log_includes_drawn_card_id(self):
+        probe = self._run_draw_log_probe()
+        self.assertTrue(probe.get("ok"))
+        self.assertEqual(probe.get("drawn_card"), "strike_probe")
+        self.assertIn("Drew: strike_probe.", probe.get("effect_resolve_line", ""))
 
 
 if __name__ == "__main__":

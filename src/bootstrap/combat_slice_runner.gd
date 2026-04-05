@@ -27,6 +27,7 @@ var reward_draft: Variant
 var hud: Variant
 
 var event_stream: Array[Dictionary] = []
+var effect_resolve_draw_annotations: Dictionary = {}
 
 var player_hp: int = PLAYER_MAX_HP
 var player_block: int = 0
@@ -63,6 +64,7 @@ func _ready() -> void:
 func reset_battle(seed_root: int = 13371337) -> void:
 	rng.bootstrap(seed_root)
 	event_stream.clear()
+	effect_resolve_draw_annotations.clear()
 
 	tsre.phase = tsre.PHASE_TURN_START
 	tsre.turn_index = 1
@@ -252,13 +254,16 @@ func _resolve_queue_once() -> void:
 	last_resolved_queue_item = item.duplicate(true)
 	var effect: Dictionary = item.get("effect", {})
 	var result: Dictionary = erp.resolve_effect(effect, {})
-	_apply_effect_result(result)
+	var drawn_cards: Array = _apply_effect_result(result)
 	dls.finalize_play(str(item.get("source_instance_id", "")), "discard")
 	_record_event("effect_resolve", {"item": item, "result": result})
+	if not drawn_cards.is_empty():
+		effect_resolve_draw_annotations[event_stream.size() - 1] = drawn_cards.duplicate(true)
 
-func _apply_effect_result(result: Dictionary) -> void:
+func _apply_effect_result(result: Dictionary) -> Array:
+	var drawn_cards: Array = []
 	if not result.get("ok", false):
-		return
+		return drawn_cards
 	var delta: Dictionary = result.get("delta", {})
 	if delta.has("hp_delta"):
 		# Negative hp_delta means damage to enemy in this prototype.
@@ -271,7 +276,10 @@ func _apply_effect_result(result: Dictionary) -> void:
 		player_block += int(delta.get("block_delta", 0))
 	if delta.has("draw_n"):
 		for _i in range(int(delta.get("draw_n", 0))):
-			dls.draw_one()
+			var drawn: Variant = dls.draw_one()
+			if drawn != null:
+				drawn_cards.append(str(drawn))
+	return drawn_cards
 
 func _check_combat_end() -> void:
 	if combat_result != "in_progress":
@@ -564,13 +572,17 @@ func _format_event_line(event: Dictionary) -> String:
 			]
 		"effect_resolve":
 			var item: Dictionary = payload.get("item", {})
-			return "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
+			var base_line := "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
 				order_index,
 				str(item.get("source_instance_id", "-")),
 				int(item.get("timing_window_priority", 0)),
 				int(item.get("speed_class_priority", 0)),
 				int(item.get("enqueue_sequence_id", 0)),
 			]
+			var drawn_cards: Array = effect_resolve_draw_annotations.get(order_index, [])
+			if not drawn_cards.is_empty():
+				return "%s Drew: %s." % [base_line, ", ".join(drawn_cards)]
+			return base_line
 		"enemy_attack":
 			return "#%d Enemy hit for %d (%d blocked, %d HP lost)." % [
 				order_index,
