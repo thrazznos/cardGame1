@@ -1,0 +1,277 @@
+Dungeon Steward rules engine: formal state machine and timing model (MVP)
+
+1) Design goals
+- Deterministic simulation: same initial state + same inputs => identical result.
+- Order-sensitive interactions resolved with explicit windows and tie-breakers.
+- No race conditions: all effects run through one serialized event pipeline.
+- Practical MVP: finite phase graph, explicit priority passing, APNAP ordering, deterministic RNG.
+
+2) Core simulation model
+- Simulation is single-threaded and tick-based.
+- A tick is one atomic state transition caused by:
+  a) a player choice input, or
+  b) resolution of one queued event/effect.
+- No direct mutation outside the reducer.
+
+State (minimal)
+- match_id
+- turn_number
+- active_player_id
+- phase (enum)
+- priority_player_id (or null)
+- pass_streak_count
+- event_seq_counter (monotonic uint64)
+- rng_master_seed (uint128 or uint64)
+- players[] with stable seat_index
+- zones (hand, deck, board, discard, exile, stack)
+- continuous_effect_layers (optional MVP-lite)
+- pending_triggers (ordered list)
+- event_queue (priority queue or stable deque with sortable keys)
+- choice_request (null or pending prompt)
+- winner (null or player/team)
+
+Entity identity
+- Every card/permanent/effect has immutable object_id.
+- Zone changes create a new instance_id if needed (prevents stale references).
+
+3) Turn/phase state machine
+Phase order (strict):
+1. TURN_START
+2. READY
+3. UPKEEP
+4. DRAW
+5. MAIN_1
+6. COMBAT_START
+7. DECLARE_ATTACKERS
+8. DECLARE_BLOCKERS
+9. COMBAT_DAMAGE
+10. COMBAT_END
+11. MAIN_2
+12. END_STEP
+13. CLEANUP
+14. TURN_END (handoff)
+
+Phase transitions
+- Transition is allowed only when:
+  a) event_queue empty,
+  b) stack empty (if separate from queue),
+  c) no unresolved choice_request,
+  d) both players passed on empty actionable window (where applicable).
+- On entering each phase:
+  1) emit PhaseBegin(phase)
+  2) run state-based checks
+  3) collect and enqueue triggers for "at phase begin"
+  4) open priority window if phase is interactive
+- On leaving each phase:
+  1) emit PhaseEnd(phase)
+  2) run state-based checks
+  3) collect and enqueue triggers for "at phase end"
+
+Interactive phases for MVP
+- MAIN_1, COMBAT_START, DECLARE_ATTACKERS, DECLARE_BLOCKERS, MAIN_2, END_STEP
+Non-interactive unless triggers exist
+- TURN_START, READY, UPKEEP, DRAW, COMBAT_DAMAGE, COMBAT_END, CLEANUP, TURN_END
+
+Combat windows
+- COMBAT_START: "at combat start" triggers, then priority.
+- DECLARE_ATTACKERS: active player declares attackers as a single atomic action; emit AttackersDeclared; then triggers; then priority.
+- DECLARE_BLOCKERS: defending player declares blockers atomically; emit BlockersDeclared; then triggers; then priority.
+- COMBAT_DAMAGE: assign then deal damage in deterministic packet order; emit DamageDealt packets; then death/state checks; then triggers; then priority only if rules allow post-damage responses in this phase.
+- COMBAT_END: end-of-combat triggers and cleanup of temporary combat flags.
+
+Cleanup
+- Discard to hand size, remove end-of-turn effects/marks, clear damage (if game rules require), then state-based checks.
+- If any trigger generated during cleanup, create an extra cleanup loop (repeat CLEANUP) until no new triggers and no pending actions.
+
+4) Trigger windows and timing classes
+Timing classes (resolution precedence)
+1. Replacement/Prevention (applied during event construction; no queue priority contest)
+2. Immediate state-based actions (SBA) (checked after every atomic resolution)
+3. Triggered abilities (queued)
+4. Activated/played actions (require priority and explicit player input)
+
+Trigger generation rule
+- After every atomic event resolves, engine:
+  1) snapshots emitted event facts
+  2) scans trigger listeners
+  3) appends matched triggers to pending_triggers with metadata
+  4) transfers pending_triggers into event_queue using ordering policy
+
+Trigger ordering policy
+- APNAP blocks: active player triggers first as a block, then next seat order.
+- Within a player block: controller chooses order (explicit choice; if omitted, stable by source object_id ascending).
+- Final deterministic key for queued trigger item:
+  (timing_bucket, apnap_index, player_chosen_index, created_tick, event_seq, source_object_id)
+
+5) Priority model
+Priority window lifecycle
+- open_priority_window(start_player):
+  priority_player_id = start_player
+  pass_streak_count = 0
+- Priority rotates in seat order among alive players.
+- On action taken (play card, activate ability, special action):
+  pass_streak_count = 0
+  enqueue resulting event(s)
+  priority returns to acting player only if rules specify; default next resolution step handles it.
+- On pass:
+  pass_streak_count += 1
+  if pass_streak_count == number_of_players_with_priority:
+     if stack/event_queue has resolvable top item:
+        resolve one top item; reopen priority with active player
+     else:
+        close window; advance phase
+  else:
+     priority_player_id = next player in seat order
+
+MVP simplification
+- Two-player assumed, but algorithm supports N players.
+- Hidden info choices must be committed as explicit Choice events.
+
+6) Event queue and deterministic ordering
+Queue item fields
+- event_id = event_seq_counter++
+- kind
+- timing_bucket (integer; lower resolves first)
+- created_tick
+- source_player_seat
+- source_object_id
+- payload
+
+Deterministic comparator
+Sort ascending by:
+1) timing_bucket
+2) created_tick
+3) event_id
+4) source_player_seat
+5) source_object_id
+
+Rationale
+- event_id monotonic guarantees stability even if same tick.
+- Extra fields make replay/debug robust.
+
+No simultaneous mutation rule
+- "Simultaneous" effects are represented as a batch event with deterministic internal order key:
+  (affected_controller_apnap, zone_priority, object_id).
+
+7) Tie-breakers (global)
+When rules do not specify order:
+1) APNAP seat order
+2) Controller choice (recorded choice event)
+3) Stable object_id ascending
+4) event_id ascending
+5) If still tied (should not happen), lexical hash of serialized effect text (engine warning)
+
+Target legality on resolution
+- If all targets illegal: counter event/effect by rules.
+- If some legal: resolve on legal subset in payload target order.
+- Target order default: declaration order; fallback object_id ascending.
+
+8) Deterministic RNG model
+Requirements
+- Reproducible across platforms.
+- Insensitive to unrelated effect reordering where possible.
+
+PRNG choice
+- Use a specified algorithm with fixed constants (example: PCG32 or xoshiro256**).
+- All arithmetic defined on fixed-width unsigned integers.
+
+RNG API
+- rand(stream_tag, n) -> uint in [0, n)
+- stream_tag is deterministic context label, for example:
+  "shuffle:p1:deck:game_start"
+  "effect:obj123:resolve:event456"
+
+Stream derivation
+- stream_seed = Hash64(rng_master_seed || stream_tag)
+- each stream keeps local counter; next() deterministic.
+- Prevents cross-feature RNG drift (a new cosmetic roll does not alter combat RNG).
+
+Shuffle procedure
+- Fisher-Yates using rand("shuffle:...", i+1)
+- Log each swap index in replay for audit (optional but recommended).
+
+Network/replay
+- Persist:
+  initial seed, all player choices, and authoritative event log.
+- Re-simulate from seed+choices for verification.
+
+9) Formal turn tick pseudocode
+
+function game_loop(state):
+  while state.winner == null:
+    if state.choice_request != null:
+      input = wait_for_player_input(state.choice_request)
+      state = apply_choice_as_event(state, input)
+      continue
+
+    state = process_state_based_actions(state)
+    state = collect_and_enqueue_triggers(state)
+
+    if has_resolvable_event(state):
+      state = resolve_next_event(state)
+      continue
+
+    if phase_needs_priority(state.phase):
+      if state.priority_player_id == null:
+        state = open_priority_window(state, state.active_player_id)
+      action = request_priority_action_or_pass(state, state.priority_player_id)
+      state = apply_priority_decision(state, action)
+      continue
+
+    state = advance_phase_or_turn(state)
+
+  return state
+
+10) Event processing pseudocode
+
+function resolve_next_event(state):
+  event = pop_min(state.event_queue, deterministic_comparator)
+  state.current_tick += 1
+
+  event = apply_replacement_and_prevention(state, event)
+  if event.cancelled:
+    return state
+
+  state = execute_event_payload(state, event)
+
+  state = process_state_based_actions(state)
+
+  emitted = state.last_emitted_events
+  triggers = find_matching_triggers(state, emitted)
+  ordered = order_triggers_APNAP_with_choices(state, triggers)
+  state = enqueue_events(state, ordered, timing_bucket=TRIGGER)
+
+  return state
+
+function apply_priority_decision(state, action):
+  if action.kind == PASS:
+    state.pass_streak_count += 1
+    if state.pass_streak_count >= players_with_priority_count(state):
+      if has_resolvable_event(state):
+        state = resolve_next_event(state)
+        return open_priority_window(state, state.active_player_id)
+      else:
+        return close_window_and_advance_phase(state)
+    else:
+      state.priority_player_id = next_priority_player(state)
+      return state
+
+  else:
+    state.pass_streak_count = 0
+    state = enqueue_events_from_action(state, action)
+    state.priority_player_id = next_priority_player(state)
+    return state
+
+11) MVP constraints and integration notes
+- Keep one unified event pipeline now; add layered continuous effects later.
+- Log every transition as append-only records:
+  TickStart, EventPopped, EventResolved, SBAApplied, TriggerQueued, PriorityPassed, PhaseAdvanced, RNGUsed.
+- This spec is compatible with a future effect DSL by mapping each DSL instruction to queue events.
+
+12) Invariants (must hold)
+- event_id strictly increases.
+- Only reducer mutates state.
+- After each atomic resolution: SBA check always runs before new priority.
+- No phase advance while queue/stack unresolved.
+- Every RNG call specifies stream_tag and is logged.
+- Replay of same seed + choices yields byte-identical final state hash.

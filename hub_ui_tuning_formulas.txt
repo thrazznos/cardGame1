@@ -1,0 +1,173 @@
+Hub UI readability/performance + progression UX tuning spec
+
+Goals
+- Keep UI scannable at varying device sizes and zoom levels.
+- Prevent clutter/choice overload while preserving transparent progression info.
+- Maintain trustworthy feedback timing (fast acknowledgement + honest completion states).
+- Support accessible scaling (font, spacing, hit targets, motion reduction).
+
+1) Core runtime signals
+- vw, vh: viewport width/height in CSS px
+- dpr: devicePixelRatio
+- z: browser zoom proxy = window.visualViewport.scale (fallback 1)
+- perfTier: 0..2 (low/mid/high), estimated from moving average of frame time + hardwareConcurrency + memory hints
+- rtt: network round-trip estimate (ms) from navigator.connection.rtt or observed fetch timing
+- errRate: transaction error ratio over rolling window [0..1]
+- a11yScale: user-selected accessibility scale [1.0..1.6]
+- reducedMotion: prefers-reduced-motion boolean
+
+2) Readability model (base sizes)
+Base font size formula:
+- fontBasePx = clamp(14, 15.5 + 0.0035*(vw-1280), 18) * a11yScale
+  - Practical defaults:
+    - Desktop 1280: ~15.5px
+    - Laptop 1024: ~14.6px
+    - Wide 1920: ~17.7px (cap 18)
+
+Line height:
+- lineHeight = clamp(1.35, 1.45 + 0.05*(a11yScale-1), 1.65)
+
+Minimum target size (click/tap):
+- hitTargetPx = clamp(40, 42*a11yScale, 56)
+  - If coarse pointer => enforce >=44
+
+3) Card/list density knobs
+Density profile d in {-1,0,+1} where -1=comfortable, 0=default, +1=compact
+
+Row/card vertical rhythm:
+- rowHeightPx = roundTo2(clamp(44, (2.6*fontBasePx + 8) * (1 - 0.08*d), 84))
+  - compact lowers by ~8%, comfortable raises by ~8%
+
+Card padding:
+- padPx = round(clamp(10, (0.75*fontBasePx) * (1 - 0.10*d), 22))
+
+Columns in card grid:
+- idealCardWidth = clamp(260, 18*fontBasePx, 380)
+- cols = clamp(1, floor((vw - gutter*2 + gap)/(idealCardWidth + gap)), 6)
+  where gap = clamp(8, 0.7*fontBasePx, 20), gutter = clamp(12, 0.9*fontBasePx, 28)
+
+Max visible metadata lines per card (anti-clutter):
+- metaLines = clamp(1, round(2 - 0.5*d - 0.5*(a11yScale-1)), 3)
+- Hide lower-priority chips first when overflow; never hide primary status/progression marker.
+
+List scan budget:
+- aim 7–12 visible rows per viewport for decision lists
+- visibleRows = floor((vh - header - footer - filters)/rowHeightPx)
+- If visibleRows < 6 => switch to compact summary mode (fewer columns, expandable row details)
+- If visibleRows > 14 => increase whitespace slightly (+4%) for readability
+
+4) Preview depth limits (progression transparency without overload)
+Define progression graph depth preview D and breadth B.
+
+Base limits by context:
+- quick glance panel: D=1, B=3
+- detail drawer: D=2, B=4
+- full progression page: D=3, B=6
+
+Adaptive depth formula:
+- complexityScore C = 0.5*log2(totalNodes+1) + 0.3*branchingFactor + 0.2*uncertainty
+- Dmax = clamp(1, round(3 - 0.45*(C-2) - 0.6*(a11yScale-1) - 0.5*(perfTier==0)), 4)
+- Bmax = clamp(2, round(6 - 0.8*(C-2) - 1.0*(a11yScale-1) - 1*(perfTier==0)), 8)
+
+Anti-clutter collapse behavior:
+- Always show immediate next unlock(s), locked prerequisites summary, and confidence/requirements.
+- Collapse deeper branches into “+N downstream outcomes” nodes.
+- Expand-on-demand with optimistic placeholder skeletons.
+- Preserve trust: show deterministic vs probabilistic outcomes with separate badges.
+
+5) Input latency budgets and degradation rules
+Targets (RAIL-aligned, browser-safe):
+- Input acknowledgment (visual press/hover state): <=50ms p95
+- UI response for local interactions (sort/filter/open panel): <=100ms p95
+- Keystroke-to-first-result (search): <=150ms p95, <=250ms p99
+- Frame budget: 16.7ms at 60Hz, soft budget 8ms JS + 4ms style/layout + 4ms paint
+
+Debounce/throttle defaults:
+- text search debounce = clamp(60, 120 + 0.2*rtt - 20*perfTier, 220) ms
+- slider/drag throttling: requestAnimationFrame, commit every 80–120ms when busy
+- network-triggering toggles: no debounce for ack, batch commits in 75ms micro-batch window
+
+Performance guardrails:
+- If long tasks > 2 per 10s or avg frame time > 20ms:
+  - reduce shadows/blur levels
+  - reduce live preview frequency (e.g., 10Hz -> 4Hz)
+  - lower Dmax/Bmax by 1
+  - disable non-essential count-up animations
+
+6) Transaction feedback timing (trust + responsiveness)
+For actions with server round-trip:
+
+Stage timings:
+- 0–100ms: immediate optimistic affordance (button state change, inline spinner)
+- 100–400ms: keep inline “Saving...” / “Applying...” text
+- >400ms: show progress detail or skeleton + cancel/undo if possible
+- >1200ms: escalate with explicit status (“Still working, safe to continue browsing”)
+- >4000ms: actionable recovery hint (retry, fallback, status link)
+
+Success confirmation dwell:
+- fast success toast dwell = clamp(900, 1200 + 0.3*rtt, 2200) ms
+- destructive/sensitive action success = min 1800ms and include reference id where relevant
+
+Failure messaging:
+- show concrete reason class: validation/network/permission/conflict
+- auto-retry only idempotent requests; max 2 retries with jittered backoff
+- expose “last synced” timestamp for progression-affecting writes
+
+Optimistic UI policy:
+- allow optimistic only for reversible low-risk actions
+- for irreversible progression commits: show immediate pending state, finalize only on server ack
+- always retain visible audit crumb (“Changed 12s ago”, actor, source)
+
+7) Accessibility scaling and motion controls
+Scale families:
+- typographyScale = a11yScale
+- spacingScale = 1 + 0.6*(a11yScale-1)
+- iconScale = 1 + 0.5*(a11yScale-1)
+
+Component scaling:
+- cardMinWidthScaled = cardMinWidth * (1 + 0.35*(a11yScale-1))
+- chip truncation threshold decreases as a11yScale rises; prefer wrapping before truncating key labels.
+
+Contrast and state clarity:
+- enforce WCAG AA contrast for text and non-text controls
+- never encode progression status by color alone; include icon + label + tooltip/aria-describedby
+
+Reduced motion:
+- if reducedMotion: transition durations <=120ms, no parallax/spring; use opacity fades only
+
+8) Suggested default presets
+Preset Compact (expert/high-density)
+- d=+1, D/B baseline -1, search debounce 80ms, reduced adornments
+
+Preset Balanced (default)
+- d=0, D/B standard, search debounce 120ms
+
+Preset Accessible
+- d=-1, a11yScale >=1.2, D/B -1, larger hit targets 48+, slower but clearer transitions
+
+9) Telemetry + tuning loop
+Track p50/p95:
+- inputAckMs, interactionCompleteMs, searchTTFR, txnPendingMs, txnFailRate, expansionRate, undoRate, rageClickRate
+
+Adaptive tuning rules (weekly or online):
+- If rageClickRate > 2% and inputAckMs p95 > 60ms => prioritize ack rendering path, reduce JS on input thread
+- If expansionRate on collapsed progression > 35% => raise Bmax by 1 in that context
+- If undoRate > 8% for optimistic actions => narrow optimistic policy scope
+- If error-related abandonment rises with depth => lower Dmax and improve prerequisite summaries
+
+10) Implementation notes (browser-safe)
+- Prefer CSS clamp(), container queries, content-visibility:auto for long lists.
+- Use virtualization after >80 list rows or >40 complex cards in DOM.
+- Reserve layout space for async states to avoid Cumulative Layout Shift.
+- Keep progression decision card deterministic fields pinned at top: cost, requirement, outcome confidence.
+
+Quick starter constants
+- fontBasePx default 16
+- rowHeight default 52
+- card padding 12–16
+- quick preview D/B = 1/3
+- detail preview D/B = 2/4
+- input ack budget 50ms p95
+- search debounce 120ms (adaptive 60–220)
+- escalation threshold 1200ms
+- a11yScale default 1.0, range 1.0–1.6
