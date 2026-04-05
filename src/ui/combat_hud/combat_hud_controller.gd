@@ -7,14 +7,18 @@ func bind_runner(runtime_runner: Variant) -> void:
 	runner = runtime_runner
 
 func _ready() -> void:
-	if has_node("VBox/Buttons/PlayStrike"):
-		$VBox/Buttons/PlayStrike.pressed.connect(_on_play_strike)
-	if has_node("VBox/Buttons/PlayDefend"):
-		$VBox/Buttons/PlayDefend.pressed.connect(_on_play_defend)
 	if has_node("VBox/Buttons/Pass"):
 		$VBox/Buttons/Pass.pressed.connect(_on_pass)
 	if has_node("VBox/Buttons/Restart"):
 		$VBox/Buttons/Restart.pressed.connect(_on_restart)
+	_connect_hand_buttons()
+
+func _connect_hand_buttons() -> void:
+	if not has_node("VBox/HandButtons"):
+		return
+	for child in $VBox/HandButtons.get_children():
+		if child is Button:
+			child.pressed.connect(_on_hand_card_pressed.bind(child))
 
 func refresh(vm: Dictionary) -> void:
 	if has_node("VBox/Title"):
@@ -28,18 +32,40 @@ func refresh(vm: Dictionary) -> void:
 	if has_node("VBox/Hand"):
 		var hand: Array = vm.get("hand", [])
 		$VBox/Hand.text = "Hand: %s" % [", ".join(hand)]
+	if has_node("VBox/EventLog"):
+		$VBox/EventLog.text = "Last: %s" % [str(vm.get("last_event_text", "-"))]
 	if has_node("VBox/Hint"):
-		$VBox/Hint.text = "Strike/Defend cost 1 Energy. Pass ends player turn."
+		$VBox/Hint.text = "Click a card button to play. Strike/Defend cost 1 Energy."
+	_refresh_hand_buttons(vm)
 
-func _on_play_strike() -> void:
+func _refresh_hand_buttons(vm: Dictionary) -> void:
+	if not has_node("VBox/HandButtons"):
+		return
+	var hand: Array = vm.get("hand", [])
+	var energy: int = int(vm.get("energy", 0))
+	var active: bool = str(vm.get("combat_result", "in_progress")) == "in_progress"
+	var buttons := $VBox/HandButtons.get_children()
+	for i in range(buttons.size()):
+		var b = buttons[i]
+		if not (b is Button):
+			continue
+		if i < hand.size():
+			var card_id: String = str(hand[i])
+			b.text = "Play %s" % [card_id]
+			b.set_meta("card_id", card_id)
+			b.disabled = (not active) or energy <= 0
+		else:
+			b.text = "(empty)"
+			b.set_meta("card_id", "")
+			b.disabled = true
+
+func _on_hand_card_pressed(button: Button) -> void:
 	if runner == null:
 		return
-	runner.player_play_card("strike_01")
-
-func _on_play_defend() -> void:
-	if runner == null:
+	var card_id: String = str(button.get_meta("card_id", ""))
+	if card_id == "":
 		return
-	runner.player_play_card("defend_01")
+	runner.player_play_card(card_id)
 
 func _on_pass() -> void:
 	if runner == null:

@@ -50,6 +50,34 @@ text = "Enemy"
 layout_mode = 2
 text = "Hand"
 
+[node name="HandButtons" type="HBoxContainer" parent="CombatHud/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Card1" type="Button" parent="CombatHud/VBox/HandButtons"]
+layout_mode = 2
+text = "(empty)"
+
+[node name="Card2" type="Button" parent="CombatHud/VBox/HandButtons"]
+layout_mode = 2
+text = "(empty)"
+
+[node name="Card3" type="Button" parent="CombatHud/VBox/HandButtons"]
+layout_mode = 2
+text = "(empty)"
+
+[node name="Card4" type="Button" parent="CombatHud/VBox/HandButtons"]
+layout_mode = 2
+text = "(empty)"
+
+[node name="Card5" type="Button" parent="CombatHud/VBox/HandButtons"]
+layout_mode = 2
+text = "(empty)"
+
+[node name="EventLog" type="Label" parent="CombatHud/VBox"]
+layout_mode = 2
+text = "Last: Battle ready"
+
 [node name="Hint" type="Label" parent="CombatHud/VBox"]
 layout_mode = 2
 text = "Hint"
@@ -57,14 +85,6 @@ text = "Hint"
 [node name="Buttons" type="HBoxContainer" parent="CombatHud/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
-
-[node name="PlayStrike" type="Button" parent="CombatHud/VBox/Buttons"]
-layout_mode = 2
-text = "Play Strike"
-
-[node name="PlayDefend" type="Button" parent="CombatHud/VBox/Buttons"]
-layout_mode = 2
-text = "Play Defend"
 
 [node name="Pass" type="Button" parent="CombatHud/VBox/Buttons"]
 layout_mode = 2

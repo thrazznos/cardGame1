@@ -29,6 +29,7 @@ var enemy_block: int = 0
 var energy: int = TURN_ENERGY
 var enemy_intent_damage: int = 6
 var combat_result: String = "in_progress"
+var last_event_text: String = "Battle ready"
 
 func _ready() -> void:
 	tsre = TSRE_SCRIPT.new()
@@ -55,6 +56,7 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	enemy_block = 0
 	energy = TURN_ENERGY
 	combat_result = "in_progress"
+	last_event_text = "Battle ready"
 
 	_bootstrap_demo_state()
 	enemy_intent_damage = _roll_enemy_intent_damage()
@@ -85,6 +87,7 @@ func get_view_model() -> Dictionary:
 		"enemy_intent_damage": enemy_intent_damage,
 		"hand": dls.hand.duplicate(true),
 		"combat_result": combat_result,
+		"last_event_text": last_event_text,
 	}
 
 func refresh_hud() -> void:
@@ -306,6 +309,7 @@ func _hand_has_exact(card_id: String) -> bool:
 	return false
 
 func _record_event(kind: String, payload: Dictionary) -> void:
+	last_event_text = "%s %s" % [kind, JSON.stringify(payload)]
 	event_stream.append({
 		"order_index": event_stream.size(),
 		"kind": kind,
