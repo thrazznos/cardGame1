@@ -206,6 +206,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing REWARD_POOL_PROBE output")
         return json.loads(probe_line)
 
+    def _run_hybrid_payoff_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_hybrid_payoff_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("HYBRID_PAYOFF_PROBE="):
+                probe_line = line[len("HYBRID_PAYOFF_PROBE="):]
+        self.assertTrue(probe_line, "missing HYBRID_PAYOFF_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -350,6 +368,19 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         probe = self._run_reward_pool_probe()
         self.assertFalse(probe.get("normal_has_gsm"))
         self.assertTrue(probe.get("gsm_all_are_gsm"))
+
+    def test_hybrid_cards_resolve_combat_and_gem_effects_together(self):
+        probe = self._run_hybrid_payoff_probe()
+        self.assertEqual(probe.get("enemy_hp_after"), 15)
+        self.assertEqual(probe.get("player_block_after"), 7)
+        self.assertEqual(probe.get("focus_after"), 1)
+        self.assertEqual(probe.get("stack_after"), ["Ruby"])
+        self.assertEqual(probe.get("resolve_count_ruby_strike"), 2)
+        self.assertEqual(probe.get("resolve_count_sapphire_guard"), 2)
+        self.assertEqual(probe.get("resolve_count_focus_guard"), 2)
+        self.assertEqual(probe.get("resolve_count_sapphire_burst"), 2)
+        self.assertIn("Hybrid", probe.get("hybrid_button_text", ""))
+        self.assertIn("Produce 1 Ruby", probe.get("hybrid_button_text", ""))
 
 
 if __name__ == "__main__":

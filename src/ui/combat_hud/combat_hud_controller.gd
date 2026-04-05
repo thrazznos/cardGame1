@@ -724,6 +724,14 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 
 func _card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return "%s Hybrid Ember Cut\nHybrid • 4 dmg + Produce 1 Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "%s Hybrid Azure Wall\nHybrid • 4 block + Produce 1 Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "%s Hybrid Anchor Focus\nHybrid • 3 block + Gain FOCUS 1 • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "%s Hybrid Tidal Burst\nHybrid • 5 dmg + Consume top Sapphire • Cost 1" % marker
 	if card_id.begins_with("gem_produce_ruby"):
 		return "%s Ember Jab\nGem setup • Produce 1 Ruby • Cost 1" % marker
 	if card_id.begins_with("gem_produce_sapphire"):
@@ -746,6 +754,14 @@ func _card_button_text(card_id: String) -> String:
 
 func _card_tooltip(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return "%s Hybrid attack: deal 4 damage and produce 1 Ruby." % marker
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "%s Hybrid defense: gain 4 block and produce 1 Sapphire." % marker
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "%s Hybrid stability: gain 3 block and FOCUS 1." % marker
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "%s Hybrid finisher: deal 5 damage and consume top Sapphire." % marker
 	if card_id.begins_with("gem_produce_ruby"):
 		return "%s Gem producer: add 1 Ruby to the stack." % marker
 	if card_id.begins_with("gem_produce_sapphire"):
@@ -768,6 +784,14 @@ func _card_tooltip(card_id: String) -> String:
 
 func _reward_card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return "%s Hybrid Ember Cut\nAdd to deck • 4 dmg + Produce Ruby • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "%s Hybrid Azure Wall\nAdd to deck • 4 block + Produce Sapphire • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "%s Hybrid Anchor Focus\nAdd to deck • 3 block + FOCUS 1 • Cost 1" % marker
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "%s Hybrid Tidal Burst\nAdd to deck • 5 dmg + Consume Sapphire • Cost 1" % marker
 	if card_id.begins_with("gem_produce_ruby"):
 		return "%s Ember Jab\nAdd to deck • Produce 1 Ruby • Cost 1" % marker
 	if card_id.begins_with("gem_produce_sapphire"):
@@ -792,6 +816,12 @@ func _reward_card_tooltip(card_id: String) -> String:
 	return "%s\nReward effect: permanently add this card to your run deck." % _card_tooltip(card_id)
 
 func _card_role_marker(card_id: String) -> String:
+	if card_id.begins_with("gem_hybrid_ruby_strike") or card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "[ATK]"
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "[DEF]"
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "[UTL]"
 	if card_id.begins_with("gem_produce_ruby") or card_id.begins_with("gem_consume_top_ruby"):
 		return "[ATK]"
 	if card_id.begins_with("gem_produce_sapphire") or card_id.begins_with("gem_consume_top_sapphire"):
@@ -803,6 +833,14 @@ func _card_role_marker(card_id: String) -> String:
 	return "[UTL]"
 
 func _card_display_name(card_id: String) -> String:
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return "Hybrid Ember Cut"
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "Hybrid Azure Wall"
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "Hybrid Anchor Focus"
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "Hybrid Tidal Burst"
 	if card_id.begins_with("gem_produce_ruby"):
 		return "Ember Jab"
 	if card_id.begins_with("gem_produce_sapphire"):

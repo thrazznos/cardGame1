@@ -289,13 +289,30 @@ func _resolve_queue_once() -> void:
 		return
 	var item: Dictionary = queue.dequeue()
 	last_resolved_queue_item = item.duplicate(true)
-	var effect: Dictionary = item.get("effect", {})
-	var result: Dictionary = erp.resolve_effect(effect, {"gsm": gsm})
-	var drawn_cards: Array = _apply_effect_result(result)
+	var effect_payload: Variant = item.get("effect", {})
+	var effect_list: Array = []
+	var is_multi_effect: bool = effect_payload is Array
+	if is_multi_effect:
+		effect_list = (effect_payload as Array)
+	elif effect_payload is Dictionary:
+		effect_list = [effect_payload]
+	else:
+		effect_list = [{"type": "draw_n", "amount": 0}]
+
+	for effect_entry in effect_list:
+		if not (effect_entry is Dictionary):
+			continue
+		var effect: Dictionary = effect_entry
+		var result: Dictionary = erp.resolve_effect(effect, {"gsm": gsm})
+		var drawn_cards: Array = _apply_effect_result(result)
+		if is_multi_effect:
+			_record_event("effect_resolve", {"item": item, "effect": effect, "result": result})
+		else:
+			_record_event("effect_resolve", {"item": item, "result": result})
+		if not drawn_cards.is_empty():
+			effect_resolve_draw_annotations[event_stream.size() - 1] = drawn_cards.duplicate(true)
+
 	dls.finalize_play(str(item.get("source_instance_id", "")), "discard")
-	_record_event("effect_resolve", {"item": item, "result": result})
-	if not drawn_cards.is_empty():
-		effect_resolve_draw_annotations[event_stream.size() - 1] = drawn_cards.duplicate(true)
 
 func _apply_effect_result(result: Dictionary) -> Array:
 	var drawn_cards: Array = []
@@ -509,11 +526,31 @@ func _apply_step(step: Dictionary) -> void:
 		_:
 			_record_event("unknown_action", step)
 
-func _card_to_effect(card_id: String) -> Dictionary:
+func _card_to_effect(card_id: String) -> Variant:
 	if card_id.begins_with("strike"):
 		return {"type": "deal_damage", "amount": 6}
 	if card_id.begins_with("defend"):
 		return {"type": "gain_block", "amount": 5}
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return [
+			{"type": "deal_damage", "amount": 4},
+			{"type": "gem_produce", "gem": "Ruby", "count": 1},
+		]
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return [
+			{"type": "gain_block", "amount": 4},
+			{"type": "gem_produce", "gem": "Sapphire", "count": 1},
+		]
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return [
+			{"type": "gain_block", "amount": 3},
+			{"type": "gem_gain_focus", "amount": 1},
+		]
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return [
+			{"type": "deal_damage", "amount": 5},
+			{"type": "gem_consume_top", "gem": "Sapphire"},
+		]
 	if card_id.begins_with("gem_produce_ruby"):
 		return {"type": "gem_produce", "gem": "Ruby", "count": 1}
 	if card_id.begins_with("gem_produce_sapphire"):
@@ -610,6 +647,14 @@ func _reward_offer_has_card(card_id: String) -> bool:
 	return false
 
 func _display_name_for_card(card_id: String) -> String:
+	if card_id.begins_with("gem_hybrid_ruby_strike"):
+		return "Hybrid Ember Cut"
+	if card_id.begins_with("gem_hybrid_sapphire_guard"):
+		return "Hybrid Azure Wall"
+	if card_id.begins_with("gem_hybrid_focus_guard"):
+		return "Hybrid Anchor Focus"
+	if card_id.begins_with("gem_hybrid_sapphire_burst"):
+		return "Hybrid Tidal Burst"
 	if card_id.begins_with("gem_produce_ruby"):
 		return "Ember Jab"
 	if card_id.begins_with("gem_produce_sapphire"):
@@ -655,7 +700,7 @@ func _format_event_line(event: Dictionary) -> String:
 		"effect_resolve":
 			var item: Dictionary = payload.get("item", {})
 			var result: Dictionary = payload.get("result", {})
-			var effect: Dictionary = item.get("effect", {})
+			var effect: Dictionary = payload.get("effect", item.get("effect", {}))
 			var effect_type: String = str(effect.get("type", ""))
 			var base_line := "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
 				order_index,
