@@ -1,0 +1,20 @@
+{
+  "fixture_id": "seed_smoke_001",
+  "seed_root": 13371337,
+  "inputs": [
+    {"turn": 1, "action": "play", "card_id": "strike_01", "target": "enemy_01"},
+    {"turn": 1, "action": "pass"},
+    {"turn": 2, "action": "play", "card_id": "defend_01", "target": "self"},
+    {"turn": 2, "action": "pass"}
+  ],
+  "expected": {
+    "final_state_hash": "2133529899",
+    "event_sequence_hash": "2661071376",
+    "rng_cursor_snapshot": {
+      "encounter.intent": 2,
+      "combat.effect.proc": 0,
+      "combat.effect.retarget": 0,
+      "combat.status_chance": 0
+    }
+  }
+}

@@ -1,0 +1,12 @@
+; Engine configuration file.
+; Godot 4.6.2 minimal project scaffold for Sprint 001 combat slice.
+
+config_version=5
+
+[application]
+config/name="Dungeon Steward"
+run/main_scene="res://scenes/combat/combat_slice.tscn"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
