@@ -172,6 +172,8 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Attack card", probe.get("strike_tooltip", ""))
         self.assertIn("Defense card", probe.get("defend_tooltip", ""))
         self.assertIn("Utility card", probe.get("utility_tooltip", ""))
+        self.assertIn("Add to deck", probe.get("reward_strike_text", ""))
+        self.assertIn("permanently add", probe.get("reward_strike_tooltip", ""))
 
     def test_missing_art_uses_non_crashing_placeholder_state(self):
         probe = self._run_art_fallback_probe()

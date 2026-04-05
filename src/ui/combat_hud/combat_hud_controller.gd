@@ -654,8 +654,8 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 		return
 
 	var reward_title: String = "Victory Reward" if reward_state == "presented" else "Checkpoint Complete"
-	var reward_subtitle: String = "Choose 1 of 3 cards to add to your deck." if reward_state == "presented" else "Reward applied."
-	var reward_state_text: String = "Pick one card now. This prototype applies the chosen reward once." if reward_state == "presented" else str(vm.get("reward_summary_text", "Reward applied."))
+	var reward_subtitle: String = "Choose 1 card to permanently add to this run's deck." if reward_state == "presented" else "Reward secured for next encounter."
+	var reward_state_text: String = "Role tags: [ATK] damage, [DEF] block, [UTL] utility. Pick one card." if reward_state == "presented" else str(vm.get("reward_summary_text", "Reward applied."))
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardTitle", reward_title)
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardSubtitle", reward_subtitle)
 	_set_label("RewardOverlay/Center/RewardPanel/RewardVBox/RewardState", reward_state_text)
@@ -670,16 +670,16 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 			var reward: Dictionary = rewards[i]
 			var card_id: String = str(reward.get("card_id", ""))
 			b.visible = true
-			b.text = _card_button_text(card_id)
+			b.text = _reward_card_button_text(card_id)
 			b.set_meta("reward_card_id", card_id)
-			b.tooltip_text = _card_tooltip(card_id)
+			b.tooltip_text = _reward_card_tooltip(card_id)
 			_apply_card_button_style(b, card_id, reward_state != "presented")
 		else:
 			b.visible = false
 
 	var continue_button = get_node_or_null("RewardOverlay/Center/RewardPanel/RewardVBox/RewardContinue")
 	if continue_button is Button:
-		continue_button.text = "Next Encounter"
+		continue_button.text = "Start Next Encounter"
 		continue_button.visible = reward_state == "applied"
 		continue_button.disabled = reward_state != "applied"
 
@@ -698,6 +698,17 @@ func _card_tooltip(card_id: String) -> String:
 	if card_id.begins_with("defend"):
 		return "%s Defense card: gain 5 block." % marker
 	return "%s Utility card: draw 1 card." % marker
+
+func _reward_card_button_text(card_id: String) -> String:
+	var marker: String = _card_role_marker(card_id)
+	if card_id.begins_with("strike"):
+		return "%s Strike\nAdd to deck • Deal 6 dmg • Cost 1" % marker
+	if card_id.begins_with("defend"):
+		return "%s Defend\nAdd to deck • Gain 5 block • Cost 1" % marker
+	return "%s %s\nAdd to deck • Draw 1 • Cost 1" % [marker, _card_display_name(card_id)]
+
+func _reward_card_tooltip(card_id: String) -> String:
+	return "%s\nReward effect: permanently add this card to your run deck." % _card_tooltip(card_id)
 
 func _card_role_marker(card_id: String) -> String:
 	if card_id.begins_with("strike"):

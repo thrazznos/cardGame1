@@ -14,6 +14,8 @@ func _init() -> void:
 		"strike_tooltip": hud.call("_card_tooltip", "strike_01"),
 		"defend_tooltip": hud.call("_card_tooltip", "defend_01"),
 		"utility_tooltip": hud.call("_card_tooltip", "scheme_flow"),
+		"reward_strike_text": hud.call("_reward_card_button_text", "strike_01"),
+		"reward_strike_tooltip": hud.call("_reward_card_tooltip", "strike_01"),
 	}
 	print("CARD_IDENTITY_PROBE=" + JSON.stringify(payload))
 

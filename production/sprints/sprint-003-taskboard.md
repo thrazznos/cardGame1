@@ -29,5 +29,5 @@ Platform: Local native smoke (browser tests removed by direction)
 
 ## Current Focus
 - Must-Have epics complete and validated in local native smoke runs
-- Next: optional S3.S2 reward-card microcopy polish if time remains
-- Then: prepare branch for push/review
+- Optional S3.S2 reward-card microcopy polish completed
+- Next: prepare branch for push/review
