@@ -5,5 +5,7 @@
   "rng_cursor_snapshot": {
     "encounter.intent": 4,
     "reward.card": 3
-  }
+  },
+  "encounter_title": "Encounter 2 \u2022 Warden Counterpush",
+  "encounter_intent_style": "Aggressive opener"
 }

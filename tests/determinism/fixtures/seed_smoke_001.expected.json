@@ -5,5 +5,7 @@
   "rng_cursor_snapshot": {
     "encounter.intent": 3,
     "reward.card": 3
-  }
+  },
+  "encounter_title": "Encounter 1 \u2022 Ambush Patrol",
+  "encounter_intent_style": "Steady pressure"
 }

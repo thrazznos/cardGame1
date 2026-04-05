@@ -10,7 +10,14 @@ def compare_report_to_expected(actual_path: str, expected_path: str) -> dict:
     actual = _read_json(actual_path)
     expected = _read_json(expected_path)
 
-    keys = ["fixture_id", "final_state_hash", "event_sequence_hash", "rng_cursor_snapshot"]
+    keys = [
+        "fixture_id",
+        "final_state_hash",
+        "event_sequence_hash",
+        "rng_cursor_snapshot",
+        "encounter_title",
+        "encounter_intent_style",
+    ]
     mismatches = {}
 
     for key in keys:
