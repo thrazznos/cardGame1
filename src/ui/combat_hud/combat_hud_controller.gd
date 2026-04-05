@@ -566,9 +566,19 @@ func _zones_text(vm: Dictionary) -> String:
 		"Draw %d" % int(zones.get("draw", 0)),
 		"Discard %d" % int(zones.get("discard", 0)),
 		"Exhaust %d" % int(zones.get("exhaust", 0)),
+		"FOCUS %d" % int(vm.get("focus", 0)),
 	]
 	if int(zones.get("limbo", 0)) > 0:
 		lines.append("Limbo %d" % int(zones.get("limbo", 0)))
+
+	var top_window: Array = vm.get("gem_stack_top", [])
+	if top_window.is_empty():
+		lines.append("Gem Top (empty)")
+	else:
+		var gems: Array = []
+		for gem in top_window:
+			gems.append(str(gem))
+		lines.append("Gem Top %s" % " -> ".join(gems))
 	return _join_lines(lines)
 
 func _queue_text(vm: Dictionary) -> String:
@@ -788,6 +798,16 @@ func _reason_text(reason_code: String) -> String:
 			return "This checkpoint reward was already claimed."
 		"ERR_INVALID_REWARD_SELECTION":
 			return "That reward choice is not valid."
+		"ERR_FOCUS_REQUIRED":
+			return "This advanced gem action requires FOCUS."
+		"ERR_STACK_EMPTY":
+			return "The gem stack is empty."
+		"ERR_STACK_TOP_MISMATCH":
+			return "Top gem does not match this card's requirement."
+		"ERR_STACK_TARGET_MISMATCH":
+			return "Targeted gem does not match this card's requirement."
+		"ERR_SELECTOR_INVALID":
+			return "That gem selector is out of range."
 		_:
 			return "UNMAPPED_REASON(%s)" % reason_code
 

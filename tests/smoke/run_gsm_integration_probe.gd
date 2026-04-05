@@ -44,12 +44,27 @@ func _init() -> void:
 	node.call("player_play_card", "gem_offset_consume_ruby_ok")
 	var vm_after_consume: Dictionary = node.call("get_view_model")
 
+	var advanced_event_line: String = ""
+	var recent_events: Array = vm_after_consume.get("recent_events", [])
+	for line in recent_events:
+		var rendered: String = str(line)
+		if rendered.find("gem_offset_consume_ruby_ok") >= 0:
+			advanced_event_line = rendered
+			break
+
+	var zones_text: String = ""
+	var zones_label_node: Node = node.get_node_or_null("CombatHud/Margin/VBox/StatsRow/ZonesPanel/Zones")
+	if zones_label_node is Label:
+		zones_text = (zones_label_node as Label).text
+
 	var payload: Dictionary = {
 		"focus_gate_reason": focus_gate_reason,
 		"focus_after_focus_card": focus_after_focus_card,
 		"focus_after_advanced_consume": int(vm_after_consume.get("focus", -1)),
 		"stack_after_advanced_consume": vm_after_consume.get("gem_stack", []),
 		"vm_stack_top": vm_after_consume.get("gem_stack_top", []),
+		"zones_text": zones_text,
+		"advanced_event_line": advanced_event_line,
 	}
 
 	print("GSM_INTEGRATION_PROBE=" + JSON.stringify(payload))

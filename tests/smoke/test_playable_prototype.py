@@ -322,6 +322,10 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("focus_after_advanced_consume"), 0)
         self.assertEqual(probe.get("stack_after_advanced_consume"), ["Sapphire"])
         self.assertEqual(probe.get("vm_stack_top"), ["Sapphire"])
+        self.assertIn("FOCUS", probe.get("zones_text", ""))
+        self.assertIn("Gem Top", probe.get("zones_text", ""))
+        self.assertIn("Sapphire", probe.get("zones_text", ""))
+        self.assertIn("Consumed Ruby", probe.get("advanced_event_line", ""))
 
 
 if __name__ == "__main__":

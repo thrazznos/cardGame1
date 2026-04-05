@@ -626,6 +626,9 @@ func _format_event_line(event: Dictionary) -> String:
 			]
 		"effect_resolve":
 			var item: Dictionary = payload.get("item", {})
+			var result: Dictionary = payload.get("result", {})
+			var effect: Dictionary = item.get("effect", {})
+			var effect_type: String = str(effect.get("type", ""))
 			var base_line := "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
 				order_index,
 				str(item.get("source_instance_id", "-")),
@@ -633,6 +636,46 @@ func _format_event_line(event: Dictionary) -> String:
 				int(item.get("speed_class_priority", 0)),
 				int(item.get("enqueue_sequence_id", 0)),
 			]
+			if effect_type.begins_with("gem_"):
+				if not bool(result.get("ok", false)):
+					return "%s Gem op failed: %s." % [base_line, str(result.get("reason", "ERR_GEM_UNKNOWN"))]
+				var stack_after: Array = result.get("stack_after", [])
+				var stack_text: String = "(empty)"
+				if not stack_after.is_empty():
+					var stack_words: Array = []
+					for gem in stack_after:
+						stack_words.append(str(gem))
+					stack_text = " -> ".join(stack_words)
+				match effect_type:
+					"gem_produce":
+						return "%s Produced %s x%d. Stack: %s." % [
+							base_line,
+							str(result.get("gem", "?")),
+							int(result.get("count", 1)),
+							stack_text,
+						]
+					"gem_consume_top":
+						return "%s Consumed %s from top. Stack: %s." % [
+							base_line,
+							str(result.get("gem", "?")),
+							stack_text,
+						]
+					"gem_gain_focus":
+						return "%s Gained FOCUS +%d (now %d)." % [
+							base_line,
+							int(result.get("gained", 0)),
+							int(result.get("focus_after", 0)),
+						]
+					"gem_consume_top_offset":
+						return "%s Consumed %s at offset %d. FOCUS now %d. Stack: %s." % [
+							base_line,
+							str(result.get("gem", "?")),
+							int(result.get("offset", 0)),
+							int(result.get("focus_after", 0)),
+							stack_text,
+						]
+					_:
+						return "%s Gem operation complete." % base_line
 			var drawn_cards: Array = effect_resolve_draw_annotations.get(order_index, [])
 			if not drawn_cards.is_empty():
 				return "%s Drew: %s." % [base_line, ", ".join(drawn_cards)]
