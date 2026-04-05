@@ -8,10 +8,10 @@
     {"turn": 2, "action": "pass"}
   ],
   "expected": {
-    "final_state_hash": "2133529899",
-    "event_sequence_hash": "2661071376",
+    "final_state_hash": "459262425",
+    "event_sequence_hash": "1979610116",
     "rng_cursor_snapshot": {
-      "encounter.intent": 2,
+      "encounter.intent": 3,
       "combat.effect.proc": 0,
       "combat.effect.retarget": 0,
       "combat.status_chance": 0
