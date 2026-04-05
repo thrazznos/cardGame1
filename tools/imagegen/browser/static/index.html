@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dungeon Steward Concept Art Browser</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Dungeon Steward Concept Art Browser</h1>
+      <p class="sub">Manifest-backed browser for prompts, purpose, generator, and asset files.</p>
+    </div>
+    <div class="meta" id="manifestMeta"></div>
+  </header>
+
+  <section class="filters">
+    <input id="searchInput" type="search" placeholder="Search title, subject, intent, prompt…">
+    <select id="statusFilter"><option value="">All statuses</option></select>
+    <select id="toolFilter"><option value="">All generators</option></select>
+    <select id="phaseFilter"><option value="">All phases</option></select>
+    <select id="categoryFilter"><option value="">All categories</option></select>
+    <label><input id="hasSelectedFilter" type="checkbox"> has selected file</label>
+    <label><input id="hasRuntimeFilter" type="checkbox"> has runtime derivative</label>
+    <label><input id="missingOnlyFilter" type="checkbox"> missing files only</label>
+  </section>
+
+  <section class="layout">
+    <aside class="summary" id="summaryPanel"></aside>
+    <main>
+      <div class="resultsHeader">
+        <strong id="resultCount">0 assets</strong>
+      </div>
+      <div id="grid" class="grid"></div>
+    </main>
+    <aside class="detail" id="detailPanel">
+      <p class="muted">Select an asset to inspect its prompt, files, and notes.</p>
+    </aside>
+  </section>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="thumbWrap"><img class="thumb" alt=""></div>
+      <div class="cardBody">
+        <h3 class="title"></h3>
+        <div class="badges"></div>
+        <p class="purpose"></p>
+      </div>
+    </article>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>

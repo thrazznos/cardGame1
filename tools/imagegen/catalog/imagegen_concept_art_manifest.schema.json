@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tools/imagegen/catalog/imagegen_concept_art_manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "assetRoots",
+    "assets"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assetRoots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assetEntry"
+      }
+    }
+  },
+  "$defs": {
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "purpose": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "category",
+        "subject",
+        "intent"
+      ],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "p0",
+            "p1",
+            "p2",
+            "p3",
+            "ad_hoc"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "characters",
+            "environments",
+            "enemies",
+            "portraits",
+            "relics",
+            "ui_motifs",
+            "sprites",
+            "tests",
+            "misc"
+          ]
+        },
+        "subject": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string"
+        },
+        "batchId": {
+          "type": "string"
+        },
+        "backlogRef": {
+          "type": "string"
+        }
+      }
+    },
+    "promptInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "negativeText": {
+          "type": "string"
+        },
+        "templateRef": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "generatorInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "enum": [
+            "nano_banana",
+            "pixellab",
+            "manual",
+            "comfyui",
+            "other"
+          ]
+        },
+        "workflow": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "metadataPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "notesInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "works",
+        "fixes"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "works": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assetEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "createdAt",
+        "title",
+        "purpose",
+        "prompt",
+        "generator",
+        "sourceFiles",
+        "selectedFile",
+        "runtimeDerivative",
+        "status",
+        "notes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "title": {
+          "type": "string"
+        },
+        "purpose": {
+          "$ref": "#/$defs/purpose"
+        },
+        "prompt": {
+          "$ref": "#/$defs/promptInfo"
+        },
+        "generator": {
+          "$ref": "#/$defs/generatorInfo"
+        },
+        "sourceFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fileRef"
+          }
+        },
+        "selectedFile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fileRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeDerivative": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/fileRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "generated",
+            "shortlisted",
+            "selected",
+            "approved_concept",
+            "runtime_candidate",
+            "implemented",
+            "rejected",
+            "archived"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

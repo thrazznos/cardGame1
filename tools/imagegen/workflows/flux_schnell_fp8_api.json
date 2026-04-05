@@ -1,0 +1,102 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "__UNET__",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "__T5__",
+      "clip_name2": "__CLIP__",
+      "type": "flux"
+    }
+  },
+  "3": {
+    "class_type": "CLIPTextEncodeFlux",
+    "inputs": {
+      "clip": ["2", 0],
+      "clip_l": "__PROMPT__",
+      "t5xxl": "__PROMPT__",
+      "guidance": "__GUIDANCE__"
+    }
+  },
+  "4": {
+    "class_type": "ModelSamplingFlux",
+    "inputs": {
+      "model": ["1", 0],
+      "max_shift": "__MAX_SHIFT__",
+      "base_shift": "__BASE_SHIFT__",
+      "width": "__WIDTH__",
+      "height": "__HEIGHT__"
+    }
+  },
+  "5": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": ["4", 0],
+      "conditioning": ["3", 0]
+    }
+  },
+  "6": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": "__SEED__"
+    }
+  },
+  "7": {
+    "class_type": "BasicScheduler",
+    "inputs": {
+      "model": ["4", 0],
+      "scheduler": "__SCHEDULER__",
+      "steps": "__STEPS__",
+      "denoise": 1.0
+    }
+  },
+  "8": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "__SAMPLER__"
+    }
+  },
+  "9": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": "__WIDTH__",
+      "height": "__HEIGHT__",
+      "batch_size": 1
+    }
+  },
+  "10": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": ["6", 0],
+      "guider": ["5", 0],
+      "sampler": ["8", 0],
+      "sigmas": ["7", 0],
+      "latent_image": ["9", 0]
+    }
+  },
+  "11": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "__VAE__"
+    }
+  },
+  "12": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["10", 0],
+      "vae": ["11", 0]
+    }
+  },
+  "13": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "__FILENAME_PREFIX__",
+      "images": ["12", 0]
+    }
+  }
+}
