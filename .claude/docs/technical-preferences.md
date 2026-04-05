@@ -21,16 +21,16 @@
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
-- **Suggestion**: Typical browser target is 60 FPS / 16.6ms frame budget. Want to set these now?
+- **Target Framerate**: 60 FPS (desktop web baseline)
+- **Frame Budget**: 16.67 ms/frame (logic+UI target <= 10 ms, render/composite target <= 6.67 ms)
+- **Draw Calls**: 300/frame target, 500/frame absolute peak cap
+- **Memory Ceiling**: 512 MB runtime target, 768 MB absolute browser ceiling
+- **Suggestion**: If profiling exceeds peak budgets, degrade VFX density and UI animation frequency before reducing gameplay readability.
 
 ## Testing
 
 - **Framework**: GUT (Godot Unit Test)
-- **Minimum Coverage**: [TO BE CONFIGURED]
+- **Minimum Coverage**: 70% project-wide automated coverage (higher for deterministic core systems)
 - **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
 
 ## Forbidden Patterns

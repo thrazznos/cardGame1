@@ -36,8 +36,8 @@ Dungeon Steward is a browser-first roguelite deckbuilder centered on order-sensi
 | 17 | Map & Node UI (inferred) | UI | MVP | Approved | design/gdd/systems/map-node-ui.md | Map/Pathing System, Reward Draft System |
 | 18 | Hub UI (inferred) | UI | MVP | Approved | design/gdd/systems/hub-ui.md | Meta-Hub Investment System, Profile Progression Save |
 | 19 | Deckbuilder/Inspection UI (inferred) | UI | MVP | Approved | design/gdd/systems/deck-inspection-ui.md | Card Data & Definitions, Deck Lifecycle System, Relics/Passive Modifiers |
-| 20 | Audio Feedback System (inferred) | Audio | Vertical Slice | In Design | design/gdd/systems/audio-feedback.md | Combat, Map, Reward, Hub events |
-| 21 | Onboarding & Tooltips System (inferred) | Meta | Vertical Slice | Not Started | design/gdd/systems/onboarding-tooltips.md | Combat UI/HUD, Map & Node UI, Hub UI, Turn State & Rules Engine |
+| 20 | Audio Feedback System (inferred) | Audio | Vertical Slice | Approved | design/gdd/systems/audio-feedback.md | Combat, Map, Reward, Hub events |
+| 21 | Onboarding & Tooltips System (inferred) | Meta | Vertical Slice | Approved | design/gdd/systems/onboarding-tooltips.md | Combat UI/HUD, Map & Node UI, Hub UI, Turn State & Rules Engine |
 | 22 | Telemetry/Debug Hooks (inferred) | Meta | Alpha | Not Started | design/gdd/systems/telemetry-debug-hooks.md | Combat, Map, Reward, Meta-Hub systems |
 
 ---
@@ -158,11 +158,11 @@ Dungeon Steward is a browser-first roguelite deckbuilder centered on order-sensi
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 22 |
-| Design docs started | 20 |
-| Design docs reviewed | 19 |
-| Design docs approved | 19 |
+| Design docs started | 21 |
+| Design docs reviewed | 21 |
+| Design docs approved | 21 |
 | MVP systems designed | 18/18 |
-| Vertical Slice systems designed | 1/3 |
+| Vertical Slice systems designed | 3/3 |
 
 ---
 
