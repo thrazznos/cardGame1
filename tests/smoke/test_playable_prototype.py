@@ -160,8 +160,10 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         baseline = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("encounter_title"))
         self.assertTrue(report.get("encounter_intent_style"))
+        self.assertTrue(report.get("encounter_intro_flavor"))
         self.assertNotEqual(report.get("encounter_title"), baseline.get("encounter_title"))
         self.assertNotEqual(report.get("encounter_intent_style"), baseline.get("encounter_intent_style"))
+        self.assertNotEqual(report.get("encounter_intro_flavor"), baseline.get("encounter_intro_flavor"))
 
     def test_seed_second_reward_001_presents_a_new_reward_after_second_encounter(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_second_reward_001.json")

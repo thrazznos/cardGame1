@@ -145,6 +145,7 @@ func get_view_model() -> Dictionary:
 		"encounter_index": encounter_index,
 		"encounter_title": _encounter_title(),
 		"encounter_intent_style": _encounter_intent_style(),
+		"encounter_intro_flavor": _encounter_intro_flavor(),
 		"combat_result": combat_result,
 		"last_event_text": last_event_text,
 	}
@@ -266,6 +267,15 @@ func _encounter_intent_style() -> String:
 			return "Aggressive opener"
 		_:
 			return "Escalating pattern"
+
+func _encounter_intro_flavor() -> String:
+	match encounter_index:
+		1:
+			return "Scout whistles echo through the corridor."
+		2:
+			return "Heavy boots thunder as the warden rushes in."
+		_:
+			return "The dungeon stirs with a harsher tempo."
 
 func _resolve_queue_once() -> void:
 	if not queue.has_items():
@@ -453,6 +463,7 @@ func run_fixture(path: String) -> Dictionary:
 		"encounter_index": encounter_index,
 		"encounter_title": _encounter_title(),
 		"encounter_intent_style": _encounter_intent_style(),
+		"encounter_intro_flavor": _encounter_intro_flavor(),
 		"hand": dls.hand,
 	}
 

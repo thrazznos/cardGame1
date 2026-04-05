@@ -331,7 +331,8 @@ func _play_ui_juice(vm: Dictionary, previous: Dictionary) -> void:
 		_play_encounter_toast(
 			encounter_index,
 			str(vm.get("encounter_title", "Encounter %d" % encounter_index)),
-			str(vm.get("encounter_intent_style", ""))
+			str(vm.get("encounter_intent_style", "")),
+			str(vm.get("encounter_intro_flavor", ""))
 		)
 
 func _play_damage_flash(panel_path: String, portrait_path: String, bar_path: String) -> void:
@@ -415,7 +416,7 @@ func _play_reward_claim(selected_card_id: String) -> void:
 		continue_tween.tween_interval(0.08)
 		continue_tween.tween_property(continue_button, "modulate", Color(1, 1, 1, 1), 0.16)
 
-func _play_encounter_toast(encounter_index: int, encounter_title: String, encounter_intent_style: String) -> void:
+func _play_encounter_toast(encounter_index: int, encounter_title: String, encounter_intent_style: String, encounter_intro_flavor: String) -> void:
 	var layer_node: Node = get_node_or_null("TransitionToastLayer")
 	if layer_node is Control:
 		var layer: Control = layer_node
@@ -425,10 +426,12 @@ func _play_encounter_toast(encounter_index: int, encounter_title: String, encoun
 	if label_node is Label:
 		var label: Label = label_node
 		var title: String = encounter_title if encounter_title != "" else "Encounter %d Begins" % encounter_index
-		if encounter_intent_style == "":
-			label.text = "%s Begins" % title
-		else:
-			label.text = "%s Begins\n%s" % [title, encounter_intent_style]
+		var lines: Array = ["%s Begins" % title]
+		if encounter_intent_style != "":
+			lines.append(encounter_intent_style)
+		if encounter_intro_flavor != "":
+			lines.append(encounter_intro_flavor)
+		label.text = _join_lines(lines)
 
 	var panel_node: Node = get_node_or_null("TransitionToastLayer/ToastStrip/ToastPanel")
 	if panel_node is CanvasItem:
