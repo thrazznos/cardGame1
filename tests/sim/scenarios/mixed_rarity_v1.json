@@ -1,0 +1,28 @@
+{
+  "scenario_id": "mixed_rarity_v1",
+  "description": "Mixed card identities with all M2 policies enabled",
+  "defaults": {
+    "enemy_profile_id": "default",
+    "balance_profile_id": "default",
+    "max_turns": 10
+  },
+  "seeds": [303],
+  "policies": ["random_legal", "greedy_value", "sequencing_aware_v1"],
+  "decks": [
+    {
+      "deck_id": "mixed_line_a",
+      "cards": [
+        "strike_01",
+        "strike_02",
+        "strike_03",
+        "strike_04",
+        "defend_01",
+        "defend_02",
+        "defend_03",
+        "scheme_flow",
+        "scheme_flow",
+        "scheme_flow"
+      ]
+    }
+  ]
+}
