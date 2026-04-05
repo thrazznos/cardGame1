@@ -477,6 +477,20 @@ func run_fixture(path: String) -> Dictionary:
 func _apply_step(step: Dictionary) -> void:
 	var action: String = str(step.get("action", ""))
 	match action:
+		"set_hand":
+			var cards: Array = step.get("cards", [])
+			dls.hand = []
+			for card in cards:
+				dls.hand.append(str(card))
+			if bool(step.get("clear_other_zones", false)):
+				dls.draw_pile = []
+				dls.discard_pile = []
+				dls.exhaust_pile = []
+				dls.limbo = []
+			refresh_hud()
+		"set_energy":
+			energy = int(step.get("energy", energy))
+			refresh_hud()
 		"play":
 			var card_id: String = str(step.get("card_id", ""))
 			var result: Dictionary = player_play_card(card_id)

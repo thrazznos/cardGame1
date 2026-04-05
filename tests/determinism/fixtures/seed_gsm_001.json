@@ -1,0 +1,41 @@
+{
+  "fixture_id": "seed_gsm_001",
+  "seed_root": 13371337,
+  "inputs": [
+    {
+      "action": "set_hand",
+      "cards": [
+        "gem_produce_ruby_a",
+        "gem_produce_sapphire_a",
+        "gem_offset_consume_ruby_fail",
+        "gem_focus_a",
+        "gem_offset_consume_ruby_ok"
+      ],
+      "clear_other_zones": false
+    },
+    {
+      "action": "set_energy",
+      "energy": 10
+    },
+    {
+      "action": "play",
+      "card_id": "gem_produce_ruby_a"
+    },
+    {
+      "action": "play",
+      "card_id": "gem_produce_sapphire_a"
+    },
+    {
+      "action": "play",
+      "card_id": "gem_offset_consume_ruby_fail"
+    },
+    {
+      "action": "play",
+      "card_id": "gem_focus_a"
+    },
+    {
+      "action": "play",
+      "card_id": "gem_offset_consume_ruby_ok"
+    }
+  ]
+}
