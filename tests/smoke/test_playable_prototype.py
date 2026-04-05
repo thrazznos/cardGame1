@@ -134,6 +134,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing CARD_STYLE_TOGGLE_PROBE output")
         return json.loads(probe_line)
 
+    def _run_encounter_toast_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_encounter_toast_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("ENCOUNTER_TOAST_PROBE="):
+                probe_line = line[len("ENCOUNTER_TOAST_PROBE="):]
+        self.assertTrue(probe_line, "missing ENCOUNTER_TOAST_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -243,6 +261,13 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Style: Classic", probe.get("classic_label", ""))
         self.assertIn("Style: Alt", probe.get("alt_label", ""))
         self.assertIn("V toggle", probe.get("alt_label", ""))
+
+    def test_encounter_toast_persists_until_enter_and_blocks_pass(self):
+        probe = self._run_encounter_toast_probe()
+        self.assertTrue(probe.get("visible_immediately"))
+        self.assertTrue(probe.get("visible_after_delay"))
+        self.assertFalse(probe.get("visible_after_enter"))
+        self.assertEqual(probe.get("pass_calls"), 0)
 
 
 if __name__ == "__main__":

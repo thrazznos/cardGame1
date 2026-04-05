@@ -447,6 +447,7 @@ func _play_encounter_toast(encounter_index: int, encounter_title: String, encoun
 			lines.append(encounter_intent_style)
 		if encounter_intro_flavor != "":
 			lines.append(encounter_intro_flavor)
+		lines.append("Press Enter to continue")
 		label.text = _join_lines(lines)
 
 	var panel_node: Node = get_node_or_null("TransitionToastLayer/ToastStrip/ToastPanel")
@@ -455,9 +456,6 @@ func _play_encounter_toast(encounter_index: int, encounter_title: String, encoun
 		panel.modulate = Color(1, 1, 1, 0)
 		var toast_tween: Tween = _restart_fx_tween("encounter_toast")
 		toast_tween.tween_property(panel, "modulate", Color(1, 1, 1, 1), 0.12)
-		toast_tween.tween_interval(0.55)
-		toast_tween.tween_property(panel, "modulate", Color(1, 1, 1, 0), 0.18)
-		toast_tween.tween_callback(Callable(self, "_hide_transition_toast"))
 	_pulse_control(panel_node, 1.02, "encounter_toast_pulse", 0.08, 0.12)
 
 func _hide_transition_toast() -> void:
@@ -472,6 +470,12 @@ func _hide_transition_toast() -> void:
 	if panel_node is Control:
 		var panel_control: Control = panel_node
 		panel_control.scale = Vector2.ONE
+
+func _is_transition_toast_visible() -> bool:
+	var layer_node: Node = get_node_or_null("TransitionToastLayer")
+	if layer_node is Control:
+		return (layer_node as Control).visible
+	return false
 
 func _play_next_encounter_transition() -> void:
 	var scrim_node: Node = get_node_or_null("RewardOverlay/Scrim")
@@ -803,6 +807,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key_event: InputEventKey = event
 	if not key_event.pressed or key_event.echo:
+		return
+
+	if _is_transition_toast_visible():
+		if _is_enter_key(key_event):
+			_hide_transition_toast()
+		var viewport_toast := get_viewport()
+		if viewport_toast != null:
+			viewport_toast.set_input_as_handled()
 		return
 
 	if _is_style_toggle_key(key_event):
