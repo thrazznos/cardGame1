@@ -143,6 +143,8 @@ func get_view_model() -> Dictionary:
 		"reward_commit_count": reward_commit_count,
 		"run_master_deck_size": run_master_deck.size(),
 		"encounter_index": encounter_index,
+		"encounter_title": _encounter_title(),
+		"encounter_intent_style": _encounter_intent_style(),
 		"combat_result": combat_result,
 		"last_event_text": last_event_text,
 	}
@@ -246,6 +248,24 @@ func _roll_enemy_intent_damage() -> int:
 	var draw: Dictionary = rng.draw_next("encounter.intent")
 	# 5..8 damage deterministic band for prototype readability.
 	return 5 + int(draw.get("value", 0)) % 4
+
+func _encounter_title() -> String:
+	match encounter_index:
+		1:
+			return "Encounter 1 • Ambush Patrol"
+		2:
+			return "Encounter 2 • Warden Counterpush"
+		_:
+			return "Encounter %d • Escalation" % encounter_index
+
+func _encounter_intent_style() -> String:
+	match encounter_index:
+		1:
+			return "Steady pressure"
+		2:
+			return "Aggressive opener"
+		_:
+			return "Escalating pattern"
 
 func _resolve_queue_once() -> void:
 	if not queue.has_items():
@@ -431,6 +451,8 @@ func run_fixture(path: String) -> Dictionary:
 		"reward_commit_count": reward_commit_count,
 		"run_master_deck_size": run_master_deck.size(),
 		"encounter_index": encounter_index,
+		"encounter_title": _encounter_title(),
+		"encounter_intent_style": _encounter_intent_style(),
 		"hand": dls.hand,
 	}
 

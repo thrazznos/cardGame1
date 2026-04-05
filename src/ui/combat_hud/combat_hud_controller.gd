@@ -322,7 +322,11 @@ func _play_ui_juice(vm: Dictionary, previous: Dictionary) -> void:
 	var previous_encounter_index: int = int(previous.get("encounter_index", 1))
 	var encounter_index: int = int(vm.get("encounter_index", 1))
 	if encounter_index != previous_encounter_index:
-		_play_encounter_toast(encounter_index)
+		_play_encounter_toast(
+			encounter_index,
+			str(vm.get("encounter_title", "Encounter %d" % encounter_index)),
+			str(vm.get("encounter_intent_style", ""))
+		)
 
 func _play_damage_flash(panel_path: String, portrait_path: String, bar_path: String) -> void:
 	_flash_canvas_item(get_node_or_null(panel_path), Color(1.0, 0.78, 0.78, 1.0), "damage_panel:%s" % panel_path)
@@ -405,7 +409,7 @@ func _play_reward_claim(selected_card_id: String) -> void:
 		continue_tween.tween_interval(0.08)
 		continue_tween.tween_property(continue_button, "modulate", Color(1, 1, 1, 1), 0.16)
 
-func _play_encounter_toast(encounter_index: int) -> void:
+func _play_encounter_toast(encounter_index: int, encounter_title: String, encounter_intent_style: String) -> void:
 	var layer_node: Node = get_node_or_null("TransitionToastLayer")
 	if layer_node is Control:
 		var layer: Control = layer_node
@@ -414,7 +418,11 @@ func _play_encounter_toast(encounter_index: int) -> void:
 	var label_node: Node = get_node_or_null("TransitionToastLayer/ToastStrip/ToastPanel/ToastLabel")
 	if label_node is Label:
 		var label: Label = label_node
-		label.text = "Encounter %d Begins" % encounter_index
+		var title: String = encounter_title if encounter_title != "" else "Encounter %d Begins" % encounter_index
+		if encounter_intent_style == "":
+			label.text = "%s Begins" % title
+		else:
+			label.text = "%s Begins\n%s" % [title, encounter_intent_style]
 
 	var panel_node: Node = get_node_or_null("TransitionToastLayer/ToastStrip/ToastPanel")
 	if panel_node is CanvasItem:
@@ -495,7 +503,9 @@ func _refresh_resolve_lock(vm: Dictionary) -> void:
 		node.add_theme_color_override("font_color", TEXT_GOOD)
 
 func _status_text(vm: Dictionary) -> String:
-	return "Turn %d • %s • %s" % [
+	var encounter_title: String = str(vm.get("encounter_title", "Encounter %d" % int(vm.get("encounter_index", 1))))
+	return "%s • Turn %d • %s • %s" % [
+		encounter_title,
 		int(vm.get("turn", 0)),
 		str(vm.get("ui_phase_text", "Player Turn")),
 		_combat_result_text(str(vm.get("combat_result", "in_progress"))),
@@ -511,11 +521,13 @@ func _player_stats_text(vm: Dictionary) -> String:
 	]
 
 func _enemy_stats_text(vm: Dictionary) -> String:
-	return "ENEMY  HP %d/%d  •  Block %d  •  Intent %d dmg" % [
+	var intent_style: String = str(vm.get("encounter_intent_style", "Steady pressure"))
+	return "ENEMY  HP %d/%d  •  Block %d  •  Intent %d dmg\nPattern: %s" % [
 		int(vm.get("enemy_hp", 0)),
 		int(vm.get("enemy_max_hp", 0)),
 		int(vm.get("enemy_block", 0)),
 		int(vm.get("enemy_intent_damage", 0)),
+		intent_style,
 	]
 
 func _zones_text(vm: Dictionary) -> String:
