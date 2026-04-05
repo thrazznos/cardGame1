@@ -24,6 +24,7 @@ const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward
 const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
 const CREST_PATH := "res://src/ui/combat_hud/assets/banner_crest_steward_064.png"
 const REWARD_SEAL_PATH := "res://src/ui/combat_hud/assets/reward_wax_seal_centered_112.png"
+const MISSING_ART_TINT := Color(0.78, 0.82, 0.90, 0.55)
 
 var runner: Variant
 var previous_vm: Dictionary = {}
@@ -70,15 +71,20 @@ func _apply_texture(path: String, resource_path: String, size: Vector2, pixel_ar
 	if not (node is TextureRect):
 		return
 	var texture := _load_texture(resource_path)
-	if texture == null:
-		node.visible = false
-		return
-	node.texture = texture
-	node.visible = true
 	node.custom_minimum_size = size
 	node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if pixel_art else CanvasItem.TEXTURE_FILTER_LINEAR
+	if texture == null:
+		node.texture = null
+		node.visible = true
+		node.modulate = MISSING_ART_TINT
+		node.tooltip_text = "Missing art asset: %s" % resource_path
+		return
+	node.texture = texture
+	node.visible = true
+	node.modulate = Color(1, 1, 1, 1)
+	node.tooltip_text = ""
 
 func _load_texture(resource_path: String) -> Texture2D:
 	if ResourceLoader.exists(resource_path):

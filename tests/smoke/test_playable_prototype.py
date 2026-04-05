@@ -62,6 +62,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing CARD_IDENTITY_PROBE output")
         return json.loads(probe_line)
 
+    def _run_art_fallback_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_art_fallback_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("ART_FALLBACK_PROBE="):
+                probe_line = line[len("ART_FALLBACK_PROBE="):]
+        self.assertTrue(probe_line, "missing ART_FALLBACK_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -136,6 +154,12 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Attack card", probe.get("strike_tooltip", ""))
         self.assertIn("Defense card", probe.get("defend_tooltip", ""))
         self.assertIn("Utility card", probe.get("utility_tooltip", ""))
+
+    def test_missing_art_uses_non_crashing_placeholder_state(self):
+        probe = self._run_art_fallback_probe()
+        self.assertTrue(probe.get("visible"))
+        self.assertFalse(probe.get("has_texture"))
+        self.assertIn("Missing art asset", probe.get("tooltip", ""))
 
 
 if __name__ == "__main__":
