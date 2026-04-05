@@ -1,0 +1,2393 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-04-05T16:39:23Z",
+  "assetRoots": [
+    "tools/imagegen/output",
+    "tools/imagegen/derivatives"
+  ],
+  "assets": [
+    {
+      "id": "existing.nano.cat_steward.detail_01",
+      "createdAt": "2026-04-05T07:23:02Z",
+      "title": "Cat Steward Detail Concept",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "cat steward",
+        "intent": "Lock a detailed protagonist portrait lane.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept art of an elegant feline steward-charmer duelist, courtly cat protagonist, velvet coat, oxblood ribbon favor, deadpan fantasy absurdism, readable silhouette, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-23-02-687Z_j9yxub.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-23-02-687Z_j9yxub.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Initial detailed cat steward portrait concept.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "character",
+        "cat",
+        "detail"
+      ]
+    },
+    {
+      "id": "existing.nano.badger_warden.detail_01",
+      "createdAt": "2026-04-05T07:24:01Z",
+      "title": "Badger Warden Detail Concept",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "badger warden",
+        "intent": "Lock a detailed badger authority lane.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept art of a sentient honeybadger warden, practical frontier lawkeeper, deadpan fantasy absurdism, readable silhouette, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-24-01-120Z_mlw5xk.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-24-01-120Z_mlw5xk.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Initial detailed badger warden portrait concept.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "character",
+        "badger",
+        "detail"
+      ]
+    },
+    {
+      "id": "existing.nano.violet_pard_duelist.detail_01",
+      "createdAt": "2026-04-05T07:25:02Z",
+      "title": "Violet Pard Duelist Detail Concept",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "violet pard elf",
+        "intent": "Lock a detailed elf portrait lane.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept art of a violet pard elf court duelist, aristocratic elf with elegant purple leopard rosette patterning, moonlit court fashion, silk and lacquered leather, silver accents, severe posture, refined predatory grace, oxblood favor marker, deadpan fantasy absurdism, readable silhouette, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-02-568Z_6ml2rx.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-02-568Z_6ml2rx.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Initial detailed violet pard duelist portrait concept.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "character",
+        "elf",
+        "detail"
+      ]
+    },
+    {
+      "id": "existing.nano.seep_goblin.detail_01",
+      "createdAt": "2026-04-05T07:25:15Z",
+      "title": "Seep-Goblin Alchemist Detail Concept",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "seep-goblin",
+        "intent": "Lock a detailed goblin portrait lane.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept art of a seep-goblin alchemist, slime-bodied goblin woman, translucent mint and teal body with readable internal core, clever scavenger-engineer styling, utility straps, cropped coat, satchel, bottle-glass and rusted hardware, oxblood favor marker, deadpan fantasy absurdism, readable silhouette, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-15-568Z_tzr5no.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-15-568Z_tzr5no.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Initial detailed seep-goblin portrait concept.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "character",
+        "goblin",
+        "detail"
+      ]
+    },
+    {
+      "id": "existing.nano.retinue_mix.detail_01",
+      "createdAt": "2026-04-05T07:25:33Z",
+      "title": "Retinue Coherence Detail Concept",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "retinue ensemble",
+        "intent": "Check whether the core cast reads as one world.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "ensemble portrait concept art of a coherent frontier charter-house retinue, elegant feline steward-charmer, violet pard elf, seep-goblin, sentient honeybadger, courtly glamour versus frontier grime, oxblood favor markers, deadpan fantasy absurdism, readable silhouettes, controlled value grouping, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-33-296Z_rmmq7t.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T07-25-33-296Z_rmmq7t.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Initial ensemble coherence concept.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "ensemble",
+        "retinue",
+        "detail"
+      ]
+    },
+    {
+      "id": "existing.pixellab.cat_steward.sprite_01",
+      "createdAt": "2026-04-05T07:21:00Z",
+      "title": "Cat Steward Sprite Quartet",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "cat steward",
+        "intent": "Prototype pixel-ready directional character for gameplay scale.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "elegant feline steward-charmer duelist, courtly cat protagonist, poised narrow silhouette, rapier-ready posture, velvet coat, oxblood ribbon favor",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab.create_character",
+        "model": "pixellab standard humanoid",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/pixellab/characters/cat_steward.zip"
+        }
+      ],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Directional sprite pack with walk animation included in ZIP.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "sprite",
+        "cat",
+        "pixellab"
+      ]
+    },
+    {
+      "id": "existing.pixellab.violet_pard_duelist.sprite_01",
+      "createdAt": "2026-04-05T07:24:00Z",
+      "title": "Violet Pard Duelist Sprite Quartet",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "violet pard elf",
+        "intent": "Prototype pixel-ready directional elf character.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "violet pard elf court duelist, elegant purple rosette patterning, aristocratic posture, silk and lacquered leather, silver accents",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab.create_character",
+        "model": "pixellab standard humanoid",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/pixellab/characters/violet_pard_duelist.zip"
+        }
+      ],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Directional sprite pack with walk animation included in ZIP.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "sprite",
+        "elf",
+        "pixellab"
+      ]
+    },
+    {
+      "id": "existing.pixellab.seep_goblin_alchemist.sprite_01",
+      "createdAt": "2026-04-05T07:24:00Z",
+      "title": "Seep-Goblin Alchemist Sprite Quartet",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "seep-goblin",
+        "intent": "Prototype pixel-ready directional goblin character.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "seep-goblin alchemist, slime-bodied goblin woman with readable internal core, utility straps, cropped coat, satchel, bottle-glass and rusted hardware",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab.create_character",
+        "model": "pixellab standard humanoid",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/pixellab/characters/seep_goblin_alchemist.zip"
+        }
+      ],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Directional sprite pack with walk animation included in ZIP.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "sprite",
+        "goblin",
+        "pixellab"
+      ]
+    },
+    {
+      "id": "existing.pixellab.badger_warden.sprite_01",
+      "createdAt": "2026-04-05T07:24:47Z",
+      "title": "Badger Warden Sprite Quartet",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "badger warden",
+        "intent": "Prototype pixel-ready directional badger character.",
+        "batchId": "imported",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "sentient honeybadger warden, practical frontier lawkeeper, compact dangerous silhouette, roughhide, iron plates, gloves, harness",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab.create_character",
+        "model": "pixellab standard humanoid",
+        "metadataPath": "tools/imagegen/output/pixellab/characters/badger_warden/metadata.json"
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/pixellab/characters/badger_warden.zip"
+        }
+      ],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "Directional sprite pack with walk animation included in ZIP; unpacked metadata also present.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "existing",
+        "sprite",
+        "badger",
+        "pixellab"
+      ]
+    },
+    {
+      "id": "p1.characters.retinue_coherence_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Retinue Coherence Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "retinue ensemble",
+        "intent": "Lock one approved everyone-in-one-room cast image.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "ensemble portrait concept art of the cat steward-charmer, violet pard elf, seep-goblin, and badger warden in one coherent charter-house social world, readable silhouettes, deadpan fantasy absurdism, courtly glamour versus frontier grime, dark neutral background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-27-49-199Z_cdqe9l.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-27-49-199Z_cdqe9l.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana ensemble concept. Cohesive medieval material language and readable silhouettes, but role specificity drifted off the desired cat-duelist / elf-duelist / goblin-alchemist lane.",
+        "works": [
+          "Group silhouette separation is strong and the cast reads as one world.",
+          "Shared painterly medieval material language supports the setting.",
+          "The cat steward has immediate charm and authority presence."
+        ],
+        "fixes": [
+          "Tighten prompts so the elf reads duelist rather than bard and the goblin reads alchemist rather than groundskeeper.",
+          "Push a shared heraldic or favor-marker accent across all four to increase retinue unity.",
+          "Increase mid-value contrast on the elf and clarify the goblin tool read."
+        ]
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "ensemble"
+      ]
+    },
+    {
+      "id": "p1.misc.charm_marker_standard_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Charm Marker Standard Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "misc",
+        "subject": "charm marker",
+        "intent": "Define oxblood ribbon and tarnished-gold clasp placements across species and ranks.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "reference board for charm-marker placements across cat, elf, goblin, and badger designs; oxblood ribbon, tarnished-gold clasp, readable at portrait scale",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "standards"
+      ]
+    },
+    {
+      "id": "p1.characters.cat_steward_lane_refinement_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Cat Steward Lane Refinement Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "cat steward",
+        "intent": "Choose the final protagonist face, fur, and costume lane.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept art sheet of the cat steward-charmer in 4 visual variants, courtly duelist, velvet and field-official balance, readable silhouette, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-30-16-618Z_3ekze4.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-30-16-618Z_3ekze4.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Choose the final protagonist face, fur, and costume lane.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "cat"
+      ]
+    },
+    {
+      "id": "p1.characters.elf_pard_rosette_material_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Elf Pard Rosette Material Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "violet pard elf",
+        "intent": "Lock how violet rosettes sit on skin and costume trim without visual noise.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "material and portrait concept sheet for a violet pard elf, elegant purple leopard rosettes on skin and garment lining, moonlit court fashion, readable silhouette",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-33-48-396Z_scyjbw.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-33-48-396Z_scyjbw.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Lock how violet rosettes sit on skin and costume trim without visual noise.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "elf"
+      ]
+    },
+    {
+      "id": "p1.characters.goblin_seep_core_translucency_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Goblin Seep Core Translucency Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "seep-goblin",
+        "intent": "Resolve internal core, face plane, and silhouette readability for seep-goblins.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait and material study of a seep-goblin, translucent mint and teal body with clear internal core, readable face plane, utility gear, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-10-696Z_dpdwlc.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-10-696Z_dpdwlc.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Resolve internal core, face plane, and silhouette readability for seep-goblins.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "goblin"
+      ]
+    },
+    {
+      "id": "p1.characters.badger_civic_rank_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Badger Civic Rank Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "badger warden hierarchy",
+        "intent": "Show recruit, warden, magistrate, and veteran badger authority tiers.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "character hierarchy concept sheet of sentient honeybadger civic ranks, practical frontier lawkeepers, roughhide and iron plates, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-32-951Z_e8xmdg.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-32-951Z_e8xmdg.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Show recruit, warden, magistrate, and veteran badger authority tiers.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "badger"
+      ]
+    },
+    {
+      "id": "p1.characters.cat_field_vs_velvet_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Cat Field-vs-Velvet Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "cat steward costume",
+        "intent": "Test court glamour versus frontier-official practicality on the protagonist.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "costume concept sheet of the cat steward-charmer comparing velvet court attire versus field-official frontier attire, rapier, gloves, oxblood favor marker",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "cat",
+        "costume"
+      ]
+    },
+    {
+      "id": "p1.characters.elf_rank_silhouette_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Elf Rank Silhouette Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "elf hierarchy",
+        "intent": "Differentiate elf duelist, support, and authority silhouettes.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "silhouette and portrait sheet of violet pard elf role hierarchy, duelist support authority variations, severe posture, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "elf",
+        "silhouette"
+      ]
+    },
+    {
+      "id": "p1.characters.goblin_salvage_gear_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Goblin Salvage Gear Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "goblin gear language",
+        "intent": "Lock satchels, aprons, rigs, vials, and salvage props for seep-goblins.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "prop and costume sheet for seep-goblin salvage and alchemy gear, satchels, aprons, bottle-glass, rusted hardware, readable goblin support identity",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "goblin",
+        "props"
+      ]
+    },
+    {
+      "id": "p1.characters.badger_tool_weapon_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Badger Tool/Weapon Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "badger tools",
+        "intent": "Define cudgels, hammers, hooks, shields, and short blades for badgers.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "prop concept sheet for honeybadger wardens, inspection hammers, hooks, shields, short brutal weapons, practical frontier tools",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "badger",
+        "props"
+      ]
+    },
+    {
+      "id": "p1.sprites.cast_height_mass_scale_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Cast Height/Mass Scale Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "cast scale comparison",
+        "intent": "Compare cat, elf, goblin, badger, and one enemy at gameplay scale.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "pixel sprite comparison sheet of cat steward, violet pard elf, seep-goblin, badger warden, and one enemy proxy, readable top-down gameplay silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab standard humanoid",
+        "model": "pixellab.create_character",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "sprites",
+        "scale"
+      ]
+    },
+    {
+      "id": "p1.characters.favor_warrant_support_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Favor/Warrant Support Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "characters",
+        "subject": "support cast",
+        "intent": "Prove the deck can include envoys, clerks, and warrant-bearers.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait concept sheet of charter-house support cast, envoys, clerks, warrant-bearers, courtly frontier social magic, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "characters",
+        "support"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_rival_charter_enforcers_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Family: Rival Charter Enforcers 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "enemy family",
+        "intent": "Establish a first grounded humanoid enemy lane of rival officials and enforcers.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "enemy family concept sheet of rival charter enforcers, readable silhouettes, civic menace, uniforms with faction distinctions, browser-first combat readability",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-59-758Z_sfxh4c.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-35-59-758Z_sfxh4c.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana enemy-family sheet with strong role separation, but it drifted hard into sci-fi/infographic territory and should be treated as a rejected lane rather than approved canon.",
+        "works": [
+          "Broad versus agile versus ranged silhouettes are clean and memorable.",
+          "Role separation reads well at a glance.",
+          "Faction cohesion is strong in a purely formal sense."
+        ],
+        "fixes": [
+          "Remove sci-fi armor, energy weapons, UI mockup, and infographic labeling; return to legalistic frontier fantasy materials.",
+          "Differentiate units with silhouette and costume language that survives low zoom without relying on glow colors.",
+          "Rewrite prompt to ban technology language and reinforce charter-house authority, wax, iron, leather, wood, seals, and warrants."
+        ]
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "family"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_seep_tunnel_raiders_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Family: Seep Tunnel Raiders 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "enemy family",
+        "intent": "Establish a grime-heavy subterranean enemy lane tied to seep and dungeon pressure.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "enemy family concept sheet of seep-corrupted tunnel raiders, readable combat silhouettes, frontier grime, one clear threat motif",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "family"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_role_breakout_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Family Role Breakout 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "enemy combat roles",
+        "intent": "Show attacker, defender, buffer, summoner, and disruptor roles for the chosen enemy family.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "enemy role sheet showing attacker, defender, buffer, summoner, and disruptor silhouettes within one coherent frontier enemy family",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "roles"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_elite_hierarchy_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Elite Hierarchy Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "enemy escalation",
+        "intent": "Show how a normal enemy upgrades into elite while retaining family identity.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "enemy concept sheet showing normal to elite escalation in one family, readable silhouette progression, browser-first combat readability",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "elite"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_intent_telegraph_pose_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Intent Telegraph Pose Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "telegraph poses",
+        "intent": "Find readable attack, guard, buff, debuff, and summon telegraph poses.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "pose sheet for enemy telegraphs, attack guard buff debuff summon, readable silhouettes, browser-first combat clarity, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "telegraph"
+      ]
+    },
+    {
+      "id": "p1.enemies.enemy_reinforcement_shape_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Reinforcement Shape Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "reinforcements",
+        "intent": "Define spawned helpers, call-ins, or spillover creatures and their minimum readable scale.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "enemy reinforcement concept sheet, summoned helpers and spillover creatures, small readable silhouettes, one clear threat motif",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "enemies",
+        "reinforcement"
+      ]
+    },
+    {
+      "id": "p1.sprites.enemy_combat_slot_silhouette_pass_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Combat Slot Silhouette Pass 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "enemy slot readability",
+        "intent": "Test chosen enemy family silhouettes in actual combat-slot spacing.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "pixel gameplay silhouette pass for enemy family in combat slots, top-down readability, role separation",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab standard humanoid",
+        "model": "pixellab.create_character",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "sprites",
+        "enemies"
+      ]
+    },
+    {
+      "id": "p1.enemies.boss_civic_aberration_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Boss: Civic Aberration 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "boss concept",
+        "intent": "Define the first boss as a ceremonial or legal monstrosity rather than a generic brute.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "boss concept art, frontier dungeon civic aberration, ceremonial menace, readable dominant silhouette, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-36-29-033Z_rrmbbu.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-36-29-033Z_rrmbbu.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Define the first boss as a ceremonial or legal monstrosity rather than a generic brute.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "boss"
+      ]
+    },
+    {
+      "id": "p1.enemies.boss_phase_shift_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Boss Phase Shift Sheet 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "enemies",
+        "subject": "boss phases",
+        "intent": "Show how the first boss escalates across phases while keeping one dominant shape.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "boss phase sheet showing escalation across phases with one coherent silhouette, ceremonial menace, browser-first combat readability",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "boss",
+        "phases"
+      ]
+    },
+    {
+      "id": "p1.sprites.boss_topdown_readability_pass_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Boss Topdown Readability Pass 01",
+      "purpose": {
+        "phase": "p1",
+        "category": "sprites",
+        "subject": "boss gameplay readability",
+        "intent": "Check the boss at reduced top-down gameplay scale.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "pixel boss silhouette test, top-down gameplay readability, slot occupation and clean threat read",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "pixellab",
+        "workflow": "pixellab standard humanoid",
+        "model": "pixellab.create_character",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "boss",
+        "sprites"
+      ]
+    },
+    {
+      "id": "p2.portraits.cat_signature_portrait_master_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Cat Signature Portrait Master 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "portraits",
+        "subject": "cat steward card portrait",
+        "intent": "Create the first card-usable protagonist portrait crop.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "signature portrait concept of the cat steward-charmer for a card frame, one face one prop one faction cue, quiet background, readable crop",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "portraits",
+        "cat"
+      ]
+    },
+    {
+      "id": "p2.portraits.elf_signature_portrait_master_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Elf Signature Portrait Master 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "portraits",
+        "subject": "elf card portrait",
+        "intent": "Create the first card-usable violet pard portrait anchored to weapon or sigil.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "signature portrait concept of a violet pard elf for a card frame, elegant rosettes, one face one prop one faction cue, quiet background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "portraits",
+        "elf"
+      ]
+    },
+    {
+      "id": "p2.portraits.goblin_signature_portrait_master_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Goblin Signature Portrait Master 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "portraits",
+        "subject": "goblin card portrait",
+        "intent": "Create the first goblin card portrait with strong core, face, and gear read.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "signature portrait concept of a seep-goblin alchemist for a card frame, internal core visible, one face one prop one faction cue, quiet background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "portraits",
+        "goblin"
+      ]
+    },
+    {
+      "id": "p2.portraits.badger_signature_portrait_master_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Badger Signature Portrait Master 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "portraits",
+        "subject": "badger card portrait",
+        "intent": "Create the first badger card portrait for guard or authority cards.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "signature portrait concept of a badger warden for a card frame, compact dangerous silhouette, one face one prop one faction cue, quiet background",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "portraits",
+        "badger"
+      ]
+    },
+    {
+      "id": "p2.portraits.favor_warrant_signature_master_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Favor/Warrant Signature Portrait Master 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "portraits",
+        "subject": "formal intervention card portrait",
+        "intent": "Create a non-creature signature card base built around warrant, seal, or envoy logic.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "portrait or emblem concept for a formal intervention card, warrant bearer or sealed invitation, court-frontier charm logic, readable card crop",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "portraits",
+        "support"
+      ]
+    },
+    {
+      "id": "p2.relics.court_frontier_material_language_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Court/Frontier Material Language Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "object materials",
+        "intent": "Lock brass, iron, wax, parchment, lacquer, and restrained rune-teal object language.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "object material sheet for court-frontier magical artifacts, brass, iron, wax, parchment, lacquer, restrained rune teal glow, readable isolated objects",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-36-44-299Z_tsghxw.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-36-44-299Z_tsghxw.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Lock brass, iron, wax, parchment, lacquer, and restrained rune-teal object language.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "objects",
+        "materials"
+      ]
+    },
+    {
+      "id": "p2.relics.reward_category_claim_set_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Reward Category Claim Set 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "reward category objects",
+        "intent": "Define distinct object reads for card, relic, and option rewards.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "reference board for card reward relic reward and option reward category objects; semantic differentiation before UI polish",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "rewards",
+        "manual"
+      ]
+    },
+    {
+      "id": "p2.relics.relic_chain_engine_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Relic Chain Engine Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "relic lane",
+        "intent": "Explore relics that signal order, linkage, and combo-building.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy relic concept sheet focused on chains, sequencing, linkage, formal mechanisms, court-frontier magic, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "relics",
+        "sequence"
+      ]
+    },
+    {
+      "id": "p2.relics.relic_momentum_engine_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Relic Momentum Engine Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "relic lane",
+        "intent": "Explore relics that signal stored tempo, shared energy, or overcharge.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy relic concept sheet focused on momentum, energy storage, medallions, coils, chambers, readable silhouettes, court-frontier magic",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "relics",
+        "momentum"
+      ]
+    },
+    {
+      "id": "p2.relics.relic_guard_stability_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Relic Guard/Stability Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "relic lane",
+        "intent": "Explore relics themed around seals, defense, posture, and stable compounding value.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy relic concept sheet focused on seals, plates, wards, guard, stability, readable silhouettes, court-frontier object language",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "relics",
+        "guard"
+      ]
+    },
+    {
+      "id": "p2.relics.charm_warrant_token_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Charm/Warrant Token Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "charm objects",
+        "intent": "Define warrants, writs, seals, and favor-tokens as reusable visual objects.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "object concept sheet of warrants, writs, seals, favor tokens, bells, parchment, wax, brass, readable silhouettes, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "objects",
+        "warrants"
+      ]
+    },
+    {
+      "id": "p2.relics.duel_token_medallion_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Duel Token/Medallion Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "hero objects",
+        "intent": "Create duel-token and oath-medallion families for cat and elf-aligned rewards.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy object concept sheet of duel tokens and oath medallions, oxblood and tarnished gold, elegant court-frontier magic, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "objects",
+        "duel"
+      ]
+    },
+    {
+      "id": "p2.relics.charter_key_tunnel_warrant_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Charter Key/Tunnel Warrant Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "hero objects",
+        "intent": "Create key and warrant objects for dungeon access and official authority.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy object concept sheet of charter keys and tunnel warrants, brass iron parchment wax, frontier authority, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "objects",
+        "keys"
+      ]
+    },
+    {
+      "id": "p2.relics.bell_seal_invitation_clasp_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Bell/Seal/Invitation Clasp Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "support objects",
+        "intent": "Explore support and charm objects beyond weapons and medallions.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy object concept sheet of bells, seals, invitation clasps, favor markers, court-frontier charm objects, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "objects",
+        "support"
+      ]
+    },
+    {
+      "id": "p2.relics.boss_relic_reward_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Boss Relic Reward Sheet 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "boss rewards",
+        "intent": "Design oversized rare relic concepts with stronger crest language.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "boss reward relic concept sheet, large ceremonial court-frontier artifacts, readable silhouettes, stronger crest language, deadpan fantasy absurdism",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "relics",
+        "boss"
+      ]
+    },
+    {
+      "id": "p2.environments.charter_house_admin_hall_mood_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Charter-House Admin Hall Mood 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "environments",
+        "subject": "hub mood",
+        "intent": "Define the administrative hall as the baseline hub tone and backdrop.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy outpost hub concept art, frontier charter-house administrative hall, courtly glamour versus frontier grime, warm lamplight against cool stone, readable layout",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-37-05-626Z_f0whzq.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-37-05-626Z_f0whzq.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana environment mood piece. Tone is promising and the courtly-versus-frontier split lands, though the next pass should push bureaucratic storytelling and focal hierarchy.",
+        "works": [
+          "Warm interior versus cold exterior contrast supports the setting well.",
+          "Split-level hierarchy sells court protocol above and frontier traffic below.",
+          "The hall already feels like an administrative hub rather than a generic tavern."
+        ],
+        "fixes": [
+          "Add stronger paperwork, seals, claim ledgers, and queue-management props for deadpan bureaucracy.",
+          "Separate official space from public space more clearly with ropes, barriers, or desk geometry.",
+          "Strengthen one focal pool of light on the claims desk or dais so the composition lands faster."
+        ]
+      },
+      "tags": [
+        "top50",
+        "environment",
+        "hub"
+      ]
+    },
+    {
+      "id": "p2.environments.charter_house_salon_mood_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Charter-House Salon Mood 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "environments",
+        "subject": "hub mood",
+        "intent": "Define the parlor or salon lane for decisions and audiences.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy environment concept art of a frontier charter-house salon, elegant but compact, courtly glamour versus frontier grime, warm lamps and parchment details",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "environment",
+        "hub"
+      ]
+    },
+    {
+      "id": "p2.environments.goblin_sluice_workshop_mood_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Goblin Sluice Workshop Mood 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "environments",
+        "subject": "hub mood",
+        "intent": "Define the goblin utility lane for salvage, alchemy, and upkeep.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy environment concept art of a seep-goblin sluice workshop, salvage, alchemy, wet utility infrastructure, court-frontier world, readable layout",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "environment",
+        "goblin"
+      ]
+    },
+    {
+      "id": "p2.environments.badger_inspection_gate_mood_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Badger Inspection Gate Mood 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "environments",
+        "subject": "hub threshold mood",
+        "intent": "Define a checkpoint or gate where badger authority meets dungeon pressure.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "fantasy environment concept art of a badger inspection gate, tunnel lawkeeping, iron, stone, wax, parchment, frontier pressure, readable layout",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "environment",
+        "badger"
+      ]
+    },
+    {
+      "id": "p2.environments.hub_overview_layout_piece_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Hub Overview Layout Piece 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "environments",
+        "subject": "hub layout",
+        "intent": "Block one compact overview of the charter-house with readable functional zones.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "layout board for the charter-house hub showing administrative hall, salon, sluice workshop, inspection gate, and readable functional zones",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "environment",
+        "manual"
+      ]
+    },
+    {
+      "id": "p2.relics.hub_shard_currency_concept_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Hub Shard Currency Concept 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "hub currency",
+        "intent": "Define the persistent hub currency as a world-authored object.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "reference board for hub currency object concept, civic magic currency, not a generic gem, readable icon silhouette",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "currency",
+        "manual"
+      ]
+    },
+    {
+      "id": "p2.relics.hub_investment_artifact_triptych_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Hub Investment Artifact Triptych 01",
+      "purpose": {
+        "phase": "p2",
+        "category": "relics",
+        "subject": "hub investment objects",
+        "intent": "Create three object lanes for unlock, reward-bias, and mode-option investments.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "triptych of hub investment artifacts for unlock, reward bias, and mode options, brass lacquer parchment seal bell, readable silhouettes",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": "tools/imagegen/prompts/dungeon_steward_character_faction_prompt_pack.md"
+      },
+      "generator": {
+        "tool": "nano_banana",
+        "workflow": "nano-banana.generate_image",
+        "model": "gemini-3.1-flash-image-preview",
+        "metadataPath": null
+      },
+      "sourceFiles": [
+        {
+          "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-37-28-993Z_eo1lae.png"
+        }
+      ],
+      "selectedFile": {
+        "path": "tools/imagegen/output/nano-banana-images/gen_2026-04-05T16-37-28-993Z_eo1lae.png"
+      },
+      "runtimeDerivative": null,
+      "status": "generated",
+      "notes": {
+        "summary": "First-pass Nano Banana concept generated on 2026-04-05 for Create three object lanes for unlock, reward-bias, and mode-option investments.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "hub",
+        "objects"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.card_frame_role_lane_board_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Card Frame Role Lane Board 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "card frames",
+        "intent": "Lock one base card frame motif plus role-family accent logic.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for one base card frame and role-family accent logic, readable geometry, court-frontier ornament, no typography",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "card-frame"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.combat_hud_shell_board_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Combat HUD Shell Board 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "combat HUD",
+        "intent": "Define court-frontier chrome for core HUD shells.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for combat HUD shells, phase banner, relic rail, deck zones, restrained court-frontier chrome, high readability",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "hud"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.resource_bar_language_sheet_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Resource Bar Language Sheet 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "resource bars",
+        "intent": "Define HP, block, mana, overcharge, and momentum bar treatments.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for resource bars, hp block mana overcharge momentum, sober ornament, strong hierarchy, readable geometry",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "resource-bars"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.phase_banner_queue_board_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Phase Banner / Resolve-Lock / Queue Board 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "combat explainability surfaces",
+        "intent": "Define phase banner, resolve-lock, and queue-chip ornament language.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for phase banner, resolve lock state, and queue chips, court-frontier motif, text-safe geometry",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "queue"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.enemy_intent_certainty_tile_board_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Enemy Intent Certainty Tile Board 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "enemy intent tiles",
+        "intent": "Define enemy intent tiles, mutation badges, and certainty framing.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for enemy intent tiles, certainty class badges, mutation states, combat clarity first, court-frontier accent",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "intent"
+      ]
+    },
+    {
+      "id": "p0.ui_motifs.reward_investment_panel_crest_board_01",
+      "createdAt": "2026-04-05T15:28:45Z",
+      "title": "Reward / Investment Panel Crest Board 01",
+      "purpose": {
+        "phase": "p0",
+        "category": "ui_motifs",
+        "subject": "reward and hub chrome",
+        "intent": "Define reward panel banners and hub investment tile corners as one motif kit.",
+        "batchId": "top50_seed",
+        "backlogRef": "docs/plans/2026-04-05-art-generation-backlog.md"
+      },
+      "prompt": {
+        "text": "UI motif board for reward banners, category crests, and hub investment tile corners, readable geometry, restrained ornament",
+        "negativeText": "text, watermark, signature, border, muddy composition, unreadable silhouette, parody comedy, meme expression, low contrast focal point",
+        "templateRef": null
+      },
+      "generator": {
+        "tool": "manual",
+        "workflow": null,
+        "model": null,
+        "metadataPath": null
+      },
+      "sourceFiles": [],
+      "selectedFile": null,
+      "runtimeDerivative": null,
+      "status": "planned",
+      "notes": {
+        "summary": "Seeded planned concept target from ranked top-50 list.",
+        "works": [],
+        "fixes": []
+      },
+      "tags": [
+        "top50",
+        "ui",
+        "reward-hub"
+      ]
+    }
+  ]
+}

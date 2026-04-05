@@ -126,6 +126,18 @@ secrets.json
 # *.exr
 # *.hdr
 
+# === Local Image Generation Toolchain ===
+tools/imagegen/.venv/
+tools/imagegen/.vendor/
+tools/imagegen/models/
+tools/imagegen/input/
+tools/imagegen/output/
+tools/imagegen/user/
+tools/imagegen/downloads/
+tools/imagegen/custom_nodes/
+tools/imagegen/temp/
+config/mcporter.json
+
 # === OS Generated ===
 ehthumbs.db
 ehthumbs_vista.db
