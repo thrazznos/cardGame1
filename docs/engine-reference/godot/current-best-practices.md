@@ -1,6 +1,6 @@
 # Godot — Current Best Practices
 
-Last verified: 2026-02-12 | Engine: Godot 4.6
+Last verified: 2026-04-04 | Engine: Godot 4.6.2
 
 Practices that are **new or changed** since the model's training data (~4.3).
 This supplements (not replaces) the agent's built-in knowledge.

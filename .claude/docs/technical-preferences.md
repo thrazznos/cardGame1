@@ -5,19 +5,19 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.6.2
+- **Language**: GDScript (primary), C++ via GDExtension (performance-critical)
+- **Rendering**: Compatibility renderer (web target default), optional Forward+ for desktop builds
+- **Physics**: Godot Physics 2D
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase (e.g., `PlayerController`)
+- **Variables**: snake_case (e.g., `move_speed`)
+- **Signals/Events**: snake_case past tense (e.g., `health_changed`)
+- **Files**: snake_case matching class (e.g., `player_controller.gd`)
+- **Scenes/Prefabs**: PascalCase matching root node (e.g., `PlayerController.tscn`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_HEALTH`)
 
 ## Performance Budgets
 
@@ -25,10 +25,11 @@
 - **Frame Budget**: [TO BE CONFIGURED]
 - **Draw Calls**: [TO BE CONFIGURED]
 - **Memory Ceiling**: [TO BE CONFIGURED]
+- **Suggestion**: Typical browser target is 60 FPS / 16.6ms frame budget. Want to set these now?
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
+- **Framework**: GUT (Godot Unit Test)
 - **Minimum Coverage**: [TO BE CONFIGURED]
 - **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
 
