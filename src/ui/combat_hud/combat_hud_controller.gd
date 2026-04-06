@@ -26,12 +26,12 @@ const ALT_DEFEND_BG := Color("#15384a")
 const ALT_DEFEND_BORDER := Color("#8de2ff")
 const ALT_OTHER_BG := Color("#27412a")
 const ALT_OTHER_BORDER := Color("#9af2a9")
-const HAND_CARD_SIZE := Vector2(232, 338)
-const REWARD_CARD_SIZE := Vector2(288, 420)
-const HAND_ART_FACE_SIZE := Vector2(184, 110)
-const REWARD_ART_FACE_SIZE := Vector2(224, 140)
-const HAND_ROLE_FACE_SIZE := Vector2(30, 30)
-const REWARD_ROLE_FACE_SIZE := Vector2(36, 36)
+const HAND_CARD_SIZE := Vector2(276, 396)
+const REWARD_CARD_SIZE := Vector2(336, 480)
+const HAND_ART_FACE_SIZE := Vector2(228, 136)
+const REWARD_ART_FACE_SIZE := Vector2(276, 166)
+const HAND_ROLE_FACE_SIZE := Vector2(34, 34)
+const REWARD_ROLE_FACE_SIZE := Vector2(40, 40)
 const HAND_HOVER_SCALE := 1.55
 const REWARD_HOVER_SCALE := 1.22
 const CARD_BODY_CLASSIC := Color("#eadfc7")
@@ -259,54 +259,54 @@ func _apply_card_face_layout(button: Button, is_reward: bool) -> void:
 
 	if is_reward:
 		if chrome is Control:
-			_set_control_rect(chrome, 12.0, 12.0, 276.0, 408.0)
+			_set_control_rect(chrome, 12.0, 12.0, 324.0, 456.0)
 		if art_frame is Control:
-			_set_control_rect(art_frame, 22.0, 40.0, 266.0, 196.0)
+			_set_control_rect(art_frame, 22.0, 42.0, 314.0, 224.0)
 		if title_rail is Control:
-			_set_control_rect(title_rail, 22.0, 206.0, 266.0, 244.0)
+			_set_control_rect(title_rail, 22.0, 236.0, 314.0, 280.0)
 		if footer_strip is Control:
-			_set_control_rect(footer_strip, 20.0, 388.0, 268.0, 410.0)
+			_set_control_rect(footer_strip, 20.0, 446.0, 316.0, 470.0)
 		if hotkey_badge is Control:
-			_set_control_rect(hotkey_badge, 30.0, 14.0, 96.0, 38.0)
+			_set_control_rect(hotkey_badge, 30.0, 14.0, 100.0, 40.0)
 		if cost_badge is Control:
-			_set_control_rect(cost_badge, 190.0, 14.0, 260.0, 40.0)
+			_set_control_rect(cost_badge, 230.0, 14.0, 308.0, 42.0)
 		if art_thumb is Control:
-			_set_control_rect(art_thumb, 32.0, 48.0, 256.0, 188.0)
+			_set_control_rect(art_thumb, 30.0, 50.0, 306.0, 216.0)
 		if role_icon is Control:
-			_set_control_rect(role_icon, 28.0, 208.0, 64.0, 244.0)
+			_set_control_rect(role_icon, 28.0, 238.0, 68.0, 278.0)
 		if name_label is Control:
-			_set_control_rect(name_label, 72.0, 212.0, 260.0, 240.0)
+			_set_control_rect(name_label, 78.0, 242.0, 308.0, 274.0)
 		if payoff_label is Control:
-			_set_control_rect(payoff_label, 30.0, 258.0, 258.0, 288.0)
+			_set_control_rect(payoff_label, 30.0, 296.0, 306.0, 332.0)
 		if rules_label is Control:
-			_set_control_rect(rules_label, 30.0, 300.0, 258.0, 378.0)
+			_set_control_rect(rules_label, 30.0, 344.0, 306.0, 432.0)
 		if footer_label is Control:
-			_set_control_rect(footer_label, 30.0, 388.0, 258.0, 410.0)
+			_set_control_rect(footer_label, 30.0, 446.0, 306.0, 470.0)
 	else:
 		if chrome is Control:
-			_set_control_rect(chrome, 10.0, 10.0, 222.0, 328.0)
+			_set_control_rect(chrome, 10.0, 10.0, 266.0, 386.0)
 		if art_frame is Control:
-			_set_control_rect(art_frame, 18.0, 34.0, 214.0, 154.0)
+			_set_control_rect(art_frame, 18.0, 36.0, 258.0, 178.0)
 		if title_rail is Control:
-			_set_control_rect(title_rail, 18.0, 164.0, 214.0, 198.0)
+			_set_control_rect(title_rail, 18.0, 190.0, 258.0, 228.0)
 		if footer_strip is Control:
-			_set_control_rect(footer_strip, 16.0, 308.0, 216.0, 328.0)
+			_set_control_rect(footer_strip, 16.0, 372.0, 260.0, 394.0)
 		if hotkey_badge is Control:
-			_set_control_rect(hotkey_badge, 24.0, 12.0, 66.0, 32.0)
+			_set_control_rect(hotkey_badge, 24.0, 12.0, 74.0, 34.0)
 		if cost_badge is Control:
-			_set_control_rect(cost_badge, 160.0, 12.0, 214.0, 34.0)
+			_set_control_rect(cost_badge, 188.0, 12.0, 258.0, 36.0)
 		if art_thumb is Control:
-			_set_control_rect(art_thumb, 24.0, 40.0, 208.0, 150.0)
+			_set_control_rect(art_thumb, 24.0, 44.0, 252.0, 180.0)
 		if role_icon is Control:
-			_set_control_rect(role_icon, 22.0, 166.0, 52.0, 196.0)
+			_set_control_rect(role_icon, 22.0, 192.0, 56.0, 226.0)
 		if name_label is Control:
-			_set_control_rect(name_label, 58.0, 168.0, 212.0, 194.0)
+			_set_control_rect(name_label, 64.0, 196.0, 256.0, 226.0)
 		if payoff_label is Control:
-			_set_control_rect(payoff_label, 22.0, 206.0, 212.0, 234.0)
+			_set_control_rect(payoff_label, 22.0, 244.0, 256.0, 278.0)
 		if rules_label is Control:
-			_set_control_rect(rules_label, 22.0, 242.0, 212.0, 300.0)
+			_set_control_rect(rules_label, 22.0, 292.0, 256.0, 362.0)
 		if footer_label is Control:
-			_set_control_rect(footer_label, 22.0, 308.0, 212.0, 328.0)
+			_set_control_rect(footer_label, 22.0, 372.0, 256.0, 394.0)
 
 func _apply_readability_theme() -> void:
 	for path in [
@@ -697,12 +697,12 @@ func _apply_card_face_style(button: Button, card_id: String, footer_text: String
 	_apply_face_panel_override(button, "ArtFrame", CARD_FRAME_BG, CARD_FRAME_BORDER, 1, 8)
 	_apply_face_panel_override(button, "TitleRail", title_bg, accent, 1, 7)
 	_apply_face_panel_override(button, "FooterStrip", footer_bg, accent, 1, 7)
-	_apply_face_label_override(button, "HotkeyBadge", 15 if not is_reward else 17, badge_color, HORIZONTAL_ALIGNMENT_LEFT, false)
-	_apply_face_label_override(button, "CostBadge", 15 if not is_reward else 18, badge_color, HORIZONTAL_ALIGNMENT_RIGHT, false)
-	_apply_face_label_override(button, "NameLabel", 19 if not is_reward else 22, title_text_color, HORIZONTAL_ALIGNMENT_LEFT, false)
-	_apply_face_label_override(button, "PayoffLabel", 17 if not is_reward else 20, payoff_color, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_apply_face_label_override(button, "RulesLabel", 13 if not is_reward else 15, body_text_color, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_apply_face_label_override(button, "FooterLabel", 12 if not is_reward else 14, footer_text_color, HORIZONTAL_ALIGNMENT_LEFT, false)
+	_apply_face_label_override(button, "HotkeyBadge", 16 if not is_reward else 18, badge_color, HORIZONTAL_ALIGNMENT_LEFT, false)
+	_apply_face_label_override(button, "CostBadge", 16 if not is_reward else 19, badge_color, HORIZONTAL_ALIGNMENT_RIGHT, false)
+	_apply_face_label_override(button, "NameLabel", 21 if not is_reward else 24, title_text_color, HORIZONTAL_ALIGNMENT_LEFT, false)
+	_apply_face_label_override(button, "PayoffLabel", 18 if not is_reward else 21, payoff_color, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_apply_face_label_override(button, "RulesLabel", 14 if not is_reward else 16, body_text_color, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_apply_face_label_override(button, "FooterLabel", 13 if not is_reward else 15, footer_text_color, HORIZONTAL_ALIGNMENT_LEFT, false)
 
 func _refresh_card_face(button: Button, card_id: String, slot_index: int, footer_text: String, disabled: bool) -> void:
 	var is_reward: bool = _is_reward_button(button)

@@ -607,12 +607,12 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         controller_text = Path("src/ui/combat_hud/combat_hud_controller.gd").read_text()
 
         self.assertIn('alignment = 1', scene_text)
-        self.assertIn('theme_override_constants/separation = 8', scene_text)
+        self.assertIn('theme_override_constants/separation = -92', scene_text)
         self.assertIn('theme_override_constants/separation = 20', scene_text)
         self.assertIn('size_flags_vertical = 3', scene_text)
         self.assertIn('custom_minimum_size = Vector2(0, 84)', scene_text)
-        self.assertGreaterEqual(scene_text.count('custom_minimum_size = Vector2(232, 338)'), 5)
-        self.assertGreaterEqual(scene_text.count('custom_minimum_size = Vector2(288, 420)'), 3)
+        self.assertGreaterEqual(scene_text.count('custom_minimum_size = Vector2(276, 396)'), 5)
+        self.assertGreaterEqual(scene_text.count('custom_minimum_size = Vector2(336, 480)'), 3)
         self.assertIn('func _ensure_card_face(button: Button, is_reward: bool) -> void:', controller_text)
         for hook_name in [
             '"Chrome"',

@@ -208,10 +208,10 @@ text = "Hand"
 [node name="HandButtons" type="HBoxContainer" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 8
+theme_override_constants/separation = -92
 
 [node name="Card1" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(232, 338)
+custom_minimum_size = Vector2(276, 396)
 layout_mode = 2
 text = "(empty)"
 
@@ -232,7 +232,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card2" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(232, 338)
+custom_minimum_size = Vector2(276, 396)
 layout_mode = 2
 text = "(empty)"
 
@@ -253,7 +253,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card3" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(232, 338)
+custom_minimum_size = Vector2(276, 396)
 layout_mode = 2
 text = "(empty)"
 
@@ -274,7 +274,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card4" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(232, 338)
+custom_minimum_size = Vector2(276, 396)
 layout_mode = 2
 text = "(empty)"
 
@@ -295,7 +295,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card5" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(232, 338)
+custom_minimum_size = Vector2(276, 396)
 layout_mode = 2
 text = "(empty)"
 
@@ -397,7 +397,7 @@ alignment = 1
 theme_override_constants/separation = 20
 
 [node name="Reward1" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(288, 420)
+custom_minimum_size = Vector2(336, 480)
 layout_mode = 2
 text = "Reward 1"
 
@@ -418,7 +418,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Reward2" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(288, 420)
+custom_minimum_size = Vector2(336, 480)
 layout_mode = 2
 text = "Reward 2"
 
@@ -439,7 +439,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Reward3" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(288, 420)
+custom_minimum_size = Vector2(336, 480)
 layout_mode = 2
 text = "Reward 3"
 
