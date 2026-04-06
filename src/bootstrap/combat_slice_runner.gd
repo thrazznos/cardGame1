@@ -112,7 +112,7 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	refresh_hud()
 
 func _bootstrap_demo_state() -> void:
-	dls.draw_pile = _card_instance_array(run_master_deck)
+	dls.draw_pile = _card_instance_array(run_master_deck, _encounter_runtime_scope("draw"))
 	dls.hand = []
 	dls.discard_pile = []
 	dls.exhaust_pile = []
@@ -136,6 +136,8 @@ func get_view_model() -> Dictionary:
 		"turn_energy_max": TURN_ENERGY,
 		"enemy_intent_damage": enemy_intent_damage,
 		"hand": _zone_instance_ids(dls.hand),
+		"hand_card_ids": _zone_card_ids(dls.hand),
+		"hand_play_reasons": _zone_play_reasons(dls.hand),
 		"zones": {
 			"draw": dls.draw_pile.size(),
 			"discard": dls.discard_pile.size(),
@@ -172,45 +174,64 @@ func refresh_hud() -> void:
 	if hud != null:
 		hud.refresh(get_view_model())
 
-func player_play_card(card_id: String) -> Dictionary:
+func player_play_card(instance_id: String) -> Dictionary:
 	var play_gate_reason: String = _get_play_gate_reason()
 	if play_gate_reason != "":
-		_remember_reject(play_gate_reason)
-		refresh_hud()
-		return {"ok": false, "reason": play_gate_reason}
+		return _reject_play(instance_id, {"ok": false, "reason": play_gate_reason})
 
-	var resolved_card_id: String = card_id
-	if not _hand_has_exact(card_id):
-		_remember_reject("ERR_CARD_NOT_IN_HAND")
-		refresh_hud()
-		return {"ok": false, "reason": "ERR_CARD_NOT_IN_HAND", "card_id": card_id}
+	var source_instance_id: String = instance_id
+	var selected_card: Variant = _hand_card_entry(source_instance_id)
+	if selected_card == null:
+		return _reject_play(source_instance_id, {"ok": false, "reason": "ERR_CARD_NOT_IN_HAND", "card_id": instance_id})
+	var resolved_card_id: String = _card_instance_card_id(selected_card)
+	if resolved_card_id == "" or card_catalog == null or not card_catalog.has_card(resolved_card_id):
+		return _reject_play(source_instance_id, {
+			"ok": false,
+			"reason": "ERR_CARD_DEFINITION_NOT_FOUND",
+			"instance_id": source_instance_id,
+			"card_id": resolved_card_id,
+		})
+	var card_reject_reason: String = _card_play_reject_reason(selected_card)
+	if card_reject_reason != "":
+		return _reject_play(source_instance_id, {
+			"ok": false,
+			"reason": card_reject_reason,
+			"instance_id": source_instance_id,
+			"card_id": resolved_card_id,
+		})
+	var play_cost: int = _card_play_cost(selected_card)
 
-	var submit: Dictionary = tsre.submit_play_intent({"card_id": resolved_card_id})
+	var submit: Dictionary = tsre.submit_play_intent({
+		"card_id": resolved_card_id,
+		"source_instance_id": source_instance_id,
+	})
 	if not submit.get("ok", false):
-		_remember_reject(str(submit.get("reason", "")))
-		refresh_hud()
-		return submit
+		return _reject_play(source_instance_id, submit)
 
-	var committed: Dictionary = dls.commit_play(resolved_card_id)
+	var committed: Dictionary = dls.commit_play(source_instance_id)
 	if not committed.get("ok", false):
-		_remember_reject(str(committed.get("reason", "")))
-		refresh_hud()
-		return committed
+		return _reject_play(source_instance_id, committed)
+	var committed_card: Variant = committed.get("card", selected_card)
+	resolved_card_id = _card_instance_card_id(committed_card)
 
 	_clear_reject()
-	energy -= 1
+	energy -= play_cost
 	queue.enqueue({
 		"turn_index": tsre.turn_index,
 		"phase_index": tsre.phase_index,
-		"timing_window_priority": 1,
-		"speed_class_priority": 1,
-		"source_instance_id": card_id,
-		"effect": _card_to_effect(card_id)
+		"timing_window_priority": _card_timing_window_priority(committed_card),
+		"speed_class_priority": _card_speed_class_priority(committed_card),
+		"source_instance_id": source_instance_id,
+		"card_id": resolved_card_id,
+		"effect": _card_to_effect(committed_card)
 	})
 	tsre.resolve_lock = true
 	_resolve_queue_once()
 	tsre.resolve_lock = false
-	_record_event("play_commit", {"card_id": card_id, "energy_after": energy})
+	_record_event("play_commit", {
+		"card_id": source_instance_id,
+		"energy_after": energy,
+	})
 	_check_combat_end()
 	refresh_hud()
 	return {"ok": true}
@@ -316,14 +337,16 @@ func _resolve_queue_once() -> void:
 		var effect: Dictionary = effect_entry
 		var result: Dictionary = erp.resolve_effect(effect, {"gsm": gsm})
 		var drawn_cards: Array = _apply_effect_result(result)
+		var event_item: Dictionary = item.duplicate(true)
+		event_item.erase("card_id")
 		if is_multi_effect:
-			_record_event("effect_resolve", {"item": item, "effect": effect, "result": result})
+			_record_event("effect_resolve", {"item": event_item, "effect": effect, "result": result})
 		else:
-			_record_event("effect_resolve", {"item": item, "result": result})
+			_record_event("effect_resolve", {"item": event_item, "result": result})
 		if not drawn_cards.is_empty():
 			effect_resolve_draw_annotations[event_stream.size() - 1] = drawn_cards.duplicate(true)
 
-	dls.finalize_play(str(item.get("source_instance_id", "")), "discard")
+	dls.finalize_play(str(item.get("source_instance_id", "")))
 
 func _apply_effect_result(result: Dictionary) -> Array:
 	var drawn_cards: Array = []
@@ -379,10 +402,11 @@ func choose_reward(card_id: String) -> Dictionary:
 
 	_clear_reject()
 	reward_selected_card_id = card_id
+	var reward_live_card: Dictionary = _live_runtime_card(card_id, _encounter_runtime_scope("reward"), reward_commit_count)
 	reward_commit_count += 1
 	reward_state = "applied"
 	run_master_deck.append(card_id)
-	dls.discard_pile.append(_card_instance_value(card_id))
+	dls.discard_pile.append(reward_live_card)
 	reward_summary_text = "Added %s to discard. Deck now %d cards." % [_display_name_for_card(card_id), run_master_deck.size()]
 	_record_event("reward_pick", {
 		"draft_instance_id": reward_draft_instance_id,
@@ -448,7 +472,7 @@ func run_fixture(path: String) -> Dictionary:
 			break
 		_apply_step(step)
 
-	_auto_finish_combat(12)
+	_auto_finish_combat(int(fixture.get("auto_finish_max_turns", 12)))
 
 	var post_combat_inputs: Array = fixture.get("post_combat_inputs", [])
 	for step in post_combat_inputs:
@@ -502,6 +526,9 @@ func run_fixture(path: String) -> Dictionary:
 		"encounter_intent_style": _encounter_intent_style(),
 		"encounter_intro_flavor": _encounter_intro_flavor(),
 		"hand": _zone_instance_ids(dls.hand),
+		"hand_card_ids": _zone_card_ids(dls.hand),
+		"discard": _zone_instance_ids(dls.discard_pile),
+		"discard_card_ids": _zone_card_ids(dls.discard_pile),
 	}
 
 func _apply_step(step: Dictionary) -> void:
@@ -511,7 +538,7 @@ func _apply_step(step: Dictionary) -> void:
 			var cards: Array = step.get("cards", [])
 			dls.hand = []
 			for card in cards:
-				dls.hand.append(_card_instance_value(str(card)))
+				dls.hand.append(_card_instance_value(card))
 			if bool(step.get("clear_other_zones", false)):
 				dls.draw_pile = []
 				dls.discard_pile = []
@@ -522,10 +549,8 @@ func _apply_step(step: Dictionary) -> void:
 			energy = int(step.get("energy", energy))
 			refresh_hud()
 		"play":
-			var card_id: String = str(step.get("card_id", ""))
-			var result: Dictionary = player_play_card(card_id)
-			if not result.get("ok", false):
-				_record_event("play_reject", result)
+			var play_token: String = str(step.get("instance_id", step.get("card_id", "")))
+			player_play_card(play_token)
 		"pass":
 			player_pass()
 		"pick_reward":
@@ -539,10 +564,29 @@ func _apply_step(step: Dictionary) -> void:
 		_:
 			_record_event("unknown_action", step)
 
-func _card_to_effect(card_id: String) -> Variant:
+func _card_to_effect(card_value: Variant) -> Variant:
+	var card_id: String = _card_instance_card_id(card_value)
 	if card_catalog != null and card_catalog.has_card(card_id):
 		return card_catalog.effects_for(card_id)
-	return {"type": "draw_n", "amount": 1}
+	return {"type": "invalid_card_definition", "card_id": card_id}
+
+func _card_play_cost(card_value: Variant) -> int:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return 1
+	return int(card_catalog.base_cost(card_id))
+
+func _card_timing_window_priority(card_value: Variant) -> int:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return 1
+	return int(card_catalog.timing_window_priority(card_id))
+
+func _card_speed_class_priority(card_value: Variant) -> int:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return 1
+	return int(card_catalog.speed_class_priority(card_id))
 
 func _auto_finish_combat(max_turns: int) -> void:
 	while combat_result == "in_progress" and tsre.turn_index <= max_turns:
@@ -562,15 +606,15 @@ func _auto_finish_combat(max_turns: int) -> void:
 func _first_card_by_resolved_id(target_card_id: String) -> String:
 	for c in dls.hand:
 		var instance_id: String = _card_instance_id(c)
-		if card_catalog != null and card_catalog.resolved_card_id(instance_id) == target_card_id:
+		if _card_instance_card_id(c) == target_card_id:
 			return instance_id
 	return ""
 
-func _hand_has_exact(card_id: String) -> bool:
+func _hand_card_entry(instance_id: String) -> Variant:
 	for c in dls.hand:
-		if _card_instance_id(c) == card_id:
-			return true
-	return false
+		if _card_instance_id(c) == instance_id:
+			return c
+	return null
 
 func _get_play_gate_reason() -> String:
 	if combat_result != "in_progress":
@@ -590,6 +634,66 @@ func _get_pass_gate_reason() -> String:
 		return str(input_gate.get("reason", ""))
 	return ""
 
+func _zone_play_reasons(zone: Array) -> Array:
+	var reasons: Array = []
+	for card_value in zone:
+		reasons.append(_card_play_reject_reason(card_value))
+	return reasons
+
+func _card_play_reject_reason(card_value: Variant) -> String:
+	var global_reason: String = _get_play_gate_reason()
+	if global_reason != "":
+		return global_reason
+	var play_condition_reason: String = _card_play_condition_reason(card_value)
+	if play_condition_reason != "":
+		return play_condition_reason
+	var target_reason: String = _card_target_reason(card_value)
+	if target_reason != "":
+		return target_reason
+	var play_cost: int = _card_play_cost(card_value)
+	if energy < play_cost:
+		return "ERR_NOT_ENOUGH_ENERGY"
+	return ""
+
+func _card_play_condition_reason(card_value: Variant) -> String:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return ""
+	for condition_variant in card_catalog.play_conditions(card_id):
+		if not (condition_variant is Dictionary):
+			continue
+		var condition: Dictionary = condition_variant
+		var condition_id: String = str(condition.get("condition_id", "")).strip_edges()
+		match condition_id:
+			"focus_at_least":
+				if gsm == null:
+					return "ERR_FOCUS_REQUIRED"
+				var required_focus: int = max(1, int(condition.get("amount", 1)))
+				if int(gsm.focus_snapshot()) < required_focus:
+					return "ERR_FOCUS_REQUIRED"
+			_:
+				pass
+	return ""
+
+func _card_target_reason(card_value: Variant) -> String:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return ""
+	match card_catalog.target_mode(card_id):
+		"single_enemy":
+			if combat_result != "in_progress" or enemy_hp <= 0:
+				return "ERR_NO_VALID_TARGETS"
+	return ""
+
+func _reject_play(source_instance_id: String, result: Dictionary) -> Dictionary:
+	var payload: Dictionary = result.duplicate(true)
+	if not payload.has("card_id"):
+		payload["card_id"] = source_instance_id
+	_remember_reject(str(payload.get("reason", "")))
+	_record_event("play_reject", payload)
+	refresh_hud()
+	return payload
+
 func _remember_reject(reason: String) -> void:
 	last_reject_reason = reason
 
@@ -599,7 +703,7 @@ func _clear_reject() -> void:
 func _present_reward_checkpoint() -> void:
 	reward_checkpoint_count += 1
 	reward_checkpoint_id = "combat_clear_%d" % tsre.turn_index
-	var draft: Dictionary = reward_draft.build_card_offer(rng, reward_checkpoint_id, [])
+	var draft: Dictionary = reward_draft.build_card_offer(rng, _reward_context(reward_checkpoint_id, "base_reward", "base_set"), [])
 	reward_draft_instance_id = str(draft.get("draft_instance_id", ""))
 	reward_offer = draft.get("offers", []).duplicate(true)
 	reward_selected_card_id = ""
@@ -610,6 +714,13 @@ func _present_reward_checkpoint() -> void:
 		"draft_instance_id": reward_draft_instance_id,
 		"offer_card_ids": _reward_offer_card_ids(),
 	})
+
+func _reward_context(checkpoint_id: String, reward_pool_tag: String, active_unlock_key: String) -> Dictionary:
+	return {
+		"checkpoint_id": checkpoint_id,
+		"reward_pool_tag": reward_pool_tag,
+		"active_unlock_key": active_unlock_key,
+	}
 
 func _reward_offer_card_ids() -> Array:
 	var ids: Array = []
@@ -757,16 +868,50 @@ func _card_instance_id(value: Variant) -> String:
 		return str(value)
 	return card_instance.instance_id_of(value)
 
+func _card_instance_card_id(value: Variant) -> String:
+	if value == null:
+		return ""
+	if card_instance == null:
+		return str(value)
+	return card_instance.card_id_of(value, card_catalog)
+
+func _encounter_runtime_scope(zone_name: String) -> String:
+	return "enc_%02d_%s" % [encounter_index, zone_name]
+
+func _mint_runtime_instance_id(card_value: Variant, runtime_scope: String, runtime_index: int) -> String:
+	var card_id: String = _card_instance_card_id(card_value)
+	if card_id == "":
+		card_id = _card_instance_id(card_value)
+	return "%s_%02d_%s" % [runtime_scope, runtime_index, card_id]
+
+func _live_runtime_card(value: Variant, runtime_scope: String, runtime_index: int) -> Dictionary:
+	if card_instance == null:
+		return _card_instance_value(value)
+	return card_instance.live_runtime_card(
+		value,
+		card_catalog,
+		_mint_runtime_instance_id(value, runtime_scope, runtime_index)
+	)
+
 func _zone_instance_ids(zone: Array) -> Array:
 	var ids: Array = []
 	for entry in zone:
 		ids.append(_card_instance_id(entry))
 	return ids
 
-func _card_instance_array(values: Array) -> Array:
+func _zone_card_ids(zone: Array) -> Array:
+	var ids: Array = []
+	for entry in zone:
+		ids.append(_card_instance_card_id(entry))
+	return ids
+
+func _card_instance_array(values: Array, runtime_scope: String = "") -> Array:
 	var cards: Array = []
-	for value in values:
-		cards.append(_card_instance_value(value))
+	var resolved_runtime_scope: String = runtime_scope
+	if resolved_runtime_scope == "":
+		resolved_runtime_scope = _encounter_runtime_scope("draw")
+	for i in range(values.size()):
+		cards.append(_live_runtime_card(values[i], resolved_runtime_scope, i))
 	return cards
 
 func _gem_stack_top_window(limit: int) -> Array:

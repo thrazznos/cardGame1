@@ -28,26 +28,26 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
 [node name="VBox" type="VBoxContainer" parent="CombatHud/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Banner" type="PanelContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
 
 [node name="BannerRow" type="HBoxContainer" parent="CombatHud/Margin/VBox/Banner"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="BannerCrest" type="TextureRect" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 
 [node name="Title" type="Label" parent="CombatHud/Margin/VBox/Banner/BannerRow"]
@@ -68,7 +68,7 @@ text = "INPUT READY"
 
 [node name="StatsRow" type="HBoxContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="PlayerPanel" type="PanelContainer" parent="CombatHud/Margin/VBox/StatsRow"]
 layout_mode = 2
@@ -83,7 +83,7 @@ layout_mode = 2
 text = "Player"
 
 [node name="PlayerPortrait" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
 
 [node name="PlayerHpBar" type="ProgressBar" parent="CombatHud/Margin/VBox/StatsRow/PlayerPanel/PlayerVBox"]
@@ -113,7 +113,7 @@ layout_mode = 2
 text = "Enemy"
 
 [node name="EnemyPortrait" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel/EnemyVBox"]
-custom_minimum_size = Vector2(88, 88)
+custom_minimum_size = Vector2(68, 68)
 layout_mode = 2
 
 [node name="EnemyHpBar" type="ProgressBar" parent="CombatHud/Margin/VBox/StatsRow/EnemyPanel/EnemyVBox"]
@@ -130,6 +130,52 @@ size_flags_horizontal = 2
 [node name="Zones" type="Label" parent="CombatHud/Margin/VBox/StatsRow/ZonesPanel"]
 layout_mode = 2
 text = "Zones"
+
+[node name="GeneratedStatusPanel" type="PanelContainer" parent="CombatHud/Margin/VBox/StatsRow"]
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="GeneratedStatusVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="GeneratedStatusLabel" type="Label" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox"]
+layout_mode = 2
+text = "STACK / FOCUS"
+
+[node name="GeneratedStatusStrip" type="HBoxContainer" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GemTop1" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="GemTop2" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="GemTop3" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FocusIcon" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FocusValue" type="Label" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+layout_mode = 2
+text = "0"
+
+[node name="LockIcon" type="TextureRect" parent="CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip"]
+visible = false
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="QueuePanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
@@ -149,6 +195,7 @@ text = "Hint"
 
 [node name="HandPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="HandVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/HandPanel"]
 layout_mode = 2
@@ -160,45 +207,120 @@ text = "Hand"
 
 [node name="HandButtons" type="HBoxContainer" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+alignment = 1
+theme_override_constants/separation = 8
 
 [node name="Card1" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(232, 338)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "(empty)"
+
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card1"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card1"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
 
 [node name="Card2" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(232, 338)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "(empty)"
+
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card2"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card2"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
 
 [node name="Card3" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(232, 338)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "(empty)"
+
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card3"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card3"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
 
 [node name="Card4" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(232, 338)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "(empty)"
+
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card4"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card4"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
 
 [node name="Card5" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(232, 338)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "(empty)"
 
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card5"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card5"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
+
 [node name="EventPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
-size_flags_vertical = 3
 
 [node name="EventLog" type="Label" parent="CombatHud/Margin/VBox/EventPanel"]
 layout_mode = 2
-size_flags_vertical = 3
 autowrap_mode = 3
 text = "Last: Battle ready"
 
@@ -207,13 +329,13 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="Pass" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Pass Turn"
 
 [node name="Restart" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Restart"
@@ -246,12 +368,12 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="RewardPanel" type="PanelContainer" parent="CombatHud/RewardOverlay/Center"]
-custom_minimum_size = Vector2(920, 0)
+custom_minimum_size = Vector2(1120, 0)
 layout_mode = 2
 
 [node name="RewardVBox" type="VBoxContainer" parent="CombatHud/RewardOverlay/Center/RewardPanel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 10
 
 [node name="RewardTitle" type="Label" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
 layout_mode = 2
@@ -271,25 +393,71 @@ text = "Choose 1 of 3 cards to add to your deck."
 
 [node name="RewardChoices" type="HBoxContainer" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+alignment = 1
+theme_override_constants/separation = 20
 
 [node name="Reward1" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(288, 420)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Reward 1"
 
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward1"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward1"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
+
 [node name="Reward2" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(288, 420)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Reward 2"
 
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward2"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward2"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
+
 [node name="Reward3" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices"]
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(288, 420)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Reward 3"
+
+[node name="ArtThumb" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward3"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 68.0
+offset_bottom = 68.0
+mouse_filter = 2
+
+[node name="RoleIcon" type="TextureRect" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward3"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 74.0
+offset_right = 32.0
+offset_bottom = 94.0
+mouse_filter = 2
 
 [node name="RewardState" type="Label" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
 layout_mode = 2
@@ -298,7 +466,7 @@ text = ""
 
 [node name="RewardContinue" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
 visible = false
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Continue"
 

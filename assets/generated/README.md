@@ -2,14 +2,51 @@
 
 Status:
 - Prototype gameplay-art pack generated with Pixellab MCP.
-- Files are now stored repo-locally under `assets/generated/`.
-- Nothing is wired into runtime yet; this is a curated handoff pack for the next art/integration pass.
+- Files are stored repo-locally under `assets/generated/`.
+- The combat HUD now wires this pack into the native prototype for:
+  - hand card thumbnails
+  - reward card thumbnails
+  - role icons
+  - gem stack tokens
+  - FOCUS icon
+  - lock icon
+- This remains prototype-grade presentation, not final production art.
 
 Primary directories:
 - `assets/generated/cards/`
 - `assets/generated/cards/placeholders/`
 - `assets/generated/gems/`
 - `assets/generated/ui/icons/`
+
+## Active runtime swap points
+
+Runtime wiring currently lives in:
+- `src/ui/combat_hud/combat_hud_controller.gd`
+- `scenes/combat/combat_slice.tscn`
+
+Primary swap surfaces:
+- Hand buttons:
+  - `CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card1..Card5/ArtThumb`
+  - `CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons/Card1..Card5/RoleIcon`
+- Reward buttons:
+  - `CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward1..Reward3/ArtThumb`
+  - `CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox/RewardChoices/Reward1..Reward3/RoleIcon`
+- Generated status strip:
+  - `CombatHud/Margin/VBox/StatsRow/GeneratedStatusPanel/GeneratedStatusVBox/GeneratedStatusStrip/GemTop1`
+  - `.../GemTop2`
+  - `.../GemTop3`
+  - `.../FocusIcon`
+  - `.../FocusValue`
+  - `.../LockIcon`
+
+Presentation mapping currently follows shared family lanes rather than one-image-per-card:
+- strike lane -> `card_strike_cat_duelist_md.png`
+- defend lane -> `card_defend_badger_bulwark_md.png`
+- utility lane -> `card_scheme_seep_goblin_md.png`
+- ruby/gem attack lane -> `card_ember_jab_ruby_md.png`
+- sapphire/gem defend lane -> `card_ward_polish_sapphire_md.png`
+- focus lane -> `card_vault_focus_seal_md.png`
+- unknown card fallback -> `card_placeholder_steward_warrant_md.png`
 
 ## Asset inventory
 
@@ -92,11 +129,11 @@ Primary directories:
 ## Recommended next-agent work
 
 1. Do not start by generating more portraits at random.
-2. First decide where these assets enter runtime:
-   - shared card-art mapping by `card_id`
-   - placeholder fallback path
-   - gem-stack and FOCUS icon surfaces
-3. If card UI remains button/text-only for now, wire gems/icons first and stage card art mapping behind a small presentation abstraction.
+2. The runtime swap points now exist; use them rather than changing gameplay code:
+   - shared card-art mapping by card family lives in `src/ui/combat_hud/combat_hud_controller.gd`
+   - hand/reward visual nodes live in `scenes/combat/combat_slice.tscn`
+   - gem/focus/lock strip lives in `GeneratedStatusPanel`
+3. If you improve images, prefer replacing the existing mapped files first before expanding the mapping table.
 4. Hand-clean the tiny icons before treating them as final truth-assets.
 5. If a stricter portrait lane is needed later, regenerate only the weak cases:
    - `card_strike_cat_duelist_md.png` for a more portrait-safe bust crop

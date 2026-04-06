@@ -72,6 +72,12 @@ class FixtureCompareTests(unittest.TestCase):
             "tests/determinism/fixtures/seed_gsm_001.expected.json",
         )
 
+    def test_seed_identity_001_matches_expected_baseline(self):
+        self._assert_fixture_matches_expected(
+            "res://tests/determinism/fixtures/seed_identity_001.json",
+            "tests/determinism/fixtures/seed_identity_001.expected.json",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

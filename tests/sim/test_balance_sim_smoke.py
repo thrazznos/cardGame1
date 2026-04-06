@@ -113,6 +113,39 @@ class BalanceSimSmokeTests(unittest.TestCase):
         self.assertEqual(strike_plus_avg, 7.0)
         self.assertEqual(strike_precise_avg, 7.0)
 
+    def test_balance_report_exposes_authored_card_sim_metadata(self):
+        strike_plus = self._run_sim(
+            {
+                "simulation_id": "strike_plus_metadata_probe",
+                "seed_root": 111,
+                "deck_list": ["strike_plus"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+        strike_precise = self._run_sim(
+            {
+                "simulation_id": "strike_precise_metadata_probe",
+                "seed_root": 222,
+                "deck_list": ["strike_precise"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+
+        self.assertEqual(
+            strike_plus["card_sim_metadata"]["strike_plus"]["report_role"],
+            "attack_upgrade",
+        )
+        self.assertEqual(
+            strike_precise["card_sim_metadata"]["strike_precise"]["report_role"],
+            "attack_draw",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,25 @@
+{
+  "fixture_id": "seed_identity_001",
+  "seed_root": 13371337,
+  "auto_finish_max_turns": 0,
+  "inputs": [
+    {
+      "action": "set_hand",
+      "cards": [
+        {"instance_id": "strike_alpha", "card_id": "strike"},
+        {"instance_id": "strike_beta", "card_id": "strike"},
+        {"instance_id": "strike_gamma", "card_id": "strike"},
+        {"instance_id": "strike_delta", "card_id": "strike"}
+      ],
+      "clear_other_zones": true
+    },
+    {
+      "action": "set_energy",
+      "energy": 1
+    },
+    {
+      "action": "play",
+      "instance_id": "strike_beta"
+    }
+  ]
+}

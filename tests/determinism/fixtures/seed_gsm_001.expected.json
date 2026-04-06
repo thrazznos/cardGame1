@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_gsm_001",
-  "final_state_hash": "3319648475",
-  "event_sequence_hash": "4021434972",
+  "final_state_hash": "3282431254",
+  "event_sequence_hash": "1162834714",
   "rng_cursor_snapshot": {
     "encounter.intent": 3,
     "reward.card": 3

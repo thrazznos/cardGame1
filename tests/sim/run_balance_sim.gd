@@ -113,6 +113,7 @@ func _build_report(node: Node, input_payload: Dictionary) -> Dictionary:
 	var card_catalog = CARD_CATALOG_SCRIPT.new()
 	var card_play_counts: Dictionary = {}
 	var card_effect_value_proxy: Dictionary = {}
+	var card_sim_metadata: Dictionary = {}
 	var mana_spent_total: int = 0
 
 	for event in event_stream:
@@ -126,6 +127,9 @@ func _build_report(node: Node, input_payload: Dictionary) -> Dictionary:
 			continue
 		card_play_counts[card_id] = int(card_play_counts.get(card_id, 0)) + 1
 		card_effect_value_proxy[card_id] = float(card_effect_value_proxy.get(card_id, 0.0)) + card_catalog.value_proxy(card_id)
+		var metadata: Dictionary = card_catalog.sim_metadata(card_id)
+		if not metadata.is_empty():
+			card_sim_metadata[card_id] = metadata
 
 	var canonical: Dictionary = {
 		"simulation_id": str(input_payload.get("simulation_id", "sim_default")),
@@ -145,6 +149,7 @@ func _build_report(node: Node, input_payload: Dictionary) -> Dictionary:
 		"focus_gate_rejects": 0,
 		"card_play_counts": card_play_counts,
 		"card_effect_value_proxy": card_effect_value_proxy,
+		"card_sim_metadata": card_sim_metadata,
 		"event_count": event_stream.size(),
 	}
 	canonical["determinism_hash"] = str(hash(JSON.stringify(canonical)))
