@@ -29,15 +29,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
+theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_bottom = 12
 
 [node name="VBox" type="VBoxContainer" parent="CombatHud/Margin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="Banner" type="PanelContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
@@ -199,7 +199,9 @@ size_flags_vertical = 3
 
 [node name="HandVBox" type="VBoxContainer" parent="CombatHud/Margin/VBox/HandPanel"]
 layout_mode = 2
-theme_override_constants/separation = 10
+size_flags_vertical = 3
+alignment = 2
+theme_override_constants/separation = 8
 
 [node name="Hand" type="Label" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
@@ -208,10 +210,10 @@ text = "Hand"
 [node name="HandButtons" type="HBoxContainer" parent="CombatHud/Margin/VBox/HandPanel/HandVBox"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = -92
+theme_override_constants/separation = -176
 
 [node name="Card1" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(276, 396)
+custom_minimum_size = Vector2(448, 640)
 layout_mode = 2
 text = "(empty)"
 
@@ -232,7 +234,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card2" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(276, 396)
+custom_minimum_size = Vector2(448, 640)
 layout_mode = 2
 text = "(empty)"
 
@@ -253,7 +255,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card3" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(276, 396)
+custom_minimum_size = Vector2(448, 640)
 layout_mode = 2
 text = "(empty)"
 
@@ -274,7 +276,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card4" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(276, 396)
+custom_minimum_size = Vector2(448, 640)
 layout_mode = 2
 text = "(empty)"
 
@@ -295,7 +297,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="Card5" type="Button" parent="CombatHud/Margin/VBox/HandPanel/HandVBox/HandButtons"]
-custom_minimum_size = Vector2(276, 396)
+custom_minimum_size = Vector2(448, 640)
 layout_mode = 2
 text = "(empty)"
 
@@ -316,7 +318,7 @@ offset_bottom = 94.0
 mouse_filter = 2
 
 [node name="EventPanel" type="PanelContainer" parent="CombatHud/Margin/VBox"]
-custom_minimum_size = Vector2(0, 84)
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 
 [node name="EventLog" type="Label" parent="CombatHud/Margin/VBox/EventPanel"]
@@ -326,16 +328,16 @@ text = "Last: Battle ready"
 
 [node name="Buttons" type="HBoxContainer" parent="CombatHud/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="Pass" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Pass Turn"
 
 [node name="Restart" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Restart"
@@ -466,7 +468,7 @@ text = ""
 
 [node name="RewardContinue" type="Button" parent="CombatHud/RewardOverlay/Center/RewardPanel/RewardVBox"]
 visible = false
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "Continue"
 
