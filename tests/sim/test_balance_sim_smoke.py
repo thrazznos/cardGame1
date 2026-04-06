@@ -33,34 +33,10 @@ class BalanceSimSmokeTests(unittest.TestCase):
         finally:
             os.remove(tmp)
 
-    def test_single_run_emits_balance_report(self):
-        report = self._run_sim(
-            {
-                "simulation_id": "smoke_one",
-                "seed_root": 13371337,
-                "deck_list": [
-                    "strike_01",
-                    "strike_02",
-                    "defend_01",
-                    "defend_02",
-                    "scheme_flow",
-                    "strike_03",
-                ],
-                "enemy_profile_id": "default",
-                "policy_id": "random_legal",
-                "balance_profile_id": "default",
-                "max_turns": 6,
-            }
-        )
-        self.assertEqual(report["simulation_id"], "smoke_one")
-        self.assertIn(report["result"], ["player_win", "player_lose", "timeout", "in_progress"])
-        self.assertGreaterEqual(report["turns_completed"], 1)
-        self.assertIn("determinism_hash", report)
-
-    def test_single_run_is_deterministic_for_same_seed_and_input(self):
-        payload = {
-            "simulation_id": "determinism_probe",
-            "seed_root": 424242,
+    def _base_payload(self, policy_id: str) -> dict:
+        return {
+            "simulation_id": f"sim_{policy_id}",
+            "seed_root": 13371337,
             "deck_list": [
                 "strike_01",
                 "strike_02",
@@ -70,10 +46,20 @@ class BalanceSimSmokeTests(unittest.TestCase):
                 "strike_03",
             ],
             "enemy_profile_id": "default",
-            "policy_id": "random_legal",
+            "policy_id": policy_id,
             "balance_profile_id": "default",
             "max_turns": 8,
         }
+
+    def test_single_run_emits_balance_report(self):
+        report = self._run_sim(self._base_payload("random_legal"))
+        self.assertEqual(report["simulation_id"], "sim_random_legal")
+        self.assertIn(report["result"], ["player_win", "player_lose", "timeout", "in_progress"])
+        self.assertGreaterEqual(report["turns_completed"], 1)
+        self.assertIn("determinism_hash", report)
+
+    def test_single_run_is_deterministic_for_same_seed_and_input(self):
+        payload = self._base_payload("random_legal")
         first = self._run_sim(payload)
         second = self._run_sim(payload)
 
@@ -145,6 +131,14 @@ class BalanceSimSmokeTests(unittest.TestCase):
             strike_precise["card_sim_metadata"]["strike_precise"]["report_role"],
             "attack_draw",
         )
+
+    def test_greedy_value_policy_reports_runtime_policy_id(self):
+        report = self._run_sim(self._base_payload("greedy_value"))
+        self.assertEqual(report.get("policy_runtime_id"), "greedy_value")
+
+    def test_sequencing_aware_policy_reports_runtime_policy_id(self):
+        report = self._run_sim(self._base_payload("sequencing_aware_v1"))
+        self.assertEqual(report.get("policy_runtime_id"), "sequencing_aware_v1")
 
 
 if __name__ == "__main__":

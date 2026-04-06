@@ -1,0 +1,55 @@
+{
+  "scenario_id": "power_ladder_v1",
+  "description": "Hard progression ladder: starter fails, upgrades recover win capability.",
+  "defaults": {
+    "enemy_profile_id": "default",
+    "balance_profile_id": "power_ladder_v1",
+    "max_turns": 2
+  },
+  "seeds": [101, 202, 303],
+  "policies": ["random_legal", "greedy_value", "sequencing_aware_v1"],
+  "decks": [
+    {
+      "deck_id": "starter_floor",
+      "max_turns": 1,
+      "cards": [
+        "defend_01",
+        "defend_02",
+        "defend_03",
+        "defend_04",
+        "scheme_flow",
+        "scheme_flow",
+        "defend_05",
+        "defend_06"
+      ]
+    },
+    {
+      "deck_id": "upgrade_mid",
+      "max_turns": 3,
+      "cards": [
+        "strike_01",
+        "strike_02",
+        "strike_03",
+        "defend_01",
+        "defend_02",
+        "scheme_flow",
+        "strike_04",
+        "defend_03"
+      ]
+    },
+    {
+      "deck_id": "upgrade_high",
+      "max_turns": 3,
+      "cards": [
+        "strike_01",
+        "strike_02",
+        "strike_03",
+        "strike_04",
+        "strike_05",
+        "strike_06",
+        "defend_01",
+        "scheme_flow"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "id_prefix": "strike",
+      "display_name": "Strike",
+      "role": "ATK",
+      "cost": 1,
+      "hand_text": "Attack • 6 dmg • Cost 1",
+      "tooltip": "Attack card: deal 6 damage.",
+      "reward_text": "Add to deck • Deal 6 dmg • Cost 1",
+      "effects": [
+        {"type": "deal_damage", "amount": 6}
+      ]
+    },
+    {
+      "id_prefix": "defend",
+      "display_name": "Defend",
+      "role": "DEF",
+      "cost": 1,
+      "hand_text": "Defense • 5 block • Cost 1",
+      "tooltip": "Defense card: gain 5 block.",
+      "reward_text": "Add to deck • Gain 5 block • Cost 1",
+      "effects": [
+        {"type": "gain_block", "amount": 5}
+      ]
+    },
+    {
+      "id_prefix": "scheme",
+      "display_name": "Scheme",
+      "role": "UTL",
+      "cost": 1,
+      "hand_text": "Utility • Draw 1 • Cost 1",
+      "tooltip": "Utility card: draw 1 card.",
+      "reward_text": "Add to deck • Draw 1 • Cost 1",
+      "effects": [
+        {"type": "draw_n", "amount": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_produce_ruby",
+      "display_name": "Ember Jab",
+      "role": "ATK",
+      "cost": 1,
+      "hand_text": "Gem setup • Produce 1 Ruby • Cost 1",
+      "tooltip": "Gem producer: add 1 Ruby to the stack.",
+      "reward_text": "Add to deck • Produce 1 Ruby • Cost 1",
+      "effects": [
+        {"type": "gem_produce", "gem": "Ruby", "count": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_produce_sapphire",
+      "display_name": "Ward Polish",
+      "role": "DEF",
+      "cost": 1,
+      "hand_text": "Gem setup • Produce 1 Sapphire • Cost 1",
+      "tooltip": "Gem producer: add 1 Sapphire to the stack.",
+      "reward_text": "Add to deck • Produce 1 Sapphire • Cost 1",
+      "effects": [
+        {"type": "gem_produce", "gem": "Sapphire", "count": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_consume_top_ruby",
+      "display_name": "Split Cut",
+      "role": "ATK",
+      "cost": 1,
+      "hand_text": "Consume top Ruby • Cost 1",
+      "tooltip": "Gem consumer: consume top Ruby.",
+      "reward_text": "Add to deck • Consume top Ruby • Cost 1",
+      "effects": [
+        {"type": "gem_consume_top", "gem": "Ruby"}
+      ]
+    },
+    {
+      "id_prefix": "gem_consume_top_sapphire",
+      "display_name": "Shell Brace",
+      "role": "DEF",
+      "cost": 1,
+      "hand_text": "Consume top Sapphire • Cost 1",
+      "tooltip": "Gem consumer: consume top Sapphire.",
+      "reward_text": "Add to deck • Consume top Sapphire • Cost 1",
+      "effects": [
+        {"type": "gem_consume_top", "gem": "Sapphire"}
+      ]
+    },
+    {
+      "id_prefix": "gem_focus",
+      "display_name": "Vault Focus",
+      "role": "UTL",
+      "cost": 1,
+      "hand_text": "Gain FOCUS 1 • Cost 1",
+      "tooltip": "Stability/enabler: gain FOCUS 1.",
+      "reward_text": "Add to deck • Gain FOCUS 1 • Cost 1",
+      "effects": [
+        {"type": "gem_gain_focus", "amount": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_offset_consume_ruby",
+      "display_name": "Offset Scalpel",
+      "role": "UTL",
+      "cost": 1,
+      "hand_text": "[FOCUS] Consume offset 1 Ruby • Cost 1",
+      "tooltip": "Advanced consume: requires FOCUS and consumes Ruby at top offset 1.",
+      "reward_text": "Add to deck • [FOCUS] Offset Ruby • Cost 1",
+      "effects": [
+        {"type": "gem_consume_top_offset", "offset": 1, "gem": "Ruby"}
+      ]
+    },
+    {
+      "id_prefix": "gem_offset_consume_sapphire",
+      "display_name": "Seam Pull",
+      "role": "UTL",
+      "cost": 1,
+      "hand_text": "[FOCUS] Consume offset 1 Sapphire • Cost 1",
+      "tooltip": "Advanced consume: requires FOCUS and consumes Sapphire at top offset 1.",
+      "reward_text": "Add to deck • [FOCUS] Offset Sapphire • Cost 1",
+      "effects": [
+        {"type": "gem_consume_top_offset", "offset": 1, "gem": "Sapphire"}
+      ]
+    },
+    {
+      "id_prefix": "gem_hybrid_ruby_strike",
+      "display_name": "Hybrid Ember Cut",
+      "role": "ATK",
+      "cost": 1,
+      "hand_text": "Hybrid • 4 dmg + Produce 1 Ruby • Cost 1",
+      "tooltip": "Hybrid attack: deal 4 damage and produce 1 Ruby.",
+      "reward_text": "Add to deck • 4 dmg + Produce Ruby • Cost 1",
+      "effects": [
+        {"type": "deal_damage", "amount": 4},
+        {"type": "gem_produce", "gem": "Ruby", "count": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_hybrid_sapphire_guard",
+      "display_name": "Hybrid Azure Wall",
+      "role": "DEF",
+      "cost": 1,
+      "hand_text": "Hybrid • 4 block + Produce 1 Sapphire • Cost 1",
+      "tooltip": "Hybrid defense: gain 4 block and produce 1 Sapphire.",
+      "reward_text": "Add to deck • 4 block + Produce Sapphire • Cost 1",
+      "effects": [
+        {"type": "gain_block", "amount": 4},
+        {"type": "gem_produce", "gem": "Sapphire", "count": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_hybrid_focus_guard",
+      "display_name": "Hybrid Anchor Focus",
+      "role": "UTL",
+      "cost": 1,
+      "hand_text": "Hybrid • 3 block + Gain FOCUS 1 • Cost 1",
+      "tooltip": "Hybrid stability: gain 3 block and FOCUS 1.",
+      "reward_text": "Add to deck • 3 block + FOCUS 1 • Cost 1",
+      "effects": [
+        {"type": "gain_block", "amount": 3},
+        {"type": "gem_gain_focus", "amount": 1}
+      ]
+    },
+    {
+      "id_prefix": "gem_hybrid_sapphire_burst",
+      "display_name": "Hybrid Tidal Burst",
+      "role": "ATK",
+      "cost": 1,
+      "hand_text": "Hybrid • 5 dmg + Consume top Sapphire • Cost 1",
+      "tooltip": "Hybrid finisher: deal 5 damage and consume top Sapphire.",
+      "reward_text": "Add to deck • 5 dmg + Consume Sapphire • Cost 1",
+      "effects": [
+        {"type": "deal_damage", "amount": 5},
+        {"type": "gem_consume_top", "gem": "Sapphire"}
+      ]
+    }
+  ]
+}

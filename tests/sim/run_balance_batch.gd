@@ -1,25 +1,104 @@
 extends SceneTree
 
-const DEFAULT_INPUT := {
-	"simulation_id": "sim_default",
-	"seed_root": 13371337,
-	"deck_list": [],
-	"enemy_profile_id": "default",
-	"policy_id": "random_legal",
-	"balance_profile_id": "default",
-	"max_turns": 12,
-}
-
 const POLICY_PATHS := {
 	"random_legal": "res://tests/sim/policies/policy_random_legal.gd",
 	"greedy_value": "res://tests/sim/policies/policy_greedy_value.gd",
 	"sequencing_aware_v1": "res://tests/sim/policies/policy_sequencing_aware_v1.gd",
 }
 
-const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
+const DAMAGE_PROXY := {
+	"strike": 6.0,
+	"defend": 5.0,
+	"scheme": 0.0,
+}
 
 func _init() -> void:
-	var input_payload: Dictionary = _load_input_payload()
+	var scenario_payload: Dictionary = _load_scenario_payload()
+	if scenario_payload.is_empty():
+		push_error("Scenario payload missing or invalid")
+		quit(1)
+		return
+
+	var jobs: Array[Dictionary] = _expand_jobs(scenario_payload)
+	if jobs.is_empty():
+		push_error("Scenario expanded to zero jobs")
+		quit(1)
+		return
+
+	var artifact_path: String = _artifact_path(str(scenario_payload.get("scenario_id", "scenario")))
+	var out := FileAccess.open(artifact_path, FileAccess.WRITE)
+	if out == null:
+		push_error("Failed to open artifact path: %s" % artifact_path)
+		quit(1)
+		return
+
+	for job in jobs:
+		var report: Dictionary = await _run_single(job)
+		out.store_line(JSON.stringify(report))
+
+	out.close()
+	print("BALANCE_BATCH_ARTIFACT=" + artifact_path)
+	print("BALANCE_BATCH_COUNT=" + str(jobs.size()))
+	quit()
+
+func _load_scenario_payload() -> Dictionary:
+	var args: Array = OS.get_cmdline_user_args()
+	var scenario_path: String = "res://tests/sim/scenarios/baseline_commons_v1.json"
+	if not args.is_empty():
+		scenario_path = str(args[0])
+
+	if not FileAccess.file_exists(scenario_path):
+		return {}
+
+	var f := FileAccess.open(scenario_path, FileAccess.READ)
+	if f == null:
+		return {}
+
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return parsed
+
+func _expand_jobs(scenario_payload: Dictionary) -> Array[Dictionary]:
+	var scenario_id: String = str(scenario_payload.get("scenario_id", "scenario"))
+	var defaults: Dictionary = scenario_payload.get("defaults", {})
+	var seeds: Array = scenario_payload.get("seeds", [])
+	var policies: Array = scenario_payload.get("policies", [])
+	var decks: Array = scenario_payload.get("decks", [])
+	var jobs: Array[Dictionary] = []
+
+	for deck_index in range(decks.size()):
+		var deck: Dictionary = decks[deck_index]
+		var deck_id: String = str(deck.get("deck_id", "deck_%d" % deck_index))
+		var deck_cards: Array = []
+		for card in deck.get("cards", []):
+			deck_cards.append(str(card))
+
+		for seed in seeds:
+			for policy in policies:
+				var seed_int: int = int(seed)
+				var policy_id: String = str(policy)
+				var job: Dictionary = {
+					"simulation_id": "%s__%s__%d__%s" % [scenario_id, deck_id, seed_int, policy_id],
+					"seed_root": seed_int,
+					"deck_list": deck_cards.duplicate(true),
+					"enemy_profile_id": str(deck.get("enemy_profile_id", defaults.get("enemy_profile_id", "default"))),
+					"policy_id": policy_id,
+					"balance_profile_id": str(deck.get("balance_profile_id", defaults.get("balance_profile_id", "default"))),
+					"max_turns": int(deck.get("max_turns", defaults.get("max_turns", 12))),
+					"scenario_id": scenario_id,
+					"deck_id": deck_id,
+				}
+				jobs.append(job)
+	return jobs
+
+func _artifact_path(scenario_id: String) -> String:
+	var base_dir: String = ProjectSettings.globalize_path("res://artifacts/balance/raw")
+	DirAccess.make_dir_recursive_absolute(base_dir)
+	var stamp: int = int(Time.get_unix_time_from_system())
+	return base_dir.path_join("%s_%d.jsonl" % [scenario_id, stamp])
+
+func _run_single(input_payload: Dictionary) -> Dictionary:
 	var policy_bundle: Dictionary = _load_policy(str(input_payload.get("policy_id", "random_legal")))
 	var policy: Variant = policy_bundle.get("instance")
 	var runtime_policy_id: String = str(policy_bundle.get("runtime_id", "random_legal"))
@@ -36,30 +115,9 @@ func _init() -> void:
 	_run_simulation(node, policy, int(input_payload.get("max_turns", 12)))
 
 	var report: Dictionary = _build_report(node, input_payload, runtime_policy_id)
-	print("BALANCE_SIM_REPORT=" + JSON.stringify(report))
-	quit()
-
-func _load_input_payload() -> Dictionary:
-	var payload := DEFAULT_INPUT.duplicate(true)
-	var args: Array = OS.get_cmdline_user_args()
-	if args.is_empty():
-		return payload
-
-	var input_path: String = str(args[0])
-	if not FileAccess.file_exists(input_path):
-		return payload
-
-	var f := FileAccess.open(input_path, FileAccess.READ)
-	if f == null:
-		return payload
-
-	var parsed: Variant = JSON.parse_string(f.get_as_text())
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return payload
-
-	for key in parsed.keys():
-		payload[key] = parsed[key]
-	return payload
+	node.queue_free()
+	await process_frame
+	return report
 
 func _load_policy(policy_id: String) -> Dictionary:
 	var resolved_policy_id: String = policy_id
@@ -123,10 +181,8 @@ func _run_simulation(node: Node, policy: Variant, max_turns: int) -> void:
 func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: String) -> Dictionary:
 	var vm: Dictionary = node.call("get_view_model")
 	var event_stream: Array = node.get("event_stream")
-	var card_catalog = CARD_CATALOG_SCRIPT.new()
 	var card_play_counts: Dictionary = {}
 	var card_effect_value_proxy: Dictionary = {}
-	var card_sim_metadata: Dictionary = {}
 	var mana_spent_total: int = 0
 
 	for event in event_stream:
@@ -139,13 +195,12 @@ func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: Str
 		if card_id == "":
 			continue
 		card_play_counts[card_id] = int(card_play_counts.get(card_id, 0)) + 1
-		card_effect_value_proxy[card_id] = float(card_effect_value_proxy.get(card_id, 0.0)) + card_catalog.value_proxy(card_id)
-		var metadata: Dictionary = card_catalog.sim_metadata(card_id)
-		if not metadata.is_empty():
-			card_sim_metadata[card_id] = metadata
+		card_effect_value_proxy[card_id] = float(card_effect_value_proxy.get(card_id, 0.0)) + _value_proxy_for_card(card_id)
 
 	var canonical: Dictionary = {
 		"simulation_id": str(input_payload.get("simulation_id", "sim_default")),
+		"scenario_id": str(input_payload.get("scenario_id", "scenario")),
+		"deck_id": str(input_payload.get("deck_id", "deck")),
 		"seed_root": int(input_payload.get("seed_root", 13371337)),
 		"policy_id": str(input_payload.get("policy_id", "random_legal")),
 		"policy_runtime_id": runtime_policy_id,
@@ -163,9 +218,16 @@ func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: Str
 		"focus_gate_rejects": 0,
 		"card_play_counts": card_play_counts,
 		"card_effect_value_proxy": card_effect_value_proxy,
-		"card_sim_metadata": card_sim_metadata,
 		"event_count": event_stream.size(),
 	}
 	canonical["determinism_hash"] = str(hash(JSON.stringify(canonical)))
 	return canonical
 
+func _value_proxy_for_card(card_id: String) -> float:
+	if card_id.begins_with("strike"):
+		return DAMAGE_PROXY["strike"]
+	if card_id.begins_with("defend"):
+		return DAMAGE_PROXY["defend"]
+	if card_id.begins_with("scheme"):
+		return DAMAGE_PROXY["scheme"]
+	return 0.0
