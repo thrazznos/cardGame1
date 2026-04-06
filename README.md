@@ -35,6 +35,7 @@ The result: you still make every decision, but now you have a team that asks the
 - [Studio Hierarchy](#studio-hierarchy)
 - [Slash Commands](#slash-commands)
 - [Getting Started](#getting-started)
+- [Balance Simulator Workflow](#balance-simulator-workflow)
 - [Upgrading](#upgrading)
 - [Project Structure](#project-structure)
 - [How It Works](#how-it-works)
@@ -142,6 +143,21 @@ All hooks fail gracefully if optional tools are missing — nothing breaks, you 
    - `/brainstorm` — explore game ideas from scratch
    - `/setup-engine godot 4.6` — configure your engine if you already know
    - `/project-stage-detect` — analyze an existing project
+
+## Balance Simulator Workflow
+
+For card-balance iteration and statistical reports, use the dedicated workflow:
+
+- Guide: [docs/WORKFLOW-BALANCE-SIM.md](docs/WORKFLOW-BALANCE-SIM.md)
+- One-command pipeline:
+
+```bash
+python3 src/tools/balance/run_pipeline.py \
+  --scenario res://tests/sim/scenarios/baseline_commons_v1.json \
+  --output-dir artifacts/balance/reports/baseline_commons_v1
+```
+
+This runs batch simulation, report aggregation, and markdown rendering in one pass.
 
 ## Upgrading
 

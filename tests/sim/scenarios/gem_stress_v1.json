@@ -1,0 +1,26 @@
+{
+  "scenario_id": "gem_stress_v1",
+  "description": "Scheme-heavy pressure scenario for sequencing policy diagnostics",
+  "defaults": {
+    "enemy_profile_id": "default",
+    "balance_profile_id": "default",
+    "max_turns": 12
+  },
+  "seeds": [404, 505],
+  "policies": ["greedy_value", "sequencing_aware_v1"],
+  "decks": [
+    {
+      "deck_id": "scheme_stress_a",
+      "cards": [
+        "scheme_flow",
+        "scheme_flow",
+        "scheme_flow",
+        "scheme_flow",
+        "strike_01",
+        "strike_02",
+        "defend_01",
+        "defend_02"
+      ]
+    }
+  ]
+}

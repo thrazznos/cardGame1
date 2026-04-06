@@ -1,0 +1,26 @@
+{
+  "scenario_id": "baseline_commons_v1",
+  "description": "Common-heavy baseline deck sanity matrix",
+  "defaults": {
+    "enemy_profile_id": "default",
+    "balance_profile_id": "default",
+    "max_turns": 8
+  },
+  "seeds": [101, 202],
+  "policies": ["random_legal", "greedy_value"],
+  "decks": [
+    {
+      "deck_id": "commons_core_a",
+      "cards": [
+        "strike_01",
+        "strike_02",
+        "strike_03",
+        "defend_01",
+        "defend_02",
+        "defend_03",
+        "scheme_flow",
+        "scheme_flow"
+      ]
+    }
+  ]
+}
