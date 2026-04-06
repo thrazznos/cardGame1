@@ -243,6 +243,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing REWARD_POOL_PROBE output")
         return json.loads(probe_line)
 
+    def _run_live_reward_context_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_live_reward_context_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("LIVE_REWARD_CONTEXT_PROBE="):
+                probe_line = line[len("LIVE_REWARD_CONTEXT_PROBE="):]
+        self.assertTrue(probe_line, "missing LIVE_REWARD_CONTEXT_PROBE output")
+        return json.loads(probe_line)
+
     def _run_hybrid_payoff_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -702,6 +720,15 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         )
         self.assertEqual(probe.get("equal_weight_ids"), ["equal_c", "equal_a", "equal_b"])
         self.assertEqual(probe.get("history_refill_ids"), ["history_a", "history_b", "history_c"])
+
+    def test_live_reward_context_only_switches_to_gsm_on_second_live_checkpoint(self):
+        probe = self._run_live_reward_context_probe()
+        self.assertEqual(len(probe.get("first_offer_ids", [])), 3)
+        self.assertTrue(probe.get("first_offer_all_base"))
+        self.assertEqual(len(probe.get("second_offer_ids", [])), 3)
+        self.assertTrue(probe.get("second_offer_all_gsm"))
+        self.assertEqual(len(probe.get("base_only_second_offer_ids", [])), 3)
+        self.assertTrue(probe.get("base_only_second_offer_all_base"))
 
     def test_hybrid_cards_resolve_combat_and_gem_effects_together(self):
         probe = self._run_hybrid_payoff_probe()

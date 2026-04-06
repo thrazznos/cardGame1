@@ -58,7 +58,7 @@ Current loop backlog
 - [x] Tighten `CardInstance` dictionary canonicalization and add negative coverage so malformed dict inputs cannot quietly reintroduce alias/card-id drift.
 - [x] Replace checkpoint-prefix reward family gating with an explicit reward-context contract while preserving current live base-reward behavior.
 - [x] Push deeper simulation/report metadata into the card catalog where it materially improves combat-card iteration.
-- [ ] Decide whether the live runner should ever emit non-base reward contexts, and if so under what explicit combat/run conditions.
+- [x] Decide whether the live runner should ever emit non-base reward contexts, and if so under what explicit combat/run conditions.
 
 Definition of done for each loop run
 - One task or one small sub-slice is completed, or a blocker is identified.
@@ -74,4 +74,4 @@ Run log
 - Manual supervised slice complete: `CardInstance` now canonicalizes dictionary alias inputs instead of preserving malformed/whitespace-padded alias drift, and negative smoke coverage locks that behavior in. Validation remained green across smoke, determinism, and full unittest discover.
 - Manual supervised slice complete: reward-family selection no longer depends on `gsm_` checkpoint naming conventions. `CardCatalog` and `RewardDraft` now consume explicit reward context from the caller, while the live runner still explicitly requests the base reward family so gameplay/determinism behavior stayed stable. Validation remained green across smoke, determinism, and full unittest discover.
 - Manual supervised slice complete: card catalog entries can now carry authored `sim_metadata`, the balance sim report now surfaces `card_sim_metadata`, and current reward attack variants (`strike_plus`, `strike_precise`) expose distinct authored report roles while preserving existing value-proxy numbers. Validation remained green across sim, smoke, determinism, and full unittest discover.
-- Pending first autonomous run.
+- Autonomous slice complete: live reward checkpoints now stay on `base_reward` for the first live reward, then switch to `gsm_reward` from the second live checkpoint onward when the live run deck already contains a substantial GSM footprint (currently thresholded at 4 `gsm_set` cards) and the GSM reward pool is populated. Fixture/determinism flows remained stable because fixture starter decks are still base-only. Validation: targeted live reward-context smoke, determinism fixture compare, full smoke suite, and full unittest discover all passed.

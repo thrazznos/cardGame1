@@ -84,6 +84,7 @@ Important implementation notes
 - The catalog now also carries broader library-authoring metadata (`cost_type`, targeting, play conditions, combo/chain tags, weight modifiers), and the live combat runner now consumes the first authored play-condition slice (`focus_at_least`).
 - The HUD/view-model now exposes per-card legality, so authored condition failures can appear as disabled-card affordances rather than only post-click rejects.
 - Reward-family selection is now explicit at the caller boundary instead of inferred from `gsm_` checkpoint prefixes, and `RewardDraft` also consumes `unlock_key` and `weight_base` metadata.
+- Live reward routing is now conservative-but-dynamic: the first live checkpoint still requests `base_reward`, while the second and later live checkpoints switch to `gsm_reward` only when the live run deck already contains a substantial GSM footprint (currently at least 4 `gsm_set` cards) and the GSM reward pool is populated. Fixture starter decks remain base-only, so determinism baselines stay on base rewards unless intentionally changed.
 - Fixture starter decks remain hardcoded/stable in `FIXTURE_STARTER_RUN_DECK` to avoid coupling live starter-deck iteration to determinism fixtures.
 - Determinism baselines updated intentionally after the data migration changed event payload representation.
 - `reward_summary_text` has been removed from authoritative final-state hashing, so reward microcopy no longer perturbs determinism hashes.

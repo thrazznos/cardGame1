@@ -703,7 +703,7 @@ func _clear_reject() -> void:
 func _present_reward_checkpoint() -> void:
 	reward_checkpoint_count += 1
 	reward_checkpoint_id = "combat_clear_%d" % tsre.turn_index
-	var draft: Dictionary = reward_draft.build_card_offer(rng, _reward_context(reward_checkpoint_id, "base_reward", "base_set"), [])
+	var draft: Dictionary = reward_draft.build_card_offer(rng, _live_reward_context_for_checkpoint(reward_checkpoint_id), [])
 	reward_draft_instance_id = str(draft.get("draft_instance_id", ""))
 	reward_offer = draft.get("offers", []).duplicate(true)
 	reward_selected_card_id = ""
@@ -714,6 +714,40 @@ func _present_reward_checkpoint() -> void:
 		"draft_instance_id": reward_draft_instance_id,
 		"offer_card_ids": _reward_offer_card_ids(),
 	})
+
+func _live_reward_context_for_checkpoint(checkpoint_id: String) -> Dictionary:
+	var reward_pool_tag: String = "base_reward"
+	var active_unlock_key: String = "base_set"
+	if reward_checkpoint_count >= 2 and _run_contains_unlock_key("gsm_set", 4) and _reward_pool_has_entries("gsm_reward", 3):
+		reward_pool_tag = "gsm_reward"
+		active_unlock_key = "gsm_set"
+	return _reward_context(checkpoint_id, reward_pool_tag, active_unlock_key)
+
+func _run_contains_unlock_key(target_unlock_key: String, minimum_count: int = 1) -> bool:
+	if minimum_count <= 0:
+		return true
+	var match_count: int = 0
+	for card_id_variant in run_master_deck:
+		if _unlock_key_for_card(str(card_id_variant)) != target_unlock_key:
+			continue
+		match_count += 1
+		if match_count >= minimum_count:
+			return true
+	return false
+
+func _reward_pool_has_entries(reward_pool_tag: String, minimum_entries: int = 3) -> bool:
+	if card_catalog == null:
+		return false
+	return card_catalog.reward_pool_entries(reward_pool_tag).size() >= minimum_entries
+
+func _unlock_key_for_card(card_id: String) -> String:
+	if card_catalog == null or not card_catalog.has_card(card_id):
+		return "base_set"
+	var card: Dictionary = card_catalog.get_card(card_id)
+	var unlock_key: String = str(card.get("unlock_key", "base_set")).strip_edges()
+	if unlock_key == "":
+		return "base_set"
+	return unlock_key
 
 func _reward_context(checkpoint_id: String, reward_pool_tag: String, active_unlock_key: String) -> Dictionary:
 	return {
