@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_continue_001",
   "final_state_hash": "3023541776",
-  "event_sequence_hash": "4070408882",
+  "event_sequence_hash": "292963720",
   "rng_cursor_snapshot": {
     "encounter.intent": 4,
     "reward.card": 3

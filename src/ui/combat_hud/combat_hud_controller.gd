@@ -722,143 +722,57 @@ func _refresh_reward_overlay(vm: Dictionary) -> void:
 		continue_button.visible = reward_state == "applied"
 		continue_button.disabled = reward_state != "applied"
 
+func _card_meta(card_id: String) -> Dictionary:
+	if runner == null:
+		return {}
+	if not runner.has_method("get_card_catalog_entry"):
+		return {}
+	return runner.call("get_card_catalog_entry", card_id)
+
 func _card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "%s Hybrid Ember Cut\nHybrid • 4 dmg + Produce 1 Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "%s Hybrid Azure Wall\nHybrid • 4 block + Produce 1 Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "%s Hybrid Anchor Focus\nHybrid • 3 block + Gain FOCUS 1 • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "%s Hybrid Tidal Burst\nHybrid • 5 dmg + Consume top Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_produce_ruby"):
-		return "%s Ember Jab\nGem setup • Produce 1 Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "%s Ward Polish\nGem setup • Produce 1 Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "%s Split Cut\nConsume top Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "%s Shell Brace\nConsume top Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_focus"):
-		return "%s Vault Focus\nGain FOCUS 1 • Cost 1" % marker
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "%s Offset Scalpel\n[FOCUS] Consume offset 1 Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "%s Seam Pull\n[FOCUS] Consume offset 1 Sapphire • Cost 1" % marker
-	if card_id.begins_with("strike"):
-		return "%s Strike\nAttack • 6 dmg • Cost 1" % marker
-	if card_id.begins_with("defend"):
-		return "%s Defend\nDefense • 5 block • Cost 1" % marker
+	var meta: Dictionary = _card_meta(card_id)
+	if not meta.is_empty():
+		var name: String = str(meta.get("display_name", card_id))
+		var hand_text: String = str(meta.get("hand_text", "Utility • Draw 1 • Cost 1"))
+		return "%s %s\n%s" % [marker, name, hand_text]
 	return "%s %s\nUtility • Draw 1 • Cost 1" % [marker, _card_display_name(card_id)]
 
 func _card_tooltip(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "%s Hybrid attack: deal 4 damage and produce 1 Ruby." % marker
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "%s Hybrid defense: gain 4 block and produce 1 Sapphire." % marker
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "%s Hybrid stability: gain 3 block and FOCUS 1." % marker
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "%s Hybrid finisher: deal 5 damage and consume top Sapphire." % marker
-	if card_id.begins_with("gem_produce_ruby"):
-		return "%s Gem producer: add 1 Ruby to the stack." % marker
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "%s Gem producer: add 1 Sapphire to the stack." % marker
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "%s Gem consumer: consume top Ruby." % marker
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "%s Gem consumer: consume top Sapphire." % marker
-	if card_id.begins_with("gem_focus"):
-		return "%s Stability/enabler: gain FOCUS 1." % marker
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "%s Advanced consume: requires FOCUS and consumes Ruby at top offset 1." % marker
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "%s Advanced consume: requires FOCUS and consumes Sapphire at top offset 1." % marker
-	if card_id.begins_with("strike"):
-		return "%s Attack card: deal 6 damage." % marker
-	if card_id.begins_with("defend"):
-		return "%s Defense card: gain 5 block." % marker
+	var meta: Dictionary = _card_meta(card_id)
+	if not meta.is_empty():
+		return "%s %s" % [marker, str(meta.get("tooltip", "Utility card: draw 1 card."))]
 	return "%s Utility card: draw 1 card." % marker
 
 func _reward_card_button_text(card_id: String) -> String:
 	var marker: String = _card_role_marker(card_id)
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "%s Hybrid Ember Cut\nAdd to deck • 4 dmg + Produce Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "%s Hybrid Azure Wall\nAdd to deck • 4 block + Produce Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "%s Hybrid Anchor Focus\nAdd to deck • 3 block + FOCUS 1 • Cost 1" % marker
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "%s Hybrid Tidal Burst\nAdd to deck • 5 dmg + Consume Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_produce_ruby"):
-		return "%s Ember Jab\nAdd to deck • Produce 1 Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "%s Ward Polish\nAdd to deck • Produce 1 Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "%s Split Cut\nAdd to deck • Consume top Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "%s Shell Brace\nAdd to deck • Consume top Sapphire • Cost 1" % marker
-	if card_id.begins_with("gem_focus"):
-		return "%s Vault Focus\nAdd to deck • Gain FOCUS 1 • Cost 1" % marker
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "%s Offset Scalpel\nAdd to deck • [FOCUS] Offset Ruby • Cost 1" % marker
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "%s Seam Pull\nAdd to deck • [FOCUS] Offset Sapphire • Cost 1" % marker
-	if card_id.begins_with("strike"):
-		return "%s Strike\nAdd to deck • Deal 6 dmg • Cost 1" % marker
-	if card_id.begins_with("defend"):
-		return "%s Defend\nAdd to deck • Gain 5 block • Cost 1" % marker
+	var meta: Dictionary = _card_meta(card_id)
+	if not meta.is_empty():
+		var name: String = str(meta.get("display_name", card_id))
+		var reward_text: String = str(meta.get("reward_text", "Add to deck • Draw 1 • Cost 1"))
+		return "%s %s\n%s" % [marker, name, reward_text]
 	return "%s %s\nAdd to deck • Draw 1 • Cost 1" % [marker, _card_display_name(card_id)]
 
 func _reward_card_tooltip(card_id: String) -> String:
 	return "%s\nReward effect: permanently add this card to your run deck." % _card_tooltip(card_id)
 
 func _card_role_marker(card_id: String) -> String:
-	if card_id.begins_with("gem_hybrid_ruby_strike") or card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "[ATK]"
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "[DEF]"
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "[UTL]"
-	if card_id.begins_with("gem_produce_ruby") or card_id.begins_with("gem_consume_top_ruby"):
-		return "[ATK]"
-	if card_id.begins_with("gem_produce_sapphire") or card_id.begins_with("gem_consume_top_sapphire"):
-		return "[DEF]"
-	if card_id.begins_with("strike"):
-		return "[ATK]"
-	if card_id.begins_with("defend"):
-		return "[DEF]"
+	var meta: Dictionary = _card_meta(card_id)
+	if not meta.is_empty():
+		match str(meta.get("role", "UTL")):
+			"ATK":
+				return "[ATK]"
+			"DEF":
+				return "[DEF]"
+			_:
+				return "[UTL]"
 	return "[UTL]"
 
 func _card_display_name(card_id: String) -> String:
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "Hybrid Ember Cut"
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "Hybrid Azure Wall"
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "Hybrid Anchor Focus"
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "Hybrid Tidal Burst"
-	if card_id.begins_with("gem_produce_ruby"):
-		return "Ember Jab"
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "Ward Polish"
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "Split Cut"
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "Shell Brace"
-	if card_id.begins_with("gem_focus"):
-		return "Vault Focus"
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "Offset Scalpel"
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "Seam Pull"
-	if card_id.begins_with("strike"):
-		return "Strike"
-	if card_id.begins_with("defend"):
-		return "Defend"
+	var meta: Dictionary = _card_meta(card_id)
+	if not meta.is_empty():
+		return str(meta.get("display_name", card_id))
 	var words: PackedStringArray = PackedStringArray()
 	for part in card_id.split("_"):
 		if part == "":

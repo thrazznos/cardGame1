@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_smoke_002",
   "final_state_hash": "684156568",
-  "event_sequence_hash": "3609107460",
+  "event_sequence_hash": "3517834906",
   "rng_cursor_snapshot": {
     "encounter.intent": 2,
     "reward.card": 3

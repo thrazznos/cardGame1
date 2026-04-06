@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_second_reward_001",
   "final_state_hash": "3739079097",
-  "event_sequence_hash": "508378962",
+  "event_sequence_hash": "3381630048",
   "rng_cursor_snapshot": {
     "encounter.intent": 5,
     "reward.card": 6

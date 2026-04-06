@@ -8,6 +8,7 @@ const RSGC_SCRIPT := preload("res://src/core/rng/rsgc.gd")
 const ERP_SCRIPT := preload("res://src/core/erp/erp.gd")
 const DLS_SCRIPT := preload("res://src/core/dls/deck_lifecycle.gd")
 const GSM_SCRIPT := preload("res://src/core/gsm/gem_stack_machine.gd")
+const CARD_CATALOG_SCRIPT := preload("res://src/core/cards/card_catalog.gd")
 const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
 
 const PLAYER_MAX_HP := 40
@@ -31,6 +32,7 @@ var rng: Variant
 var erp: Variant
 var dls: Variant
 var gsm: Variant
+var card_catalog: Variant
 var reward_draft: Variant
 var hud: Variant
 
@@ -65,6 +67,7 @@ func _ready() -> void:
 	erp = ERP_SCRIPT.new()
 	dls = DLS_SCRIPT.new()
 	gsm = GSM_SCRIPT.new()
+	card_catalog = CARD_CATALOG_SCRIPT.new()
 	reward_draft = REWARD_DRAFT_SCRIPT.new()
 	hud = $CombatHud
 	hud.bind_runner(self)
@@ -166,6 +169,11 @@ func get_view_model() -> Dictionary:
 func refresh_hud() -> void:
 	if hud != null:
 		hud.refresh(get_view_model())
+
+func get_card_catalog_entry(card_id: String) -> Dictionary:
+	if card_catalog == null:
+		return {}
+	return card_catalog.get_card(card_id)
 
 func player_play_card(card_id: String) -> Dictionary:
 	var play_gate_reason: String = _get_play_gate_reason()
@@ -536,44 +544,12 @@ func _apply_step(step: Dictionary) -> void:
 			_record_event("unknown_action", step)
 
 func _card_to_effect(card_id: String) -> Variant:
-	if card_id.begins_with("strike"):
-		return {"type": "deal_damage", "amount": 6}
-	if card_id.begins_with("defend"):
-		return {"type": "gain_block", "amount": 5}
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return [
-			{"type": "deal_damage", "amount": 4},
-			{"type": "gem_produce", "gem": "Ruby", "count": 1},
-		]
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return [
-			{"type": "gain_block", "amount": 4},
-			{"type": "gem_produce", "gem": "Sapphire", "count": 1},
-		]
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return [
-			{"type": "gain_block", "amount": 3},
-			{"type": "gem_gain_focus", "amount": 1},
-		]
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return [
-			{"type": "deal_damage", "amount": 5},
-			{"type": "gem_consume_top", "gem": "Sapphire"},
-		]
-	if card_id.begins_with("gem_produce_ruby"):
-		return {"type": "gem_produce", "gem": "Ruby", "count": 1}
-	if card_id.begins_with("gem_produce_sapphire"):
-		return {"type": "gem_produce", "gem": "Sapphire", "count": 1}
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return {"type": "gem_consume_top", "gem": "Ruby"}
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return {"type": "gem_consume_top", "gem": "Sapphire"}
-	if card_id.begins_with("gem_focus"):
-		return {"type": "gem_gain_focus", "amount": 1}
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Ruby"}
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Sapphire"}
+	if card_catalog != null:
+		var payload: Variant = card_catalog.get_effect_payload(card_id)
+		if payload is Dictionary and not (payload as Dictionary).is_empty():
+			return payload
+		if payload is Array and not (payload as Array).is_empty():
+			return payload
 	return {"type": "draw_n", "amount": 1}
 
 func _auto_finish_combat(max_turns: int) -> void:
@@ -656,34 +632,10 @@ func _reward_offer_has_card(card_id: String) -> bool:
 	return false
 
 func _display_name_for_card(card_id: String) -> String:
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "Hybrid Ember Cut"
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "Hybrid Azure Wall"
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "Hybrid Anchor Focus"
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "Hybrid Tidal Burst"
-	if card_id.begins_with("gem_produce_ruby"):
-		return "Ember Jab"
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "Ward Polish"
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "Split Cut"
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "Shell Brace"
-	if card_id.begins_with("gem_focus"):
-		return "Vault Focus"
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "Offset Scalpel"
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "Seam Pull"
-	if card_id.begins_with("strike"):
-		return "Strike"
-	if card_id.begins_with("defend"):
-		return "Defend"
-	if card_id.begins_with("scheme"):
-		return "Scheme"
+	if card_catalog != null:
+		var card: Dictionary = card_catalog.get_card(card_id)
+		if not card.is_empty():
+			return str(card.get("display_name", card_id))
 	return card_id.capitalize()
 
 func _get_recent_event_lines(limit: int = 4) -> Array:
