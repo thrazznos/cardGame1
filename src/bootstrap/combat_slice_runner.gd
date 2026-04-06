@@ -773,6 +773,57 @@ func _display_name_for_card(card_id: String) -> String:
 		return card_presenter.display_name(card_id)
 	return card_id
 
+func _event_card_label_from_ids(card_id: String, instance_id: String = "") -> String:
+	var resolved_card_id: String = card_id.strip_edges()
+	if card_instance != null and resolved_card_id != "":
+		resolved_card_id = card_instance.card_id_of(resolved_card_id, card_catalog)
+	var display_name: String = _display_name_for_card(resolved_card_id)
+	var debug_instance_id: String = instance_id.strip_edges()
+	if display_name == "":
+		return debug_instance_id if debug_instance_id != "" else resolved_card_id
+	if debug_instance_id != "" and debug_instance_id != resolved_card_id and debug_instance_id != display_name:
+		return "%s [%s]" % [display_name, debug_instance_id]
+	return display_name
+
+func _reason_text(reason_code: String) -> String:
+	match reason_code:
+		"ERR_RESOLVE_LOCKED":
+			return "Effects are resolving right now"
+		"ERR_NOT_ENOUGH_ENERGY":
+			return "you need 1 more energy"
+		"ERR_COMBAT_COMPLETE":
+			return "combat is already over"
+		"ERR_NO_VALID_TARGETS":
+			return "no valid target is available"
+		"ERR_CARD_NOT_IN_HAND":
+			return "that card is no longer in hand"
+		"ERR_PHASE_DISALLOWS_INPUT":
+			return "you cannot act during this phase"
+		"ERR_REWARD_NOT_AVAILABLE":
+			return "no reward is available right now"
+		"ERR_REWARD_ALREADY_CLAIMED":
+			return "this checkpoint reward was already claimed"
+		"ERR_INVALID_REWARD_SELECTION":
+			return "that reward choice is not valid"
+		"ERR_FOCUS_REQUIRED":
+			return "this advanced gem action requires FOCUS"
+		"ERR_STACK_EMPTY":
+			return "the gem stack is empty"
+		"ERR_STACK_TOP_MISMATCH":
+			return "top gem does not match this card"
+		"ERR_STACK_TARGET_MISMATCH":
+			return "targeted gem does not match this card"
+		"ERR_SELECTOR_INVALID":
+			return "that gem selector is out of range"
+		_:
+			return reason_code if reason_code != "" else "action unavailable"
+
+func _reward_offer_display_text(card_ids: Array) -> String:
+	var names: Array = []
+	for card_id_variant in card_ids:
+		names.append(_display_name_for_card(str(card_id_variant)))
+	return ", ".join(names)
+
 func _get_recent_event_lines(limit: int = 4) -> Array:
 	var lines: Array = []
 	var start: int = max(0, event_stream.size() - limit)
@@ -790,7 +841,7 @@ func _format_event_line(event: Dictionary) -> String:
 		"play_commit":
 			return "#%d Played %s. Energy %d." % [
 				order_index,
-				str(payload.get("card_id", "-")),
+				_event_card_label_from_ids(str(payload.get("card_id", "-")), str(payload.get("card_id", "-"))),
 				int(payload.get("energy_after", 0)),
 			]
 		"effect_resolve":
@@ -798,9 +849,11 @@ func _format_event_line(event: Dictionary) -> String:
 			var result: Dictionary = payload.get("result", {})
 			var effect: Dictionary = payload.get("effect", item.get("effect", {}))
 			var effect_type: String = str(effect.get("type", ""))
+			var source_instance_id: String = str(item.get("source_instance_id", "-"))
+			var source_label: String = _event_card_label_from_ids(str(item.get("card_id", source_instance_id)), source_instance_id)
 			var base_line := "#%d Resolve %s via timing %d -> speed %d -> seq %d." % [
 				order_index,
-				str(item.get("source_instance_id", "-")),
+				source_label,
 				int(item.get("timing_window_priority", 0)),
 				int(item.get("speed_class_priority", 0)),
 				int(item.get("enqueue_sequence_id", 0)),
@@ -858,6 +911,12 @@ func _format_event_line(event: Dictionary) -> String:
 			]
 		"pass":
 			return "#%d Passed turn." % order_index
+		"play_reject":
+			return "#%d Can't play %s: %s." % [
+				order_index,
+				_event_card_label_from_ids(str(payload.get("card_id", "-")), str(payload.get("instance_id", payload.get("card_id", "")))),
+				_reason_text(str(payload.get("reason", ""))),
+			]
 		"turn_start":
 			return "#%d Turn %d. Enemy intent %d." % [
 				order_index,
@@ -872,7 +931,7 @@ func _format_event_line(event: Dictionary) -> String:
 		"reward_offer":
 			return "#%d Reward checkpoint opened: %s." % [
 				order_index,
-				", ".join(payload.get("offer_card_ids", [])),
+				_reward_offer_display_text(payload.get("offer_card_ids", [])),
 			]
 		"reward_pick":
 			return "#%d Reward claimed: %s." % [

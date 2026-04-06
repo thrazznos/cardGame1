@@ -54,13 +54,13 @@ Presentation mapping currently follows shared family lanes rather than one-image
 
 1. `assets/generated/cards/card_strike_cat_duelist_md.png`
 - Intended coverage: `strike`, `strike_plus`, `strike_precise`
-- Source Pixellab object id: `0f49614b-c963-4bc1-958e-9830653caae0`
-- Notes: readable cat-duelist lane; more full-body sprite-like than ideal bust portrait, but coherent and usable for prototype mapping.
+- Source Pixellab object id: `682104c3-9f05-4125-855e-dfe828125818`
+- Notes: updated portrait-first strike lane with stronger face/silhouette read for the enlarged combat cards; still somewhat courtly/static, but materially better than the original full-body prototype art.
 
 2. `assets/generated/cards/card_defend_badger_bulwark_md.png`
 - Intended coverage: `defend`, `defend_plus`, `defend_hold`
-- Source Pixellab object id: `859a7841-58b5-4ceb-ae8f-8a80e10231de`
-- Notes: honeybadger-warden bust with uniform/badge language; readable, though the civic insignia read is slightly more modern than fully fantasy.
+- Source Pixellab object id: `2400596d-dbe6-4ab0-9ac8-d6685312c6a7`
+- Notes: updated defend lane with a stronger shield-forward silhouette and clearer defensive portrait read for the enlarged cards; darker value grouping still needs care, but it is stronger than the previous lane art.
 
 3. `assets/generated/cards/card_scheme_seep_goblin_md.png`
 - Intended coverage: `scheme_flow`
