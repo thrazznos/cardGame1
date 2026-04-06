@@ -1162,12 +1162,23 @@ func _zones_text(vm: Dictionary) -> String:
 		lines.append("Gem Top %s" % " -> ".join(gems))
 	return _join_lines(lines)
 
+func _queue_item_source_text(item: Dictionary) -> String:
+	var source_instance_id: String = str(item.get("source_instance_id", "")).strip_edges()
+	var card_id: String = str(item.get("card_id", source_instance_id)).strip_edges()
+	if card_presenter != null and card_id != "":
+		var display_name: String = card_presenter.display_name(card_id)
+		if source_instance_id != "" and source_instance_id != card_id and source_instance_id != display_name:
+			return "%s [%s]" % [display_name, source_instance_id]
+		if display_name != "":
+			return display_name
+	return source_instance_id if source_instance_id != "" else card_id
+
 func _queue_text(vm: Dictionary) -> String:
 	var queue_preview: Array = vm.get("queue_preview", [])
 	if not queue_preview.is_empty():
 		var item: Dictionary = queue_preview[0]
 		return "NEXT RESOLVE\n%s\nComparator: timing %d -> speed %d -> seq %d" % [
-			str(item.get("source_instance_id", "-")),
+			_queue_item_source_text(item),
 			int(item.get("timing_window_priority", 0)),
 			int(item.get("speed_class_priority", 0)),
 			int(item.get("enqueue_sequence_id", 0)),
@@ -1176,7 +1187,7 @@ func _queue_text(vm: Dictionary) -> String:
 	var last_item: Dictionary = vm.get("last_resolved_queue_item", {})
 	if not last_item.is_empty():
 		return "LAST RESOLVE\n%s\nComparator: timing %d -> speed %d -> seq %d" % [
-			str(last_item.get("source_instance_id", "-")),
+			_queue_item_source_text(last_item),
 			int(last_item.get("timing_window_priority", 0)),
 			int(last_item.get("speed_class_priority", 0)),
 			int(last_item.get("enqueue_sequence_id", 0)),

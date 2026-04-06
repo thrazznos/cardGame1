@@ -261,6 +261,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing LIVE_REWARD_CONTEXT_PROBE output")
         return json.loads(probe_line)
 
+    def _run_event_readability_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_event_readability_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("EVENT_READABILITY_PROBE="):
+                probe_line = line[len("EVENT_READABILITY_PROBE="):]
+        self.assertTrue(probe_line, "missing EVENT_READABILITY_PROBE output")
+        return json.loads(probe_line)
+
     def _run_hybrid_payoff_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -729,6 +747,18 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("second_offer_all_gsm"))
         self.assertEqual(len(probe.get("base_only_second_offer_ids", [])), 3)
         self.assertTrue(probe.get("base_only_second_offer_all_base"))
+
+    def test_event_and_queue_surfaces_use_readable_card_names(self):
+        probe = self._run_event_readability_probe()
+        self.assertIn("Strike", probe.get("queue_text", ""))
+        self.assertIn("strike_01", probe.get("queue_text", ""))
+        self.assertIn("Played Strike", probe.get("event_log_text", ""))
+        self.assertIn("Resolve Strike", probe.get("event_log_text", ""))
+        self.assertIn("Strike+", probe.get("reward_line", ""))
+        self.assertIn("Defend+", probe.get("reward_line", ""))
+        self.assertIn("Precise Strike", probe.get("reward_line", ""))
+        self.assertIn("Offset Scalpel", probe.get("reject_line", ""))
+        self.assertIn("requires FOCUS", probe.get("reject_line", ""))
 
     def test_hybrid_cards_resolve_combat_and_gem_effects_together(self):
         probe = self._run_hybrid_payoff_probe()
