@@ -50,13 +50,13 @@ Ship a deterministic Gem Stack Machine MVP in the existing combat slice so playe
 
 ## Dependencies on External Factors
 - Focused local playtest feedback for readability of stack + FOCUS surfaces
-- Final confirmation on FOCUS model shape for MVP (binary vs charges); default sprint implementation assumes binary gate
+- Final confirmation on FOCUS model shape for MVP was resolved in implementation/docs: shipped MVP uses spendable FOCUS charges (typically 0/1 in live play) rather than a pure boolean flag
 
 ## Definition of Done for this Sprint
-- [ ] All Must Have tasks completed
-- [ ] Gem Stack Machine is playable in the combat slice with deterministic outcomes
-- [ ] FOCUS gate behavior is visible, reason-coded, and validated
-- [ ] HUD/log readability answers what gem changed and why without debugger use
-- [ ] Full local test suite is green, including new GSM deterministic coverage
-- [ ] No S1 or S2 bugs in delivered slice
-- [ ] Design/docs updated for any contract deviations
+- [x] All Must Have tasks completed
+- [x] Gem Stack Machine is playable in the combat slice with deterministic outcomes
+- [x] FOCUS gate behavior is visible, reason-coded, and validated
+- [x] HUD/log readability answers what gem changed and why without debugger use
+- [x] Full local test suite is green, including new GSM deterministic coverage
+- [x] No S1 or S2 bugs in delivered slice
+- [x] Design/docs updated for any contract deviations

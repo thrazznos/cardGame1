@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "cards": [
+    "strike_01",
+    "defend_01",
+    "strike_02",
+    "defend_02",
+    "gem_hybrid_ruby_strike_a",
+    "gem_hybrid_sapphire_guard_a",
+    "gem_hybrid_focus_guard_a",
+    "gem_hybrid_sapphire_burst_a",
+    "gem_produce_ruby_a",
+    "gem_produce_sapphire_a",
+    "gem_focus_a",
+    "gem_offset_consume_ruby_ok"
+  ]
+}

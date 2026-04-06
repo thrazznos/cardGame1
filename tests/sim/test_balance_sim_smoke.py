@@ -69,6 +69,69 @@ class BalanceSimSmokeTests(unittest.TestCase):
         self.assertEqual(first["card_play_counts"], second["card_play_counts"])
         self.assertEqual(first["determinism_hash"], second["determinism_hash"])
 
+    def test_balance_report_uses_card_catalog_effect_values(self):
+        strike_plus = self._run_sim(
+            {
+                "simulation_id": "strike_plus_probe",
+                "seed_root": 111,
+                "deck_list": ["strike_plus"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+        strike_precise = self._run_sim(
+            {
+                "simulation_id": "strike_precise_probe",
+                "seed_root": 222,
+                "deck_list": ["strike_precise"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+
+        strike_plus_avg = strike_plus["card_effect_value_proxy"]["strike_plus"] / strike_plus["card_play_counts"]["strike_plus"]
+        strike_precise_avg = strike_precise["card_effect_value_proxy"]["strike_precise"] / strike_precise["card_play_counts"]["strike_precise"]
+
+        self.assertEqual(strike_plus_avg, 7.0)
+        self.assertEqual(strike_precise_avg, 7.0)
+
+    def test_balance_report_exposes_authored_card_sim_metadata(self):
+        strike_plus = self._run_sim(
+            {
+                "simulation_id": "strike_plus_metadata_probe",
+                "seed_root": 111,
+                "deck_list": ["strike_plus"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+        strike_precise = self._run_sim(
+            {
+                "simulation_id": "strike_precise_metadata_probe",
+                "seed_root": 222,
+                "deck_list": ["strike_precise"] * 6,
+                "enemy_profile_id": "default",
+                "policy_id": "random_legal",
+                "balance_profile_id": "default",
+                "max_turns": 2,
+            }
+        )
+
+        self.assertEqual(
+            strike_plus["card_sim_metadata"]["strike_plus"]["report_role"],
+            "attack_upgrade",
+        )
+        self.assertEqual(
+            strike_precise["card_sim_metadata"]["strike_precise"]["report_role"],
+            "attack_draw",
+        )
+
     def test_greedy_value_policy_reports_runtime_policy_id(self):
         report = self._run_sim(self._base_payload("greedy_value"))
         self.assertEqual(report.get("policy_runtime_id"), "greedy_value")

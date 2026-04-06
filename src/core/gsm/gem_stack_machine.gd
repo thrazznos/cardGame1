@@ -10,6 +10,17 @@ func stack_snapshot() -> Array:
 func focus_snapshot() -> int:
 	return _focus_charges
 
+func peek_top() -> String:
+	if _stack.is_empty():
+		return ""
+	return _stack[_stack.size() - 1]
+
+func peek_n(count: int) -> Array:
+	if count <= 0 or _stack.is_empty():
+		return []
+	var start: int = max(0, _stack.size() - count)
+	return _stack.slice(start, _stack.size())
+
 func gain_focus(amount: int = 1) -> Dictionary:
 	var gain: int = max(0, amount)
 	_focus_charges += gain

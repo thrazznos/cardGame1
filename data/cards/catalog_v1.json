@@ -1,0 +1,726 @@
+{
+  "schema_version": 1,
+  "cards": [
+    {
+      "card_id": "strike",
+      "aliases": [
+        "strike_01",
+        "strike_02",
+        "strike_03",
+        "strike_04",
+        "strike_05",
+        "strike_06"
+      ],
+      "display_name": "Strike",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Attack \u2022 6 dmg \u2022 Cost 1",
+      "tooltip_text": "Attack card: deal 6 damage.",
+      "reward_rules_text": "Add to deck \u2022 Deal 6 dmg \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 6
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "defend",
+      "aliases": [
+        "defend_01",
+        "defend_02",
+        "defend_03",
+        "defend_04"
+      ],
+      "display_name": "Defend",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Defense \u2022 5 block \u2022 Cost 1",
+      "tooltip_text": "Defense card: gain 5 block.",
+      "reward_rules_text": "Add to deck \u2022 Gain 5 block \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 5
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "scheme_flow",
+      "aliases": [],
+      "display_name": "Scheme",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 5,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Utility \u2022 Draw 1 \u2022 Cost 1",
+      "tooltip_text": "Utility card: draw 1 card.",
+      "reward_rules_text": "Add to deck \u2022 Draw 1 \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "draw_n",
+          "amount": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "strike_plus",
+      "aliases": [],
+      "display_name": "Strike+",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 1,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Attack \u2022 7 dmg \u2022 Cost 1",
+      "tooltip_text": "Attack upgrade: deal 7 damage.",
+      "reward_rules_text": "Add to deck \u2022 Deal 7 dmg \u2022 Cost 1",
+      "sim_metadata": {
+        "value_proxy": 7.0,
+        "report_role": "attack_upgrade"
+      },
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 7
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "strike_precise",
+      "aliases": [],
+      "display_name": "Precise Strike",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 2,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Attack \u2022 6 dmg + Draw 1 \u2022 Cost 1",
+      "tooltip_text": "Attack upgrade: deal 6 damage and draw 1 card.",
+      "reward_rules_text": "Add to deck \u2022 Deal 6 dmg + Draw 1 \u2022 Cost 1",
+      "sim_metadata": {
+        "value_proxy": 7.0,
+        "report_role": "attack_draw"
+      },
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 6
+        },
+        {
+          "type": "draw_n",
+          "amount": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "defend_plus",
+      "aliases": [],
+      "display_name": "Defend+",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 3,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Defense \u2022 6 block \u2022 Cost 1",
+      "tooltip_text": "Defense upgrade: gain 6 block.",
+      "reward_rules_text": "Add to deck \u2022 Gain 6 block \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 6
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "defend_hold",
+      "aliases": [],
+      "display_name": "Defend Hold",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 4,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Defense \u2022 7 block \u2022 Cost 1",
+      "tooltip_text": "Defense upgrade: gain 7 block.",
+      "reward_rules_text": "Add to deck \u2022 Gain 7 block \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 7
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_hybrid_ruby_strike",
+      "aliases": [
+        "gem_hybrid_ruby_strike_a"
+      ],
+      "display_name": "Hybrid Ember Cut",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Hybrid \u2022 4 dmg + Produce 1 Ruby \u2022 Cost 1",
+      "tooltip_text": "Hybrid attack: deal 4 damage and produce 1 Ruby.",
+      "reward_rules_text": "Add to deck \u2022 4 dmg + Produce Ruby \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 4
+        },
+        {
+          "type": "gem_produce",
+          "gem": "Ruby",
+          "count": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_hybrid_sapphire_guard",
+      "aliases": [
+        "gem_hybrid_sapphire_guard_a"
+      ],
+      "display_name": "Hybrid Azure Wall",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Hybrid \u2022 4 block + Produce 1 Sapphire \u2022 Cost 1",
+      "tooltip_text": "Hybrid defense: gain 4 block and produce 1 Sapphire.",
+      "reward_rules_text": "Add to deck \u2022 4 block + Produce Sapphire \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 4
+        },
+        {
+          "type": "gem_produce",
+          "gem": "Sapphire",
+          "count": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_hybrid_focus_guard",
+      "aliases": [
+        "gem_hybrid_focus_guard_a"
+      ],
+      "display_name": "Hybrid Anchor Focus",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Hybrid \u2022 3 block + Gain FOCUS 1 \u2022 Cost 1",
+      "tooltip_text": "Hybrid stability: gain 3 block and FOCUS 1.",
+      "reward_rules_text": "Add to deck \u2022 3 block + FOCUS 1 \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 3
+        },
+        {
+          "type": "gem_gain_focus",
+          "amount": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_hybrid_sapphire_burst",
+      "aliases": [
+        "gem_hybrid_sapphire_burst_a"
+      ],
+      "display_name": "Hybrid Tidal Burst",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Hybrid \u2022 5 dmg + Consume top Sapphire \u2022 Cost 1",
+      "tooltip_text": "Hybrid finisher: deal 5 damage and consume top Sapphire.",
+      "reward_rules_text": "Add to deck \u2022 5 dmg + Consume Sapphire \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 5
+        },
+        {
+          "type": "gem_consume_top",
+          "gem": "Sapphire"
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_produce_ruby",
+      "aliases": [
+        "gem_produce_ruby_a"
+      ],
+      "display_name": "Ember Jab",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "reward_order": 1,
+      "pool_tags": [
+        "gsm_reward"
+      ],
+      "hand_rules_text": "Gem setup \u2022 Produce 1 Ruby \u2022 Cost 1",
+      "tooltip_text": "Gem producer: add 1 Ruby to the stack.",
+      "reward_rules_text": "Add to deck \u2022 Produce 1 Ruby \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_produce",
+          "gem": "Ruby",
+          "count": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_produce_sapphire",
+      "aliases": [
+        "gem_produce_sapphire_a"
+      ],
+      "display_name": "Ward Polish",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "reward_order": 2,
+      "pool_tags": [
+        "gsm_reward"
+      ],
+      "hand_rules_text": "Gem setup \u2022 Produce 1 Sapphire \u2022 Cost 1",
+      "tooltip_text": "Gem producer: add 1 Sapphire to the stack.",
+      "reward_rules_text": "Add to deck \u2022 Produce 1 Sapphire \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_produce",
+          "gem": "Sapphire",
+          "count": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_consume_top_ruby",
+      "aliases": [
+        "gem_consume_top_ruby_a"
+      ],
+      "display_name": "Split Cut",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Consume top Ruby \u2022 Cost 1",
+      "tooltip_text": "Gem consumer: consume top Ruby.",
+      "reward_rules_text": "Add to deck \u2022 Consume top Ruby \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_consume_top",
+          "gem": "Ruby"
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_consume_top_sapphire",
+      "aliases": [
+        "gem_consume_top_sapphire_a"
+      ],
+      "display_name": "Shell Brace",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "common",
+      "unlock_key": "gsm_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Consume top Sapphire \u2022 Cost 1",
+      "tooltip_text": "Gem consumer: consume top Sapphire.",
+      "reward_rules_text": "Add to deck \u2022 Consume top Sapphire \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_consume_top",
+          "gem": "Sapphire"
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_focus",
+      "aliases": [
+        "gem_focus_a"
+      ],
+      "display_name": "Vault Focus",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "rarity": "uncommon",
+      "unlock_key": "gsm_set",
+      "weight_base": 0.9,
+      "reward_order": 3,
+      "pool_tags": [
+        "gsm_reward"
+      ],
+      "hand_rules_text": "Gain FOCUS 1 \u2022 Cost 1",
+      "tooltip_text": "Stability/enabler: gain FOCUS 1.",
+      "reward_rules_text": "Add to deck \u2022 Gain FOCUS 1 \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_gain_focus",
+          "amount": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_offset_consume_ruby",
+      "aliases": [
+        "gem_offset_consume_ruby_ok",
+        "gem_offset_consume_ruby_fail"
+      ],
+      "display_name": "Offset Scalpel",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 1,
+      "rarity": "uncommon",
+      "unlock_key": "gsm_set",
+      "weight_base": 0.9,
+      "reward_order": 4,
+      "pool_tags": [
+        "gsm_reward"
+      ],
+      "hand_rules_text": "[FOCUS] Consume offset 1 Ruby \u2022 Cost 1",
+      "tooltip_text": "Advanced consume: requires FOCUS and consumes Ruby at top offset 1.",
+      "reward_rules_text": "Add to deck \u2022 [FOCUS] Offset Ruby \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_consume_top_offset",
+          "offset": 1,
+          "gem": "Ruby"
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [
+        {
+          "condition_id": "focus_at_least",
+          "amount": 1
+        }
+      ],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "gem_offset_consume_sapphire",
+      "aliases": [
+        "gem_offset_consume_sapphire_a"
+      ],
+      "display_name": "Seam Pull",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "rarity": "uncommon",
+      "unlock_key": "gsm_set",
+      "weight_base": 0.9,
+      "pool_tags": [],
+      "hand_rules_text": "[FOCUS] Consume offset 1 Sapphire \u2022 Cost 1",
+      "tooltip_text": "Advanced consume: requires FOCUS and consumes Sapphire at top offset 1.",
+      "reward_rules_text": "Add to deck \u2022 [FOCUS] Offset Sapphire \u2022 Cost 1",
+      "effects": [
+        {
+          "type": "gem_consume_top_offset",
+          "offset": 1,
+          "gem": "Sapphire"
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [
+        {
+          "condition_id": "focus_at_least",
+          "amount": 1
+        }
+      ],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_contract_anchor",
+      "aliases": [],
+      "display_name": "Contract Anchor",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 2,
+      "speed_class": "fast",
+      "timing_window": "pre",
+      "zone_on_play": "exhaust",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Debug \u2022 1 dmg \u2022 Cost 2 \u2022 Fast \u2022 Exhaust",
+      "tooltip_text": "Debug probe card: deal 1 damage, resolve fast, and exhaust on play.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 1
+          },
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [
+        "probe",
+        "contract"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    }
+  ]
+}

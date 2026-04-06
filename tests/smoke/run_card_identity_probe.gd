@@ -16,6 +16,10 @@ func _init() -> void:
 		"utility_tooltip": hud.call("_card_tooltip", "scheme_flow"),
 		"reward_strike_text": hud.call("_reward_card_button_text", "strike_01"),
 		"reward_strike_tooltip": hud.call("_reward_card_tooltip", "strike_01"),
+		"reward_strike_plus_text": hud.call("_reward_card_button_text", "strike_plus"),
+		"reward_strike_precise_text": hud.call("_reward_card_button_text", "strike_precise"),
+		"reward_defend_plus_text": hud.call("_reward_card_button_text", "defend_plus"),
+		"reward_defend_hold_text": hud.call("_reward_card_button_text", "defend_hold"),
 	}
 	print("CARD_IDENTITY_PROBE=" + JSON.stringify(payload))
 

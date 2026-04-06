@@ -16,11 +16,7 @@ const POLICY_PATHS := {
 	"sequencing_aware_v1": "res://tests/sim/policies/policy_sequencing_aware_v1.gd",
 }
 
-const DAMAGE_PROXY := {
-	"strike": 6.0,
-	"defend": 5.0,
-	"scheme": 0.0,
-}
+const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
 
 func _init() -> void:
 	var input_payload: Dictionary = _load_input_payload()
@@ -127,8 +123,10 @@ func _run_simulation(node: Node, policy: Variant, max_turns: int) -> void:
 func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: String) -> Dictionary:
 	var vm: Dictionary = node.call("get_view_model")
 	var event_stream: Array = node.get("event_stream")
+	var card_catalog = CARD_CATALOG_SCRIPT.new()
 	var card_play_counts: Dictionary = {}
 	var card_effect_value_proxy: Dictionary = {}
+	var card_sim_metadata: Dictionary = {}
 	var mana_spent_total: int = 0
 
 	for event in event_stream:
@@ -141,7 +139,10 @@ func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: Str
 		if card_id == "":
 			continue
 		card_play_counts[card_id] = int(card_play_counts.get(card_id, 0)) + 1
-		card_effect_value_proxy[card_id] = float(card_effect_value_proxy.get(card_id, 0.0)) + _value_proxy_for_card(card_id)
+		card_effect_value_proxy[card_id] = float(card_effect_value_proxy.get(card_id, 0.0)) + card_catalog.value_proxy(card_id)
+		var metadata: Dictionary = card_catalog.sim_metadata(card_id)
+		if not metadata.is_empty():
+			card_sim_metadata[card_id] = metadata
 
 	var canonical: Dictionary = {
 		"simulation_id": str(input_payload.get("simulation_id", "sim_default")),
@@ -162,16 +163,9 @@ func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: Str
 		"focus_gate_rejects": 0,
 		"card_play_counts": card_play_counts,
 		"card_effect_value_proxy": card_effect_value_proxy,
+		"card_sim_metadata": card_sim_metadata,
 		"event_count": event_stream.size(),
 	}
 	canonical["determinism_hash"] = str(hash(JSON.stringify(canonical)))
 	return canonical
 
-func _value_proxy_for_card(card_id: String) -> float:
-	if card_id.begins_with("strike"):
-		return DAMAGE_PROXY["strike"]
-	if card_id.begins_with("defend"):
-		return DAMAGE_PROXY["defend"]
-	if card_id.begins_with("scheme"):
-		return DAMAGE_PROXY["scheme"]
-	return 0.0
