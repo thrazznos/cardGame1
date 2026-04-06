@@ -9,16 +9,14 @@ const ERP_SCRIPT := preload("res://src/core/erp/erp.gd")
 const DLS_SCRIPT := preload("res://src/core/dls/deck_lifecycle.gd")
 const GSM_SCRIPT := preload("res://src/core/gsm/gem_stack_machine.gd")
 const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
+const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
+const CARD_PRESENTER_SCRIPT := preload("res://src/core/card/card_presenter.gd")
+const CARD_INSTANCE_SCRIPT := preload("res://src/core/card/card_instance.gd")
 
 const PLAYER_MAX_HP := 40
 const ENEMY_MAX_HP := 24
 const HAND_SIZE_TARGET := 5
 const TURN_ENERGY := 3
-const STARTER_RUN_DECK := [
-	"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
-	"strike_04", "defend_03", "strike_05", "defend_04", "strike_06",
-	"gem_hybrid_ruby_strike_a", "gem_hybrid_sapphire_guard_a"
-]
 
 const FIXTURE_STARTER_RUN_DECK := [
 	"strike_01", "strike_02", "defend_01", "strike_03", "defend_02",
@@ -32,6 +30,9 @@ var erp: Variant
 var dls: Variant
 var gsm: Variant
 var reward_draft: Variant
+var card_catalog: Variant
+var card_presenter: Variant
+var card_instance: Variant
 var hud: Variant
 
 var event_stream: Array[Dictionary] = []
@@ -65,7 +66,11 @@ func _ready() -> void:
 	erp = ERP_SCRIPT.new()
 	dls = DLS_SCRIPT.new()
 	gsm = GSM_SCRIPT.new()
+	card_catalog = CARD_CATALOG_SCRIPT.new()
+	card_presenter = CARD_PRESENTER_SCRIPT.new()
+	card_instance = CARD_INSTANCE_SCRIPT.new()
 	reward_draft = REWARD_DRAFT_SCRIPT.new()
+	reward_draft.set_card_catalog(card_catalog)
 	hud = $CombatHud
 	hud.bind_runner(self)
 	reset_battle(13371337)
@@ -90,7 +95,7 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	last_event_text = "Battle ready"
 	last_reject_reason = ""
 	last_resolved_queue_item = {}
-	run_master_deck = STARTER_RUN_DECK.duplicate(true)
+	run_master_deck = card_catalog.starter_run_deck()
 	reward_state = "none"
 	reward_checkpoint_id = ""
 	reward_draft_instance_id = ""
@@ -107,7 +112,7 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	refresh_hud()
 
 func _bootstrap_demo_state() -> void:
-	dls.draw_pile = run_master_deck.duplicate(true)
+	dls.draw_pile = _card_instance_array(run_master_deck)
 	dls.hand = []
 	dls.discard_pile = []
 	dls.exhaust_pile = []
@@ -130,7 +135,7 @@ func get_view_model() -> Dictionary:
 		"energy": energy,
 		"turn_energy_max": TURN_ENERGY,
 		"enemy_intent_damage": enemy_intent_damage,
-		"hand": dls.hand.duplicate(true),
+		"hand": _zone_instance_ids(dls.hand),
 		"zones": {
 			"draw": dls.draw_pile.size(),
 			"discard": dls.discard_pile.size(),
@@ -176,9 +181,9 @@ func player_play_card(card_id: String) -> Dictionary:
 
 	var resolved_card_id: String = card_id
 	if not _hand_has_exact(card_id):
-		var prefix_match: String = _first_card_by_prefix(card_id.split("_")[0])
-		if prefix_match != "":
-			resolved_card_id = prefix_match
+		_remember_reject("ERR_CARD_NOT_IN_HAND")
+		refresh_hud()
+		return {"ok": false, "reason": "ERR_CARD_NOT_IN_HAND", "card_id": card_id}
 
 	var submit: Dictionary = tsre.submit_play_intent({"card_id": resolved_card_id})
 	if not submit.get("ok", false):
@@ -338,7 +343,7 @@ func _apply_effect_result(result: Dictionary) -> Array:
 		for _i in range(int(delta.get("draw_n", 0))):
 			var drawn: Variant = dls.draw_one()
 			if drawn != null:
-				drawn_cards.append(str(drawn))
+				drawn_cards.append(_card_instance_id(drawn))
 	return drawn_cards
 
 func _check_combat_end() -> void:
@@ -377,7 +382,7 @@ func choose_reward(card_id: String) -> Dictionary:
 	reward_commit_count += 1
 	reward_state = "applied"
 	run_master_deck.append(card_id)
-	dls.discard_pile.append(card_id)
+	dls.discard_pile.append(_card_instance_value(card_id))
 	reward_summary_text = "Added %s to discard. Deck now %d cards." % [_display_name_for_card(card_id), run_master_deck.size()]
 	_record_event("reward_pick", {
 		"draft_instance_id": reward_draft_instance_id,
@@ -452,10 +457,10 @@ func run_fixture(path: String) -> Dictionary:
 	var final_state: Dictionary = {
 		"phase": tsre.phase,
 		"turn_index": tsre.turn_index,
-		"hand": dls.hand,
-		"discard": dls.discard_pile,
-		"exhaust": dls.exhaust_pile,
-		"limbo": dls.limbo,
+		"hand": _zone_instance_ids(dls.hand),
+		"discard": _zone_instance_ids(dls.discard_pile),
+		"exhaust": _zone_instance_ids(dls.exhaust_pile),
+		"limbo": _zone_instance_ids(dls.limbo),
 		"rng_cursors": rng.cursors,
 		"player_hp": player_hp,
 		"player_block": player_block,
@@ -469,7 +474,6 @@ func run_fixture(path: String) -> Dictionary:
 		"reward_draft_instance_id": reward_draft_instance_id,
 		"reward_offer_card_ids": _reward_offer_card_ids(),
 		"reward_selected_card_id": reward_selected_card_id,
-		"reward_summary_text": reward_summary_text,
 		"reward_checkpoint_count": reward_checkpoint_count,
 		"reward_commit_count": reward_commit_count,
 		"encounter_index": encounter_index,
@@ -497,7 +501,7 @@ func run_fixture(path: String) -> Dictionary:
 		"encounter_title": _encounter_title(),
 		"encounter_intent_style": _encounter_intent_style(),
 		"encounter_intro_flavor": _encounter_intro_flavor(),
-		"hand": dls.hand,
+		"hand": _zone_instance_ids(dls.hand),
 	}
 
 func _apply_step(step: Dictionary) -> void:
@@ -507,7 +511,7 @@ func _apply_step(step: Dictionary) -> void:
 			var cards: Array = step.get("cards", [])
 			dls.hand = []
 			for card in cards:
-				dls.hand.append(str(card))
+				dls.hand.append(_card_instance_value(str(card)))
 			if bool(step.get("clear_other_zones", false)):
 				dls.draw_pile = []
 				dls.discard_pile = []
@@ -536,54 +540,18 @@ func _apply_step(step: Dictionary) -> void:
 			_record_event("unknown_action", step)
 
 func _card_to_effect(card_id: String) -> Variant:
-	if card_id.begins_with("strike"):
-		return {"type": "deal_damage", "amount": 6}
-	if card_id.begins_with("defend"):
-		return {"type": "gain_block", "amount": 5}
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return [
-			{"type": "deal_damage", "amount": 4},
-			{"type": "gem_produce", "gem": "Ruby", "count": 1},
-		]
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return [
-			{"type": "gain_block", "amount": 4},
-			{"type": "gem_produce", "gem": "Sapphire", "count": 1},
-		]
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return [
-			{"type": "gain_block", "amount": 3},
-			{"type": "gem_gain_focus", "amount": 1},
-		]
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return [
-			{"type": "deal_damage", "amount": 5},
-			{"type": "gem_consume_top", "gem": "Sapphire"},
-		]
-	if card_id.begins_with("gem_produce_ruby"):
-		return {"type": "gem_produce", "gem": "Ruby", "count": 1}
-	if card_id.begins_with("gem_produce_sapphire"):
-		return {"type": "gem_produce", "gem": "Sapphire", "count": 1}
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return {"type": "gem_consume_top", "gem": "Ruby"}
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return {"type": "gem_consume_top", "gem": "Sapphire"}
-	if card_id.begins_with("gem_focus"):
-		return {"type": "gem_gain_focus", "amount": 1}
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Ruby"}
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return {"type": "gem_consume_top_offset", "offset": 1, "gem": "Sapphire"}
+	if card_catalog != null and card_catalog.has_card(card_id):
+		return card_catalog.effects_for(card_id)
 	return {"type": "draw_n", "amount": 1}
 
 func _auto_finish_combat(max_turns: int) -> void:
 	while combat_result == "in_progress" and tsre.turn_index <= max_turns:
 		while combat_result == "in_progress" and energy > 0:
-			var strike_card: String = _first_card_by_prefix("strike")
+			var strike_card: String = _first_card_by_resolved_id("strike")
 			if strike_card != "":
 				player_play_card(strike_card)
 				continue
-			var defend_card: String = _first_card_by_prefix("defend")
+			var defend_card: String = _first_card_by_resolved_id("defend")
 			if defend_card != "":
 				player_play_card(defend_card)
 				continue
@@ -591,16 +559,16 @@ func _auto_finish_combat(max_turns: int) -> void:
 		if combat_result == "in_progress":
 			player_pass()
 
-func _first_card_by_prefix(prefix: String) -> String:
+func _first_card_by_resolved_id(target_card_id: String) -> String:
 	for c in dls.hand:
-		var card_id: String = str(c)
-		if card_id.begins_with(prefix):
-			return card_id
+		var instance_id: String = _card_instance_id(c)
+		if card_catalog != null and card_catalog.resolved_card_id(instance_id) == target_card_id:
+			return instance_id
 	return ""
 
 func _hand_has_exact(card_id: String) -> bool:
 	for c in dls.hand:
-		if str(c) == card_id:
+		if _card_instance_id(c) == card_id:
 			return true
 	return false
 
@@ -656,35 +624,9 @@ func _reward_offer_has_card(card_id: String) -> bool:
 	return false
 
 func _display_name_for_card(card_id: String) -> String:
-	if card_id.begins_with("gem_hybrid_ruby_strike"):
-		return "Hybrid Ember Cut"
-	if card_id.begins_with("gem_hybrid_sapphire_guard"):
-		return "Hybrid Azure Wall"
-	if card_id.begins_with("gem_hybrid_focus_guard"):
-		return "Hybrid Anchor Focus"
-	if card_id.begins_with("gem_hybrid_sapphire_burst"):
-		return "Hybrid Tidal Burst"
-	if card_id.begins_with("gem_produce_ruby"):
-		return "Ember Jab"
-	if card_id.begins_with("gem_produce_sapphire"):
-		return "Ward Polish"
-	if card_id.begins_with("gem_consume_top_ruby"):
-		return "Split Cut"
-	if card_id.begins_with("gem_consume_top_sapphire"):
-		return "Shell Brace"
-	if card_id.begins_with("gem_focus"):
-		return "Vault Focus"
-	if card_id.begins_with("gem_offset_consume_ruby"):
-		return "Offset Scalpel"
-	if card_id.begins_with("gem_offset_consume_sapphire"):
-		return "Seam Pull"
-	if card_id.begins_with("strike"):
-		return "Strike"
-	if card_id.begins_with("defend"):
-		return "Defend"
-	if card_id.begins_with("scheme"):
-		return "Scheme"
-	return card_id.capitalize()
+	if card_presenter != null:
+		return card_presenter.display_name(card_id)
+	return card_id
 
 func _get_recent_event_lines(limit: int = 4) -> Array:
 	var lines: Array = []
@@ -805,15 +747,32 @@ func _record_event(kind: String, payload: Dictionary) -> void:
 		"payload": payload,
 	})
 
+func _card_instance_value(value: Variant) -> Dictionary:
+	if card_instance == null:
+		return {"instance_id": str(value), "card_id": str(value)}
+	return card_instance.from_value(value, card_catalog)
+
+func _card_instance_id(value: Variant) -> String:
+	if card_instance == null:
+		return str(value)
+	return card_instance.instance_id_of(value)
+
+func _zone_instance_ids(zone: Array) -> Array:
+	var ids: Array = []
+	for entry in zone:
+		ids.append(_card_instance_id(entry))
+	return ids
+
+func _card_instance_array(values: Array) -> Array:
+	var cards: Array = []
+	for value in values:
+		cards.append(_card_instance_value(value))
+	return cards
+
 func _gem_stack_top_window(limit: int) -> Array:
-	var stack: Array = gsm.stack_snapshot()
-	if stack.is_empty() or limit <= 0:
+	if gsm == null:
 		return []
-	var start: int = max(0, stack.size() - limit)
-	var window: Array = []
-	for i in range(start, stack.size()):
-		window.append(stack[i])
-	return window
+	return gsm.peek_n(limit)
 
 func _read_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):

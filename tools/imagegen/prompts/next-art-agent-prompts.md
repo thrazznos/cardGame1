@@ -11,7 +11,8 @@ Read first:
 
 Current repo state:
 - There are prompt packs and planning docs already.
-- There are now generated image outputs under `tools/imagegen/output/`.
+- There are generated concept outputs under `tools/imagegen/output/`.
+- There is now a first repo-local prototype gameplay-art pack under `assets/generated/` covering shared card-art lanes, gem art, placeholder art, and basic icons.
 - Review of the current outputs shows useful material, but also clear failure modes that the next prompt pass must avoid.
 
 ## Observed Failure Modes From Current Outputs
@@ -29,128 +30,95 @@ Current repo state:
 - Example failure: an urn-like icon is not a valid “Pass” icon; an up/home-like icon is not a valid “Restart” icon.
 - If semantic clarity is weak, **do not generate the icon**. Prefer text-only buttons over misleading icons.
 
-## Priority Order
+## Priority Order — Immediate Gameplay-Art Pack For This Iteration
 
-### 1) Player combat portrait — Cat steward protagonist
-Use case:
-- Top priority portrait/bust for the player side of the combat HUD.
-- Should read clearly at small HUD scale after cropping.
+Context shift:
+- `src/ui/combat_hud/assets/` already has live swap points for the player portrait, enemy portrait, banner crest, and reward seal.
+- The next highest-leverage pack is not “more random portraits”; it is a compact set that covers the current starter deck, current reward pool, and the gem-stack prototype with the fewest new assets.
 
-Prompt direction:
-- Use the feline steward-charmer prompt family from the prompt pack.
-- Favor:
-  - readable silhouette
-  - strong face/torso read
-  - elegant courtly frontier styling
-  - deadpan competence, not cutesy comedy
-  - dark neutral background for easy extraction/cropping
+### 1) Small card-art set — 6 reusable art lanes
+Generate these as portrait-safe 512x512 sources with quiet backgrounds and one dominant read.
 
-Output target:
-- portrait-friendly bust composition
-- 3-6 variants
-- one “safe readable” pick before trying any more stylish variants
-- explicitly avoid full-body sprite framing and wide environmental scene composition
+1. `card_strike_cat_duelist_md.png`
+- Usage: `strike`, `strike_plus`, `strike_precise`
+- Why now: covers the whole base attack lane and the most-seen starter/reward family with one asset.
 
-### 2) Enemy combat portrait — Sentient honeybadger warden
-Use case:
-- First enemy-side combat portrait/bust for the current slice.
-- Chosen because it is already a strong, distinctive faction concept in the project direction.
+2. `card_defend_badger_bulwark_md.png`
+- Usage: `defend`, `defend_plus`, `defend_hold`
+- Why now: covers the whole base defense lane and gives the badger faction a gameplay-facing role immediately.
 
-Prompt direction:
-- Use the sentient honeybadger warden prompt family from the prompt pack.
-- Favor:
-  - compact dangerous silhouette
-  - frontier lawkeeper / warden energy
-  - readable face and shoulder shape
-  - strong value grouping for HUD crop use
+3. `card_scheme_seep_goblin_md.png`
+- Usage: `scheme_flow`
+- Why now: base utility currently has no visual identity; one clean goblin utility portrait establishes the third core lane.
 
-Output target:
-- portrait-friendly bust composition
-- 3-6 variants
-- prioritize clarity over detail density
-- explicitly avoid generic placeholder humanoids that are not recognizably badger-warden themed
+4. `card_ember_jab_ruby_md.png`
+- Usage: `gem_produce_ruby`, `gem_hybrid_ruby_strike`, `gem_consume_top_ruby`, `gem_offset_consume_ruby`
+- Why now: Ruby production/consumption is already in the starter deck and in the current gem reward pool.
 
-### 3) Reward checkpoint seal / token
-Use case:
-- Small visual marker for reward/checkpoint moments and future reward UI.
-- Can be integrated before a full illustration pipeline lands.
+5. `card_ward_polish_sapphire_md.png`
+- Usage: `gem_produce_sapphire`, `gem_hybrid_sapphire_guard`, `gem_hybrid_sapphire_burst`, `gem_consume_top_sapphire`, `gem_offset_consume_sapphire`
+- Why now: Sapphire is the other baseline gem and appears in current deck/reward content right now.
 
-Prompt direction:
-- Court-frontier charm object / sealed warrant token / medallion / wax-sealed authority marker.
-- Materials: brass, iron, parchment, wax seal, restrained teal rune accent if needed.
-- Keep shape iconic and readable.
+6. `card_vault_focus_seal_md.png`
+- Usage: `gem_focus`, `gem_hybrid_focus_guard`
+- Why now: FOCUS is the prototype’s first advanced gem gate and needs its own visual lane instead of reading like another generic utility card.
 
-Output target:
-- isolated object concept
-- dark neutral or parchment-friendly background
-- 4-8 variants
-- especially useful if one version reads well as a simple UI motif
+Art direction for all six:
+- portrait plate or emblem-plus-prop composition
+- one face or object + one prop + one mechanic cue
+- readable at card scale
+- no wide scenes
+- no tiny symbol soup
 
-### 3b) Prototype HUD button icon set — only if semantically exact
-Use case:
-- Optional small icons for clearly understood prototype controls.
-- Only generate if semantic meaning is unambiguous at tiny size.
+### 2) One generic fallback card art
+- `card_placeholder_steward_warrant_md.png`
+- Usage: default art for any current or newly added card without assigned family art.
+- Why now: the card catalog will grow faster than bespoke illustration; one in-world fallback prevents a half-finished mix of art cards and blank cards.
 
-Strict rules:
-- `Pass` must read as **skip / end turn / forward / double-chevron / turn-end**, not death, loot, home, or memorial.
-- `Restart` must read as **refresh / reset / circular arrow / retry**, not up-arrow, house, or navigation.
-- If results are ambiguous, reject them and keep text-only buttons.
+### 3) Gem art masters
+Generate isolated object renders first, then derive tiny icons from them.
 
-Output target:
-- tiny high-clarity monochrome or two-tone glyph concepts
-- 4-8 variants per control
-- prototype-only; do not force integration if readability is worse than text
+1. `obj_gem_ruby_token_md.png`
+- Usage: gem stack top window, card inline gem markers, reward/tooltip callouts
+- Why now: Ruby is a baseline gem and is already produced/consumed by starter cards.
 
-### 4) Card motif discovery set — attack / defend / utility
-Use case:
-- Not final UI.
-- Visual motif discovery for what eventual card art families should feel like.
+2. `obj_gem_sapphire_token_md.png`
+- Usage: same as above for Sapphire
+- Why now: Sapphire is the other baseline gem and the gem-stack-machine spec explicitly calls for distinct Ruby/Sapphire iconography.
 
-Prompt direction:
-- One image family each for:
-  - attack / strike
-  - defend / guard
-  - utility / scheme
-- These should suggest mood and symbolic language, not final tiny icons.
-- Keep anti-goals from the art bible in mind:
-  - no unreadable tiny AI-generated symbol soup
-  - no over-ornamented frame clutter
-  - no low-contrast nonsense
+### 4) Essential icons
+These should be manual-first or AI-assisted then hand-cleaned.
 
-Output target:
-- 2-4 variants per family
-- concept/motif reference only
-- likely hand-built into final UI later
+- `ui_icon_attack_sm.png`
+- `ui_icon_defend_sm.png`
+- `ui_icon_utility_sm.png`
+- `ui_icon_focus_sm.png`
+- `ui_icon_stack_top_sm.png`
+- `ui_icon_locked_sm.png`
 
-### 5) Reward panel motif / checkpoint vignette
-Use case:
-- Give the reward overlay a future visual identity beyond plain panels.
-- Can later inform borders, seals, and background ornamentation.
+Usage:
+- replace raw `[ATK]` / `[DEF]` / `[UTL]` markers when card frame iteration lands
+- surface FOCUS and stack-top state in the HUD
+- support future lock/reserve overlays already called for by the gem-stack-machine spec
 
-Prompt direction:
-- Courtly authority meets frontier grime.
-- Emphasize:
-  - parchment logic
-  - wax seal / ribbon / brass / lacquered wood
-  - restrained decorative framing
-  - strong center focal area for text + choices
+Why now:
+- this is the smallest icon set that maps directly to mechanics already in the prototype
+- do not spend this pass on `Pass` / `Restart` icons unless button semantics are undeniably clear and there is a real integration hook for them
 
-Output target:
-- concept vignette, not final UI export
-- 2-4 variants
-- keep center readable and not overcrowded
+## Asset Integration Notes For Future Passes
 
-## Asset Integration Notes for Future Passes
-
-When actual generated assets exist in the repo, the easiest first integrations are likely:
-1. Player portrait in the combat HUD
-2. Enemy portrait in the combat HUD
-3. Reward checkpoint token/seal in the reward overlay
+When assets land, integrate in this order:
+1. Shared card-art mapping for the starter deck + reward pool
+2. Placeholder card art fallback
+3. Ruby/Sapphire token art in gem/top-of-stack surfaces
+4. Role/focus/stack icons
+5. Only revisit new portraits if the current HUD portraits prove weak
 
 Avoid spending time on these yet:
-- final tiny combat icons
+- one-off art for every individual card variant
 - final ornate card frames
-- busy UI backgrounds that fight readability
+- `Pass` / `Restart` button icons
+- busy reward/background vignettes that fight readability
 
 ## Prompt Quality Guardrails
 - Favor readability at small crop sizes
@@ -165,13 +133,15 @@ Avoid spending time on these yet:
 
 ## Suggested Delivery Convention
 When assets begin landing, place them somewhere explicit such as:
-- `assets/generated/portraits/player/`
-- `assets/generated/portraits/enemy/`
+- `assets/generated/cards/`
+- `assets/generated/cards/placeholders/`
+- `assets/generated/gems/`
+- `assets/generated/ui/icons/`
 - `assets/generated/ui/reward/`
-- `assets/generated/card-motifs/`
 
 and include a tiny README or manifest noting:
 - source prompt
 - model/workflow used
 - selected variant
 - intended integration target
+- exact card ids or HUD nodes the asset is meant to cover

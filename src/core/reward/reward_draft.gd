@@ -1,27 +1,20 @@
 extends RefCounted
 class_name RewardDraft
 
-const BASE_CARD_POOL := [
-	{"card_id": "strike_plus", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
-	{"card_id": "strike_precise", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
-	{"card_id": "defend_plus", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
-	{"card_id": "defend_hold", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
-	{"card_id": "scheme_flow", "rarity": "common", "unlock_key": "base_set", "weight_base": 1.0},
-]
+const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
 
-# Sprint 004 strategy: keep GSM cards out of normal reward progression by default.
-# They are opt-in for dedicated GSM checkpoints/tests only.
-const GSM_CARD_POOL := [
-	{"card_id": "gem_produce_ruby_a", "rarity": "common", "unlock_key": "gsm_set", "weight_base": 1.0},
-	{"card_id": "gem_produce_sapphire_a", "rarity": "common", "unlock_key": "gsm_set", "weight_base": 1.0},
-	{"card_id": "gem_focus_a", "rarity": "uncommon", "unlock_key": "gsm_set", "weight_base": 0.9},
-	{"card_id": "gem_offset_consume_ruby_ok", "rarity": "uncommon", "unlock_key": "gsm_set", "weight_base": 0.9},
-]
+var card_catalog: Variant
+
+func _init() -> void:
+	card_catalog = CARD_CATALOG_SCRIPT.new()
+
+func set_card_catalog(catalog: Variant) -> void:
+	card_catalog = catalog
 
 func build_card_offer(rng: Variant, checkpoint_id: String, reward_history: Array = []) -> Dictionary:
-	var pool: Array = BASE_CARD_POOL.duplicate(true)
-	if checkpoint_id.begins_with("gsm_"):
-		pool.append_array(GSM_CARD_POOL.duplicate(true))
+	var pool: Array = []
+	if card_catalog != null:
+		pool = card_catalog.reward_pool_entries(checkpoint_id)
 
 	var available: Array[Dictionary] = []
 	for entry in pool:

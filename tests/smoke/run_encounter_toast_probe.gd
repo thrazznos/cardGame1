@@ -109,18 +109,22 @@ func _init() -> void:
 	await process_frame
 
 	var visible_immediately: bool = _toast_visible(hud)
+	var pass_calls_while_visible: int = fake_runner.pass_calls
+
 	await create_timer(0.85).timeout
-	var visible_after_delay: bool = _toast_visible(hud)
+	var visible_after_auto_delay: bool = _toast_visible(hud)
 
 	_press_enter(hud)
 	await process_frame
 	var visible_after_enter: bool = _toast_visible(hud)
+	var pass_calls_after_auto_dismiss: int = fake_runner.pass_calls
 
 	var payload: Dictionary = {
 		"visible_immediately": visible_immediately,
-		"visible_after_delay": visible_after_delay,
+		"visible_after_auto_delay": visible_after_auto_delay,
 		"visible_after_enter": visible_after_enter,
-		"pass_calls": fake_runner.pass_calls,
+		"pass_calls_while_visible": pass_calls_while_visible,
+		"pass_calls_after_auto_dismiss": pass_calls_after_auto_dismiss,
 	}
 	print("ENCOUNTER_TOAST_PROBE=" + JSON.stringify(payload))
 

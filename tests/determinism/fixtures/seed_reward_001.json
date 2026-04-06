@@ -34,8 +34,8 @@
     }
   ],
   "expected": {
-    "final_state_hash": "2309800822",
-    "event_sequence_hash": "383836919",
+    "final_state_hash": "3160771968",
+    "event_sequence_hash": "3182708777",
     "rng_cursor_snapshot": {
       "encounter.intent": 3,
       "reward.card": 3

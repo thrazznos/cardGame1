@@ -1,6 +1,6 @@
 # Gem Stack Machine
 
-> Status: Designed (Pending Review)
+> Status: Implemented (Sprint 004 MVP pilot)
 > Author: Nathan + Hermes agents
 > Last Updated: 2026-04-05
 > Implements Pillars: Sequencing Mastery Over Raw Stats; Readable Tactical Clarity; Compounding Value Every Turn
@@ -140,6 +140,11 @@ Contract:
 1) If non-top selector is requested without FOCUS, reject deterministically.
 2) FOCUS generation/spend/duration is managed by card/effect/relic rules.
 3) Cards may require persistent FOCUS or consume FOCUS on use.
+
+Sprint 004 MVP implementation note:
+- Live runtime currently models FOCUS as spendable charges (`0..n`) rather than a pure boolean flag.
+- In the shipped pilot, advanced offset consume spends 1 charge on success.
+- This preserves the intended access-gate behavior while leaving room for later binary/charge design consolidation if desired.
 
 ### States and Transitions
 

@@ -9,6 +9,13 @@
 
 Card Data & Definitions is the authoritative schema for all card content in Dungeon Steward. It defines each card’s identity, play cost, sequencing/timing metadata, effect references, targeting rules, rarity/pool eligibility, and UI presentation fields as data (not hardcoded logic). The system’s job is to make card behavior deterministic and readable while enabling rapid content iteration: designers can add or tune cards by editing data assets without rewriting combat code. This balanced schema is MVP-first but extension-friendly, so downstream systems (effect resolution, rewards, unlock gating, and deck inspection UI) can rely on stable contracts now and grow safely later.
 
+Current MVP implementation note:
+- Card content is currently authored as repo-tracked JSON assets rather than custom Godot Resource files.
+- Primary live files:
+  - `data/cards/catalog_v1.json`
+  - `data/decks/starter_run_v1.json`
+- Runtime access currently flows through `src/core/card/card_catalog.gd` and `src/core/card/card_presenter.gd`.
+
 ## Player Fantasy
 
 This system supports the feeling of being both a precision strategist and a buildcraft inventor. Players should trust that card outcomes are consistent and legible—when they choose a sequence, the game resolves it exactly as expected. At the same time, the schema enables broad expressive card variety, so players can discover and assemble unique interaction engines across runs. Even though players never directly see the schema, they feel its quality through reliable combo execution, clear card identity, and meaningful build diversity without rule ambiguity.

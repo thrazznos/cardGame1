@@ -224,6 +224,60 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing HYBRID_PAYOFF_PROBE output")
         return json.loads(probe_line)
 
+    def _run_gsm_pilot_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_gsm_pilot_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("GSM_PILOT_PROBE="):
+                probe_line = line[len("GSM_PILOT_PROBE="):]
+        self.assertTrue(probe_line, "missing GSM_PILOT_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_card_catalog_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_card_catalog_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("CARD_CATALOG_PROBE="):
+                probe_line = line[len("CARD_CATALOG_PROBE="):]
+        self.assertTrue(probe_line, "missing CARD_CATALOG_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_card_instance_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_card_instance_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("CARD_INSTANCE_PROBE="):
+                probe_line = line[len("CARD_INSTANCE_PROBE="):]
+        self.assertTrue(probe_line, "missing CARD_INSTANCE_PROBE output")
+        return json.loads(probe_line)
+
     def test_seed_smoke_001_reports_playable_player_win(self):
         report = self._run_fixture("res://tests/determinism/fixtures/seed_smoke_001.json")
         self.assertTrue(report.get("ok"))
@@ -301,7 +355,33 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Defense card", probe.get("defend_tooltip", ""))
         self.assertIn("Utility card", probe.get("utility_tooltip", ""))
         self.assertIn("Add to deck", probe.get("reward_strike_text", ""))
-        self.assertIn("permanently add", probe.get("reward_strike_tooltip", ""))
+        self.assertIn("Reward effect", probe.get("reward_strike_tooltip", ""))
+
+    def test_reward_variants_render_distinct_authored_identities(self):
+        probe = self._run_card_identity_probe()
+        self.assertNotEqual(probe.get("reward_strike_plus_text"), probe.get("reward_strike_precise_text"))
+        self.assertNotEqual(probe.get("reward_defend_plus_text"), probe.get("reward_defend_hold_text"))
+        self.assertIn("Strike+", probe.get("reward_strike_plus_text", ""))
+        self.assertIn("Precise", probe.get("reward_strike_precise_text", ""))
+        self.assertIn("Defend+", probe.get("reward_defend_plus_text", ""))
+        self.assertIn("Hold", probe.get("reward_defend_hold_text", ""))
+
+    def test_card_catalog_loads_cleanly_and_resolves_aliases(self):
+        probe = self._run_card_catalog_probe()
+        self.assertEqual(probe.get("validation_errors"), [])
+        self.assertEqual(probe.get("starter_deck_size"), 12)
+        self.assertEqual(probe.get("alias_display_name"), "Strike")
+        self.assertEqual(probe.get("alias_resolved_id"), "strike")
+        self.assertEqual(probe.get("reward_variant_name"), "Strike+")
+        self.assertTrue(probe.get("has_effects"))
+
+    def test_runtime_card_instances_preserve_instance_id_and_card_id(self):
+        probe = self._run_card_instance_probe()
+        self.assertEqual(probe.get("normalized_instance_id"), "strike_01")
+        self.assertEqual(probe.get("normalized_card_id"), "strike")
+        self.assertTrue(probe.get("hand_internal_uses_dictionaries"))
+        self.assertTrue(probe.get("draw_internal_uses_dictionaries"))
+        self.assertEqual(probe.get("view_hand_first"), "strike_01")
 
     def test_missing_art_uses_non_crashing_placeholder_state(self):
         probe = self._run_art_fallback_probe()
@@ -334,22 +414,38 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Style: Alt", probe.get("alt_label", ""))
         self.assertIn("V toggle", probe.get("alt_label", ""))
 
-    def test_encounter_toast_persists_until_enter_and_blocks_pass(self):
+    def test_encounter_toast_auto_dismisses_without_enter(self):
         probe = self._run_encounter_toast_probe()
         self.assertTrue(probe.get("visible_immediately"))
-        self.assertTrue(probe.get("visible_after_delay"))
+        self.assertFalse(probe.get("visible_after_auto_delay"))
         self.assertFalse(probe.get("visible_after_enter"))
-        self.assertEqual(probe.get("pass_calls"), 0)
+        self.assertEqual(probe.get("pass_calls_while_visible"), 0)
+        self.assertEqual(probe.get("pass_calls_after_auto_dismiss"), 1)
 
     def test_gsm_core_supports_lifo_and_focus_gate(self):
         probe = self._run_gsm_core_probe()
         self.assertTrue(probe.get("consume_top_ok"))
         self.assertEqual(probe.get("consume_top_gem"), "Sapphire")
         self.assertEqual(probe.get("consume_top_reject_reason"), "ERR_STACK_TOP_MISMATCH")
+        self.assertEqual(probe.get("peek_top_before_consume"), "Sapphire")
+        self.assertEqual(probe.get("peek_two_before_consume"), ["Ruby", "Sapphire"])
+        self.assertEqual(probe.get("peek_three_after_consume"), ["Ruby", "Sapphire"])
         self.assertEqual(probe.get("advanced_without_focus_reason"), "ERR_FOCUS_REQUIRED")
         self.assertTrue(probe.get("advanced_with_focus_ok"))
         self.assertEqual(probe.get("advanced_with_focus_gem"), "Ruby")
         self.assertEqual(probe.get("final_stack"), ["Sapphire"])
+
+    def test_live_starter_surfaces_gsm_pilot_cards_immediately(self):
+        probe = self._run_gsm_pilot_probe()
+        self.assertEqual(probe.get("deck_size"), 12)
+        self.assertEqual(probe.get("gsm_card_count"), 8)
+        self.assertTrue(probe.get("has_focus_card"))
+        self.assertTrue(probe.get("has_advanced_card"))
+        self.assertGreaterEqual(probe.get("opening_hand_gsm_count", 0), 4)
+        self.assertIn("gem_focus_a", probe.get("opening_hand", []))
+        self.assertIn("gem_offset_consume_ruby_ok", probe.get("opening_hand", []))
+        self.assertIn("gem_produce_ruby_a", probe.get("opening_hand", []))
+        self.assertIn("Offset Scalpel", probe.get("first_button_text", ""))
 
     def test_gsm_runner_integration_resolves_focus_gated_cards(self):
         probe = self._run_gsm_integration_probe()
