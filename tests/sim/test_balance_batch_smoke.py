@@ -44,6 +44,7 @@ class BalanceBatchSmokeTests(unittest.TestCase):
             "tests/sim/scenarios/baseline_commons_v1.json",
             "tests/sim/scenarios/mixed_rarity_v1.json",
             "tests/sim/scenarios/gem_stress_v1.json",
+            "tests/sim/scenarios/power_ladder_v1.json",
         ]:
             path = Path(relative)
             self.assertTrue(path.exists(), f"missing scenario pack: {relative}")
@@ -73,6 +74,25 @@ class BalanceBatchSmokeTests(unittest.TestCase):
         }
         for row in rows:
             self.assertTrue(required.issubset(row.keys()))
+
+    def test_power_ladder_has_fail_floor_and_recovery_tiers(self):
+        _, rows = self._run_batch("res://tests/sim/scenarios/power_ladder_v1.json")
+
+        wins_by_deck: dict[str, int] = {}
+        runs_by_deck: dict[str, int] = {}
+        for row in rows:
+            deck_id = str(row.get("deck_id", ""))
+            runs_by_deck[deck_id] = runs_by_deck.get(deck_id, 0) + 1
+            if str(row.get("result", "")) == "player_win":
+                wins_by_deck[deck_id] = wins_by_deck.get(deck_id, 0) + 1
+
+        self.assertIn("starter_floor", runs_by_deck)
+        self.assertIn("upgrade_mid", runs_by_deck)
+        self.assertIn("upgrade_high", runs_by_deck)
+
+        self.assertEqual(wins_by_deck.get("starter_floor", 0), 0)
+        self.assertGreater(wins_by_deck.get("upgrade_mid", 0), 0)
+        self.assertGreater(wins_by_deck.get("upgrade_high", 0), 0)
 
 
 if __name__ == "__main__":

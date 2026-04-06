@@ -62,6 +62,81 @@ Example deck block:
 }
 ```
 
+## Power ladder scenario (starter fail -> upgrades recover)
+
+Use the hard ladder scenario to validate floor/ceiling progression:
+
+```bash
+python3 src/tools/balance/run_pipeline.py \
+  --scenario res://tests/sim/scenarios/power_ladder_v1.json \
+  --output-dir artifacts/balance/reports/power_ladder_v1
+```
+
+Interpretation target:
+- `starter_floor` should be a fail floor (0 wins expected).
+- `upgrade_mid` should show partial recovery (>0 wins, not necessarily dominant).
+- `upgrade_high` should show strong recovery.
+
+## Deck order power distribution
+
+Use this when you need deck power as a distribution over orderings.
+
+Exact mode (small decks):
+
+```bash
+python3 src/tools/balance/deck_order_power_distribution.py \
+  --deck-json tests/sim/examples/deck_small.json \
+  --policy-id greedy_value \
+  --seed-root 101 \
+  --max-turns 2 \
+  --mode exact \
+  --max-orders 720 \
+  --output-dir artifacts/balance/reports/order_dist_small
+```
+
+Sample mode (larger decks):
+
+```bash
+python3 src/tools/balance/deck_order_power_distribution.py \
+  --deck-json tests/sim/examples/deck_large.json \
+  --policy-id greedy_value \
+  --seed-root 101 \
+  --max-turns 2 \
+  --mode sample \
+  --sample-size 256 \
+  --sampler-seed 7 \
+  --output-dir artifacts/balance/reports/order_dist_large
+```
+
+Outputs:
+- `order_runs.jsonl`
+- `distribution_summary.json`
+
+## Candidate card search ranking
+
+Use this to rank candidate additions by marginal win-rate uplift:
+
+```bash
+python3 src/tools/balance/card_search_ranker.py \
+  --baseline-deck-json tests/sim/examples/baseline_deck.json \
+  --candidates-json tests/sim/examples/candidate_cards.json \
+  --policy-id greedy_value \
+  --seed-root 101 \
+  --max-turns 2 \
+  --mode sample \
+  --sample-size 256 \
+  --sampler-seed 11 \
+  --output-dir artifacts/balance/reports/card_search_v1
+```
+
+Outputs:
+- `candidate_rankings.json`
+- `candidate_rankings.csv`
+
+Key columns:
+- `uplift_mean`: candidate win_rate - baseline win_rate
+- `downside_risk`: how far candidate underperforms baseline (0 means no downside in sample)
+
 ## Report interpretation guide
 
 ## summary.json
