@@ -1,14 +1,68 @@
 extends RefCounted
 class_name GemStackMachine
 
+const DEFAULT_STACK_CAP := 6
+
 var _stack: Array[String] = []
 var _focus_charges: int = 0
+var _stack_cap: int = DEFAULT_STACK_CAP
 
 func stack_snapshot() -> Array:
 	return _stack.duplicate(true)
 
 func focus_snapshot() -> int:
 	return _focus_charges
+
+func stack_cap() -> int:
+	return _stack_cap
+
+func stack_remaining() -> int:
+	return max(0, _stack_cap - _stack.size())
+
+func reduce_cap(amount: int = 1) -> Dictionary:
+	var before: int = _stack_cap
+	_stack_cap = max(1, _stack_cap - max(0, amount))
+	# If stack exceeds new cap, trim from bottom
+	while _stack.size() > _stack_cap:
+		_stack.remove_at(0)
+	return {
+		"ok": true,
+		"cap_before": before,
+		"cap_after": _stack_cap,
+		"stack_after": stack_snapshot(),
+	}
+
+func save_state() -> Dictionary:
+	return {
+		"stack": _stack.duplicate(true),
+		"focus_charges": _focus_charges,
+		"stack_cap": _stack_cap,
+	}
+
+func restore_state(state: Dictionary) -> void:
+	_stack = []
+	for gem in state.get("stack", []):
+		_stack.append(str(gem))
+	_focus_charges = int(state.get("focus_charges", 0))
+	_stack_cap = int(state.get("stack_cap", DEFAULT_STACK_CAP))
+
+func reset_stack() -> void:
+	_stack = []
+	_focus_charges = 0
+
+func grant_affinity_gem(gem: String) -> Dictionary:
+	var normalized: String = _normalize_gem(gem)
+	if normalized == "":
+		return {"ok": false, "reason": "ERR_GEM_INVALID"}
+	if _stack.size() >= _stack_cap:
+		return {"ok": false, "reason": "ERR_STACK_FULL", "cap": _stack_cap}
+	_stack.append(normalized)
+	return {
+		"ok": true,
+		"operation": "affinity_grant",
+		"gem": normalized,
+		"stack_after": stack_snapshot(),
+	}
 
 func peek_top() -> String:
 	if _stack.is_empty():
@@ -41,13 +95,19 @@ func produce(gem: String, count: int = 1) -> Dictionary:
 	if count <= 0:
 		return {"ok": false, "reason": "ERR_COUNT_INVALID", "count": count}
 
+	var produced: int = 0
 	for _i in range(count):
+		if _stack.size() >= _stack_cap:
+			break
 		_stack.append(normalized)
+		produced += 1
 	return {
 		"ok": true,
 		"operation": "produce",
 		"gem": normalized,
-		"count": count,
+		"count": produced,
+		"requested": count,
+		"capped": produced < count,
 		"stack_after": stack_snapshot(),
 	}
 
