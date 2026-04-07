@@ -37,29 +37,28 @@ const CARD_OVERLAP := 200.0
 const CARD_HOVER_LIFT := 60.0
 const CARD_HOVER_SCALE := 1.15
 
-const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png"
-const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
-const GEM_RUBY_PATH := "res://assets/generated/gems/obj_gem_ruby_token_md.png"
-const GEM_SAPPHIRE_PATH := "res://assets/generated/gems/obj_gem_sapphire_token_md.png"
+var __player_portrait_tex: Texture2D = preload("res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png")
+var __enemy_portrait_tex: Texture2D = preload("res://src/ui/combat_hud/assets/enemy_badger_warden_068.png")
+var __gem_ruby_tex: Texture2D = preload("res://assets/generated/gems/obj_gem_ruby_token_md.png")
+var __gem_sapphire_tex: Texture2D = preload("res://assets/generated/gems/obj_gem_sapphire_token_md.png")
+var _art_strike: Texture2D = preload("res://assets/generated/cards/card_strike_cat_duelist_md.png")
+var _art_defend: Texture2D = preload("res://assets/generated/cards/card_defend_badger_bulwark_md.png")
+var _art_utility: Texture2D = preload("res://assets/generated/cards/card_scheme_seep_goblin_md.png")
+var _art_ruby: Texture2D = preload("res://assets/generated/cards/card_ember_jab_ruby_md.png")
+var _art_sapphire: Texture2D = preload("res://assets/generated/cards/card_ward_polish_sapphire_md.png")
+var _art_focus: Texture2D = preload("res://assets/generated/cards/card_vault_focus_seal_md.png")
+var _art_placeholder: Texture2D = preload("res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png")
 
 var runner: Variant = null
 var vm: Dictionary = {}
 var previous_vm: Dictionary = {}
 var hovered_card_index: int = -1
-var player_portrait_tex: Texture2D = null
-var enemy_portrait_tex: Texture2D = null
-var gem_ruby_tex: Texture2D = null
-var gem_sapphire_tex: Texture2D = null
 
 func bind_runner(runtime_runner: Variant) -> void:
 	runner = runtime_runner
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	player_portrait_tex = _load_tex(PLAYER_PORTRAIT_PATH)
-	enemy_portrait_tex = _load_tex(ENEMY_PORTRAIT_PATH)
-	gem_ruby_tex = _load_tex(GEM_RUBY_PATH)
-	gem_sapphire_tex = _load_tex(GEM_SAPPHIRE_PATH)
 
 func refresh(new_vm: Dictionary) -> void:
 	previous_vm = vm.duplicate(true)
@@ -96,8 +95,8 @@ func _draw_arena(w: float, arena_h: float) -> void:
 
 	# Player (left side)
 	var player_x: float = w * 0.2
-	if player_portrait_tex != null:
-		draw_texture_rect(player_portrait_tex, Rect2(Vector2(player_x - 64, center_y - 64), portrait_size), false)
+	if _player_portrait_tex != null:
+		draw_texture_rect(_player_portrait_tex, Rect2(Vector2(player_x - 64, center_y - 64), portrait_size), false)
 
 	var player_hp: int = int(vm.get("player_hp", 0))
 	var player_max: int = int(vm.get("player_max_hp", 40))
@@ -109,8 +108,8 @@ func _draw_arena(w: float, arena_h: float) -> void:
 
 	# Enemy (right side)
 	var enemy_x: float = w * 0.8
-	if enemy_portrait_tex != null:
-		draw_texture_rect(enemy_portrait_tex, Rect2(Vector2(enemy_x - 64, center_y - 64), portrait_size), false)
+	if _enemy_portrait_tex != null:
+		draw_texture_rect(_enemy_portrait_tex, Rect2(Vector2(enemy_x - 64, center_y - 64), portrait_size), false)
 
 	var enemy_hp: int = int(vm.get("enemy_hp", 0))
 	var enemy_max: int = int(vm.get("enemy_max_hp", 24))
@@ -287,32 +286,26 @@ func _resolve_role(card_id: String) -> String:
 	return ""
 
 func _resolve_card_art(card_id: String) -> Texture2D:
-	var paths := {
-		"strike": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
-		"defend": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
-		"scheme_flow": "res://assets/generated/cards/card_scheme_seep_goblin_md.png",
-		"strike_plus": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
-		"strike_precise": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
-		"defend_plus": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
-		"defend_hold": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
-		"heavy_guard": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
-		"quick_slash": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
-		"steady_hand": "res://assets/generated/cards/card_scheme_seep_goblin_md.png",
-		"gem_produce_ruby": "res://assets/generated/cards/card_ember_jab_ruby_md.png",
-		"gem_produce_sapphire": "res://assets/generated/cards/card_ward_polish_sapphire_md.png",
-		"gem_hybrid_ruby_strike": "res://assets/generated/cards/card_ember_jab_ruby_md.png",
-		"gem_hybrid_sapphire_guard": "res://assets/generated/cards/card_ward_polish_sapphire_md.png",
-		"gem_focus": "res://assets/generated/cards/card_vault_focus_seal_md.png",
-	}
 	var resolved: String = card_id
 	if runner != null and runner.card_catalog != null:
 		var r: String = str(runner.card_catalog.resolved_card_id(card_id))
 		if r != "":
 			resolved = r
-	var path: String = str(paths.get(resolved, ""))
-	if path == "":
-		path = "res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png"
-	return _load_tex(path)
+	match resolved:
+		"strike", "strike_plus", "strike_precise", "quick_slash":
+			return _art_strike
+		"defend", "defend_plus", "defend_hold", "heavy_guard":
+			return _art_defend
+		"scheme_flow", "steady_hand":
+			return _art_utility
+		"gem_produce_ruby", "gem_hybrid_ruby_strike", "gem_consume_top_ruby", "gem_offset_consume_ruby":
+			return _art_ruby
+		"gem_produce_sapphire", "gem_hybrid_sapphire_guard", "gem_hybrid_sapphire_burst", "gem_consume_top_sapphire", "gem_offset_consume_sapphire":
+			return _art_sapphire
+		"gem_focus", "gem_hybrid_focus_guard":
+			return _art_focus
+		_:
+			return _art_placeholder
 
 func _card_border_color(card_id: String) -> Color:
 	var palette: String = "utility"
@@ -350,7 +343,7 @@ func _draw_gem_stack_icons(w: float, h: float) -> void:
 	var display_gems: Array = gem_top if not gem_top.is_empty() else gem_stack
 	for i in range(display_gems.size()):
 		var gem: String = str(display_gems[i])
-		var tex: Texture2D = gem_ruby_tex if gem == "Ruby" else gem_sapphire_tex
+		var tex: Texture2D = _gem_ruby_tex if gem == "Ruby" else _gem_sapphire_tex
 		var x: float = start_x + float(i) * 40.0
 		# Slot outline
 		draw_rect(Rect2(Vector2(x - 2, y - 2), slot_size), PANEL_BORDER, false, 1.5)
@@ -572,10 +565,3 @@ func _reward_card_at_position(pos: Vector2) -> int:
 			return i
 	return -1
 
-func _load_tex(path: String) -> Texture2D:
-	if not ResourceLoader.exists(path):
-		return null
-	var res: Resource = load(path)
-	if res is Texture2D:
-		return res
-	return null
