@@ -139,7 +139,7 @@ func _apply_texture(path: String, resource_path: String, size: Vector2, pixel_ar
 	_apply_texture_rect(node, resource_path, size, pixel_art)
 
 func _apply_texture_rect(node: TextureRect, resource_path: String, size: Vector2, pixel_art: bool = false, show_missing: bool = true) -> void:
-	var texture := _load_texture(resource_path)
+	var texture := TextureLoader.try_load(resource_path)
 	node.custom_minimum_size = size
 	node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -161,18 +161,6 @@ func _clear_texture_rect(node: TextureRect, size: Vector2, visible: bool = false
 	node.visible = visible
 	node.modulate = Color(1, 1, 1, 1)
 	node.tooltip_text = ""
-
-func _load_texture(resource_path: String) -> Texture2D:
-	if ResourceLoader.exists(resource_path):
-		var imported := load(resource_path)
-		if imported is Texture2D:
-			return imported
-	if not FileAccess.file_exists(resource_path):
-		return null
-	var image := Image.load_from_file(resource_path)
-	if image == null or image.is_empty():
-		return null
-	return ImageTexture.create_from_image(image)
 
 func _is_reward_button(button: Button) -> bool:
 	return str(button.name).begins_with("Reward")
