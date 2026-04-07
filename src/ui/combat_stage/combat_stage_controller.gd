@@ -79,11 +79,15 @@ func _draw() -> void:
 	# Arena divider line
 	draw_line(Vector2(0, arena_h), Vector2(w, arena_h), PANEL_BORDER, 2.0)
 
-	_draw_arena(w, arena_h)
-	_draw_hand(w, h, hand_y)
-	_draw_status_bar(w)
-	_draw_gem_stack_icons(w, h)
-	_draw_event_feed(w, arena_h)
+	var reward_state: String = str(vm.get("reward_state", "none"))
+	if reward_state == "presented" or reward_state == "applied":
+		_draw_reward_overlay(w, h)
+	else:
+		_draw_arena(w, arena_h)
+		_draw_hand(w, h, hand_y)
+		_draw_status_bar(w)
+		_draw_gem_stack_icons(w, h)
+		_draw_event_feed(w, arena_h)
 
 func _draw_arena(w: float, arena_h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -370,19 +374,125 @@ func _draw_event_feed(w: float, arena_h: float) -> void:
 			line = line.substr(0, 47) + "..."
 		draw_string(font, Vector2(x, y - float(i) * 18.0), line, HORIZONTAL_ALIGNMENT_LEFT, 300, 13, TEXT_MUTED)
 
+func _draw_reward_overlay(w: float, h: float) -> void:
+	var font: Font = ThemeDB.fallback_font
+	var reward_state: String = str(vm.get("reward_state", "none"))
+
+	# Scrim
+	draw_rect(Rect2(Vector2.ZERO, Vector2(w, h)), Color(0, 0, 0, 0.75))
+
+	# Title
+	var title: String = "VICTORY — Choose a Reward"
+	if reward_state == "applied":
+		title = "Card Added to Deck"
+	draw_string(font, Vector2(w * 0.5 - 200, 60), title, HORIZONTAL_ALIGNMENT_CENTER, 400, 28, TEXT_GOOD)
+
+	# Subtitle
+	var summary: String = str(vm.get("reward_summary_text", ""))
+	if summary != "":
+		draw_string(font, Vector2(w * 0.5 - 250, 100), summary, HORIZONTAL_ALIGNMENT_CENTER, 500, 18, TEXT_MUTED)
+
+	# Reward cards
+	var offers: Array = vm.get("reward_offer", [])
+	var selected: String = str(vm.get("reward_selected_card_id", ""))
+	var card_w: float = 280.0
+	var card_h: float = 380.0
+	var gap: float = 30.0
+	var total_w: float = float(offers.size()) * card_w + float(max(0, offers.size() - 1)) * gap
+	var start_x: float = (w - total_w) / 2.0
+	var card_y: float = 130.0
+
+	for i in range(offers.size()):
+		var offer: Dictionary = offers[i] if offers[i] is Dictionary else {}
+		var card_id: String = str(offer.get("card_id", ""))
+		var x: float = start_x + float(i) * (card_w + gap)
+		var is_selected: bool = card_id == selected and selected != ""
+		var is_pickable: bool = reward_state == "presented"
+
+		# Check hover
+		var is_hovered: bool = false
+		if _reward_hover_index == i:
+			is_hovered = true
+
+		# Card rendering
+		var border: Color = _card_border_color(card_id)
+		if is_selected:
+			border = TEXT_GOOD
+		var body: Color = CARD_BODY if is_pickable else CARD_BODY_DISABLED
+		var pos := Vector2(x, card_y)
+		if is_hovered and is_pickable:
+			pos.y -= 10.0
+
+		# Border
+		draw_rect(Rect2(pos, Vector2(card_w, card_h)), border)
+		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, card_h - 6)), body)
+
+		# Title bar
+		var title_h: float = card_h * 0.1
+		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h)), CARD_TITLE_BG)
+		var name: String = _resolve_display_name(card_id)
+		draw_string(font, pos + Vector2(12, title_h * 0.7), name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), int(title_h * 0.55), CARD_TITLE_TEXT)
+
+		# Cost badge
+		var cost: int = _resolve_cost(card_id)
+		draw_circle(pos + Vector2(card_w - 28, 3 + title_h * 0.5), 16.0, CARD_COST_BG)
+		draw_string(font, pos + Vector2(card_w - 34, 3 + title_h * 0.5 + 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, 14, CARD_COST_TEXT)
+
+		# Art area
+		var art_rect := Rect2(pos + Vector2(12, title_h + 8), Vector2(card_w - 24, card_h * 0.35))
+		var art_tex: Texture2D = _resolve_card_art(card_id)
+		if art_tex != null:
+			draw_texture_rect(art_tex, art_rect, false)
+		else:
+			draw_rect(art_rect, CARD_ART_BG)
+
+		# Rules text
+		var rules: String = ""
+		if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
+			rules = str(runner.card_catalog.reward_rules_text(card_id))
+		if rules != "":
+			var rules_y: float = pos.y + title_h + card_h * 0.35 + 24
+			var lines: Array = rules.split(" \u2022 ")
+			for li in range(lines.size()):
+				draw_string(font, Vector2(pos.x + 12, rules_y + float(li) * 22.0), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 15, CARD_TEXT)
+
+		# Selected badge
+		if is_selected:
+			draw_string(font, pos + Vector2(12, card_h - 20), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 16, TEXT_GOOD)
+
+	# Continue prompt
+	if reward_state == "applied":
+		draw_string(font, Vector2(w * 0.5 - 150, card_y + card_h + 50), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300, 20, TEXT_ACCENT)
+
+var _reward_hover_index: int = -1
+
 func _gui_input(event: InputEvent) -> void:
+	var reward_state: String = str(vm.get("reward_state", "none"))
+	var in_reward: bool = reward_state == "presented" or reward_state == "applied"
+
 	if event is InputEventMouseMotion:
 		var mm: InputEventMouseMotion = event
-		var new_hover: int = _card_at_position(mm.position)
-		if new_hover != hovered_card_index:
-			hovered_card_index = new_hover
-			queue_redraw()
+		if in_reward:
+			var new_rh: int = _reward_card_at_position(mm.position)
+			if new_rh != _reward_hover_index:
+				_reward_hover_index = new_rh
+				queue_redraw()
+		else:
+			var new_hover: int = _card_at_position(mm.position)
+			if new_hover != hovered_card_index:
+				hovered_card_index = new_hover
+				queue_redraw()
 	elif event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-			var card_idx: int = _card_at_position(mb.position)
-			if card_idx >= 0:
-				_play_card_at_index(card_idx)
+			if in_reward and reward_state == "presented":
+				var reward_idx: int = _reward_card_at_position(mb.position)
+				if reward_idx >= 0 and runner != null:
+					runner.choose_reward_by_index(reward_idx)
+			elif not in_reward:
+				var card_idx: int = _card_at_position(mb.position)
+				if card_idx >= 0:
+					_play_card_at_index(card_idx)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if runner == null:
@@ -440,6 +550,24 @@ func _card_at_position(pos: Vector2) -> int:
 		if i == hovered_card_index:
 			card_y -= CARD_HOVER_LIFT
 		var rect := Rect2(Vector2(card_x, card_y), Vector2(CARD_WIDTH, CARD_HEIGHT))
+		if rect.has_point(pos):
+			return i
+	return -1
+
+func _reward_card_at_position(pos: Vector2) -> int:
+	var offers: Array = vm.get("reward_offer", [])
+	if offers.is_empty():
+		return -1
+	var w: float = size.x
+	var card_w: float = 280.0
+	var card_h: float = 380.0
+	var gap: float = 30.0
+	var total_w: float = float(offers.size()) * card_w + float(max(0, offers.size() - 1)) * gap
+	var start_x: float = (w - total_w) / 2.0
+	var card_y: float = 130.0
+	for i in range(offers.size() - 1, -1, -1):
+		var x: float = start_x + float(i) * (card_w + gap)
+		var rect := Rect2(Vector2(x, card_y), Vector2(card_w, card_h))
 		if rect.has_point(pos):
 			return i
 	return -1
