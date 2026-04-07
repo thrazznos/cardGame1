@@ -123,7 +123,8 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	reward_summary_text = ""
 	reward_checkpoint_count = 0
 	reward_commit_count = 0
-	encounter_index = 1
+	if not use_external_gsm:
+		encounter_index = 1
 
 	_bootstrap_demo_state()
 	enemy_intent = _roll_enemy_intent()

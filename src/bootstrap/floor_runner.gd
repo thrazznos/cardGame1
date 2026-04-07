@@ -113,6 +113,8 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	combat_runner.reset_battle(rng.draw_next("map.combat_seed").get("value", 0))
 
 	_show_combat()
+	# Re-refresh after making visible so _draw triggers
+	combat_runner.refresh_hud()
 
 func map_event_dismissed() -> void:
 	floor_controller.complete_non_combat(gsm)
