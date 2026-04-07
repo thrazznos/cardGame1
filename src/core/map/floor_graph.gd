@@ -85,6 +85,9 @@ func generate(rng: Variant, p_floor_index: int = 1) -> Dictionary:
 	# Apply random modification
 	_apply_random_modification(rng, node_count)
 
+	# Assign gem gates to premium nodes
+	_assign_gem_gates(rng)
+
 	# Build adjacency map
 	_rebuild_adjacency()
 
@@ -186,6 +189,44 @@ func _assign_node_type(node_idx: int, total_nodes: int, rng_ref: Variant) -> Str
 	var combat_types := ["combat", "combat", "combat", "event", "rest"]
 	var type_idx: int = int(type_draw.get("value", 0)) % combat_types.size()
 	return combat_types[type_idx]
+
+func _assign_gem_gates(rng_ref: Variant) -> void:
+	## Assign gem gate costs to ~1-2 premium nodes per floor.
+	## Gates are always optional (free path to boss must exist).
+	var gatable: Array = []
+	for node in nodes:
+		var ntype: String = str(node.get("node_type", ""))
+		if ntype == "combat" or ntype == "event":
+			gatable.append(int(node.get("node_id", -1)))
+
+	if gatable.is_empty():
+		return
+
+	# Gate 1-2 nodes
+	var gate_draw: Dictionary = rng_ref.draw_next("map.generation")
+	var gate_count: int = 1 + int(gate_draw.get("value", 0)) % 2
+	gate_count = min(gate_count, gatable.size())
+
+	for _i in range(gate_count):
+		if gatable.is_empty():
+			break
+		var idx_draw: Dictionary = rng_ref.draw_next("map.generation")
+		var idx: int = int(idx_draw.get("value", 0)) % gatable.size()
+		var target_id: int = gatable[idx]
+		gatable.remove_at(idx)
+
+		# Determine gate cost: 1-2 gems of the node's affinity
+		var target_node: Dictionary = nodes[target_id]
+		var affinity: String = str(target_node.get("gem_affinity", "neutral"))
+		if affinity == "neutral":
+			affinity = "Ruby"  # Default gate gem
+		var cost_draw: Dictionary = rng_ref.draw_next("map.generation")
+		var cost: int = 1 + int(cost_draw.get("value", 0)) % 2
+
+		nodes[target_id]["gem_gate"] = {
+			"gem": affinity,
+			"cost": cost,
+		}
 
 func _apply_random_modification(rng_ref: Variant, node_count: int) -> void:
 	var mod_draw: Dictionary = rng_ref.draw_next("map.generation")

@@ -132,6 +132,14 @@ func _draw() -> void:
 		if not cleared and affinity != "neutral" and affinity != "":
 			_draw_centered_text(pos + Vector2(0, draw_radius + 14), affinity[0], 12)
 
+		# Gem gate cost indicator
+		var gem_gate: Variant = node.get("gem_gate", null)
+		if gem_gate is Dictionary and not cleared:
+			var gate_gem: String = str(gem_gate.get("gem", ""))[0] if str(gem_gate.get("gem", "")) != "" else "?"
+			var gate_cost: int = int(gem_gate.get("cost", 0))
+			var gate_text: String = "%d%s" % [gate_cost, gate_gem]
+			_draw_centered_text(pos + Vector2(0, -(draw_radius + 14)), gate_text, 11)
+
 	# Gem stack display (bottom-left)
 	_draw_gem_stack()
 
