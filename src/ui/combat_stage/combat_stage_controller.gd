@@ -37,17 +37,17 @@ const CARD_OVERLAP := 200.0
 const CARD_HOVER_LIFT := 60.0
 const CARD_HOVER_SCALE := 1.15
 
-var __player_portrait_tex: Texture2D = preload("res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png")
-var __enemy_portrait_tex: Texture2D = preload("res://src/ui/combat_hud/assets/enemy_badger_warden_068.png")
-var __gem_ruby_tex: Texture2D = preload("res://assets/generated/gems/obj_gem_ruby_token_md.png")
-var __gem_sapphire_tex: Texture2D = preload("res://assets/generated/gems/obj_gem_sapphire_token_md.png")
-var _art_strike: Texture2D = preload("res://assets/generated/cards/card_strike_cat_duelist_md.png")
-var _art_defend: Texture2D = preload("res://assets/generated/cards/card_defend_badger_bulwark_md.png")
-var _art_utility: Texture2D = preload("res://assets/generated/cards/card_scheme_seep_goblin_md.png")
-var _art_ruby: Texture2D = preload("res://assets/generated/cards/card_ember_jab_ruby_md.png")
-var _art_sapphire: Texture2D = preload("res://assets/generated/cards/card_ward_polish_sapphire_md.png")
-var _art_focus: Texture2D = preload("res://assets/generated/cards/card_vault_focus_seal_md.png")
-var _art_placeholder: Texture2D = preload("res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png")
+var _player_portrait_tex: Texture2D
+var _enemy_portrait_tex: Texture2D
+var _gem_ruby_tex: Texture2D
+var _gem_sapphire_tex: Texture2D
+var _art_strike: Texture2D
+var _art_defend: Texture2D
+var _art_utility: Texture2D
+var _art_ruby: Texture2D
+var _art_sapphire: Texture2D
+var _art_focus: Texture2D
+var _art_placeholder: Texture2D
 
 var runner: Variant = null
 var vm: Dictionary = {}
@@ -59,6 +59,25 @@ func bind_runner(runtime_runner: Variant) -> void:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_player_portrait_tex = _try_load("res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png")
+	_enemy_portrait_tex = _try_load("res://src/ui/combat_hud/assets/enemy_badger_warden_068.png")
+	_gem_ruby_tex = _try_load("res://assets/generated/gems/obj_gem_ruby_token_md.png")
+	_gem_sapphire_tex = _try_load("res://assets/generated/gems/obj_gem_sapphire_token_md.png")
+	_art_strike = _try_load("res://assets/generated/cards/card_strike_cat_duelist_md.png")
+	_art_defend = _try_load("res://assets/generated/cards/card_defend_badger_bulwark_md.png")
+	_art_utility = _try_load("res://assets/generated/cards/card_scheme_seep_goblin_md.png")
+	_art_ruby = _try_load("res://assets/generated/cards/card_ember_jab_ruby_md.png")
+	_art_sapphire = _try_load("res://assets/generated/cards/card_ward_polish_sapphire_md.png")
+	_art_focus = _try_load("res://assets/generated/cards/card_vault_focus_seal_md.png")
+	_art_placeholder = _try_load("res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png")
+
+static func _try_load(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	var res: Resource = load(path)
+	if res is Texture2D:
+		return res
+	return null
 
 func refresh(new_vm: Dictionary) -> void:
 	previous_vm = vm.duplicate(true)

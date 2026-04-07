@@ -5,6 +5,8 @@ class_name MapHudController
 ## Single-click on a legal adjacent room to enter it.
 
 const PANEL_BG := Color("#1a1520")
+const PANEL_BORDER := Color("#4b3860")
+const ARENA_BG := Color("#0e0a14")
 const TEXT_PRIMARY := Color("#fffdf5")
 const TEXT_MUTED := Color("#a0a8b8")
 const TEXT_ACCENT := Color("#60d0ff")
@@ -20,12 +22,29 @@ const EDGE_DEFAULT := Color("#403848")
 const EDGE_LEGAL := Color("#60d0ff")
 const NODE_RADIUS := 72.0
 
+var _gem_ruby_tex: Texture2D
+var _gem_sapphire_tex: Texture2D
+
 var floor_vm: Dictionary = {}
 var gem_stack: Array = []
 var gem_stack_cap: int = 6
 var runner: Variant = null
 var node_positions: Dictionary = {}
 var _busy: bool = false
+var _event_text: String = ""
+var _showing_event: bool = false
+
+func _ready() -> void:
+	_gem_ruby_tex = _try_load("res://assets/generated/gems/obj_gem_ruby_token_md.png")
+	_gem_sapphire_tex = _try_load("res://assets/generated/gems/obj_gem_sapphire_token_md.png")
+
+static func _try_load(path: String) -> Texture2D:
+	if not ResourceLoader.exists(path):
+		return null
+	var res: Resource = load(path)
+	if res is Texture2D:
+		return res
+	return null
 
 func bind_runner(p_runner: Variant) -> void:
 	runner = p_runner
@@ -61,8 +80,27 @@ func _compute_node_positions() -> void:
 	if node_positions.has(exit_id) and exit_id >= 0:
 		node_positions[exit_id] = center + Vector2(0, radius)
 
+func show_event(event_text: String) -> void:
+	_showing_event = true
+	_event_text = event_text
+	_busy = true
+	queue_redraw()
+
+func dismiss_event() -> void:
+	_showing_event = false
+	_event_text = ""
+	_busy = false
+	queue_redraw()
+
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), PANEL_BG)
+
+	if _showing_event:
+		_draw_event_screen()
+		return
+
+	# Frame border
+	draw_rect(Rect2(Vector2(8, 8), size - Vector2(16, 16)), PANEL_BORDER, false, 2.0)
 
 	var graph: Dictionary = floor_vm.get("graph", {})
 	var nodes: Array = graph.get("nodes", [])
@@ -156,23 +194,26 @@ func _draw_text_centered(pos: Vector2, text: String, font_size: int, color: Colo
 
 func _draw_gem_stack_bar() -> void:
 	var font: Font = ThemeDB.fallback_font
-	var y: float = size.y - 70.0
-	var label: String = "Gem Stack [%d/%d]: " % [gem_stack.size(), gem_stack_cap]
-	if gem_stack.is_empty():
-		label += "(empty)"
-	else:
-		var gems: Array = []
-		for gem in gem_stack:
-			gems.append(str(gem))
-		label += " | ".join(gems)
-	draw_string(font, Vector2(24, y), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
+	var y: float = size.y - 80.0
+	var icon_size := Vector2(36, 36)
 
-	# Slot indicators
-	var slot_y: float = y + 24.0
+	# Label
+	draw_string(font, Vector2(24, y - 4), "Gem Stack [%d/%d]" % [gem_stack.size(), gem_stack_cap], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_ACCENT)
+
+	# Gem icon slots
 	for i in range(gem_stack_cap):
-		var slot_x: float = 24.0 + float(i) * 36.0
-		var slot_color: Color = TEXT_ACCENT if i < gem_stack.size() else Color("#2a2f38")
-		draw_rect(Rect2(slot_x, slot_y, 30, 12), slot_color)
+		var slot_x: float = 24.0 + float(i) * 44.0
+		var slot_y: float = y + 20.0
+		# Slot outline
+		draw_rect(Rect2(Vector2(slot_x - 2, slot_y - 2), Vector2(40, 40)), PANEL_BORDER, false, 1.5)
+		# Gem icon or empty
+		if i < gem_stack.size():
+			var gem: String = str(gem_stack[i])
+			var tex: Texture2D = _gem_ruby_tex if gem == "Ruby" else _gem_sapphire_tex
+			if tex != null:
+				draw_texture_rect(tex, Rect2(Vector2(slot_x, slot_y), icon_size), false)
+		else:
+			draw_rect(Rect2(Vector2(slot_x, slot_y), icon_size), Color("#1a1520"))
 
 func _draw_floor_banner() -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -227,6 +268,12 @@ func _draw_instructions() -> void:
 		draw_string(font, Vector2(24, size.y - 20), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_MUTED)
 
 func _gui_input(event: InputEvent) -> void:
+	if _showing_event:
+		if event is InputEventMouseButton:
+			var mb: InputEventMouseButton = event
+			if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+				_dismiss_event_and_continue()
+		return
 	if _busy:
 		return
 	if event is InputEventMouseButton:
@@ -235,6 +282,17 @@ func _gui_input(event: InputEvent) -> void:
 			var clicked_node: int = _node_at_position(mb.position)
 			if clicked_node >= 0:
 				_handle_node_click(clicked_node)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _showing_event and event is InputEventKey:
+		var key: InputEventKey = event
+		if key.pressed and not key.echo and key.keycode == KEY_SPACE:
+			_dismiss_event_and_continue()
+
+func _dismiss_event_and_continue() -> void:
+	dismiss_event()
+	if runner != null:
+		runner.call("map_event_dismissed")
 
 func _handle_node_click(node_id: int) -> void:
 	var legal_moves: Array = floor_vm.get("legal_moves", [])
@@ -251,6 +309,34 @@ func _node_at_position(pos: Vector2) -> int:
 		if pos.distance_to(node_pos) <= NODE_RADIUS + 12.0:
 			return int(node_id)
 	return -1
+
+func _draw_event_screen() -> void:
+	var font: Font = ThemeDB.fallback_font
+	var w: float = size.x
+	var h: float = size.y
+
+	# Dark background
+	draw_rect(Rect2(Vector2.ZERO, Vector2(w, h)), ARENA_BG)
+
+	# Event panel
+	var panel_w: float = w * 0.6
+	var panel_h: float = h * 0.4
+	var panel_x: float = (w - panel_w) / 2.0
+	var panel_y: float = (h - panel_h) / 2.0
+	draw_rect(Rect2(Vector2(panel_x, panel_y), Vector2(panel_w, panel_h)), PANEL_BG)
+	draw_rect(Rect2(Vector2(panel_x, panel_y), Vector2(panel_w, panel_h)), PANEL_BORDER, false, 2.0)
+
+	# Title
+	draw_string(font, Vector2(panel_x + 24, panel_y + 40), "EVENT", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 28, TEXT_ACCENT)
+
+	# Event text
+	if _event_text != "":
+		draw_string(font, Vector2(panel_x + 24, panel_y + 90), _event_text, HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 20, TEXT_PRIMARY)
+	else:
+		draw_string(font, Vector2(panel_x + 24, panel_y + 90), "You find a quiet moment to catch your breath.", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 20, TEXT_PRIMARY)
+
+	# Continue prompt
+	draw_string(font, Vector2(panel_x + 24, panel_y + panel_h - 30), "Click or press SPACE to continue", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 18, TEXT_MUTED)
 
 func _type_label(node_type: String) -> String:
 	match node_type:

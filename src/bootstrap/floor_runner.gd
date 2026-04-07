@@ -76,13 +76,19 @@ func map_commit_room(node_id: int) -> void:
 		"start_combat":
 			_launch_combat(enter_result)
 		"event":
-			# MVP: auto-complete events
-			floor_controller.complete_non_combat(gsm)
-			_after_room_clear()
+			if map_hud != null:
+				var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
+				var affinity: String = str(node.get("gem_affinity", "neutral"))
+				map_hud.show_event("A %s-attuned shrine hums with residual energy." % affinity if affinity != "neutral" else "You find a quiet moment to catch your breath.")
+			else:
+				floor_controller.complete_non_combat(gsm)
+				_after_room_clear()
 		"rest":
-			# MVP: auto-complete rest (could heal later)
-			floor_controller.complete_non_combat(gsm)
-			_after_room_clear()
+			if map_hud != null:
+				map_hud.show_event("A sheltered alcove offers a moment of rest.")
+			else:
+				floor_controller.complete_non_combat(gsm)
+				_after_room_clear()
 		"pass_through":
 			floor_controller.complete_non_combat(gsm)
 			_after_room_clear()
@@ -107,6 +113,10 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	combat_runner.reset_battle(rng.draw_next("map.combat_seed").get("value", 0))
 
 	_show_combat()
+
+func map_event_dismissed() -> void:
+	floor_controller.complete_non_combat(gsm)
+	_after_room_clear()
 
 func on_combat_complete(combat_result: String) -> void:
 	## Called by combat runner when combat ends and reward is handled.
