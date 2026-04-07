@@ -18,15 +18,24 @@ const HP_PLAYER := Color("#50c860")
 const HP_ENEMY := Color("#e05050")
 const ENERGY_COLOR := Color("#60a0e0")
 const BLOCK_COLOR := Color("#60d0ff")
-const CARD_BG := Color("#eadfc7")
-const CARD_BG_DISABLED := Color("#707070")
+const CARD_BODY := Color("#eadfc7")
+const CARD_BODY_DISABLED := Color("#938b7e")
 const CARD_BORDER := Color("#5a4733")
+const CARD_BORDER_ATTACK := Color("#c04040")
+const CARD_BORDER_DEFEND := Color("#4080c0")
+const CARD_BORDER_UTILITY := Color("#c09030")
+const CARD_TITLE_BG := Color("#33261a")
+const CARD_TITLE_TEXT := Color("#f7efe2")
 const CARD_TEXT := Color("#2c2218")
-const CARD_WIDTH := 160.0
-const CARD_HEIGHT := 220.0
-const CARD_OVERLAP := 100.0
-const CARD_HOVER_LIFT := 40.0
-const CARD_HOVER_SCALE := 1.25
+const CARD_TEXT_MUTED := Color("#6d5d49")
+const CARD_COST_BG := Color("#2a2040")
+const CARD_COST_TEXT := Color("#e0d8f0")
+const CARD_ART_BG := Color("#c8bda5")
+const CARD_WIDTH := 320.0
+const CARD_HEIGHT := 440.0
+const CARD_OVERLAP := 200.0
+const CARD_HOVER_LIFT := 60.0
+const CARD_HOVER_SCALE := 1.15
 
 const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png"
 const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
@@ -146,10 +155,10 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 		draw_string(font, Vector2(w * 0.5 - 60, hand_y + 80), "Hand empty", HORIZONTAL_ALIGNMENT_CENTER, 120, 20, TEXT_MUTED)
 		return
 
-	# Calculate card positions for fan layout
+	# Calculate card positions for fan layout — cards overlap, centered
 	var total_width: float = CARD_WIDTH + float(card_count - 1) * CARD_OVERLAP
 	var start_x: float = (w - total_width) / 2.0
-	var base_y: float = hand_y + 20.0
+	var base_y: float = hand_y + 16.0
 
 	for i in range(card_count):
 		var card_x: float = start_x + float(i) * CARD_OVERLAP
@@ -188,7 +197,6 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool) -> void:
 	var font: Font = ThemeDB.fallback_font
-	var bg: Color = CARD_BG if playable else CARD_BG_DISABLED
 	var card_w: float = CARD_WIDTH
 	var card_h: float = CARD_HEIGHT
 
@@ -196,28 +204,123 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 		card_w *= CARD_HOVER_SCALE
 		card_h *= CARD_HOVER_SCALE
 
-	# Card body
-	draw_rect(Rect2(pos, Vector2(card_w, card_h)), bg)
-	draw_rect(Rect2(pos, Vector2(card_w, card_h)), CARD_BORDER, false, 2.0)
+	var body_color: Color = CARD_BODY if playable else CARD_BODY_DISABLED
+	var border_color: Color = _card_border_color(card_id)
+	var title_h: float = card_h * 0.1
+	var art_h: float = card_h * 0.35
+	var rules_h: float = card_h * 0.35
+	var footer_h: float = card_h * 0.1
+	var cost_size: float = card_w * 0.14
+	var padding: float = card_w * 0.05
+	var inner_w: float = card_w - padding * 2
 
-	# Card name
-	var display_name: String = card_id
-	if runner != null and runner.has_method("_display_name_for_card"):
-		display_name = str(runner.call("_display_name_for_card", card_id))
-	elif card_id != "":
-		display_name = card_id.replace("_", " ").capitalize()
-	draw_string(font, pos + Vector2(8, 24), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 16), 16, CARD_TEXT)
+	# Card outer border
+	draw_rect(Rect2(pos, Vector2(card_w, card_h)), border_color)
+	# Card body inset
+	draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, card_h - 6)), body_color)
 
-	# Card rules text
-	var rules: String = ""
-	if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
-		rules = str(runner.card_catalog.hand_rules_text(card_id))
+	# Title bar
+	var title_rect := Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h))
+	draw_rect(title_rect, CARD_TITLE_BG)
+	var display_name: String = _resolve_display_name(card_id)
+	draw_string(font, pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), CARD_TITLE_TEXT)
+
+	# Cost badge (top-left circle)
+	var cost_center := pos + Vector2(padding + cost_size * 0.5, 3 + title_h * 0.5)
+	var cost: int = _resolve_cost(card_id)
+	draw_circle(cost_center, cost_size * 0.5, CARD_COST_BG)
+	draw_string(font, cost_center + Vector2(-6, 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, int(cost_size * 0.6), CARD_COST_TEXT)
+
+	# Art area
+	var art_rect := Rect2(pos + Vector2(padding, 3 + title_h + 4), Vector2(inner_w, art_h))
+	draw_rect(art_rect, CARD_ART_BG)
+	# Load and draw card art thumbnail
+	var art_tex: Texture2D = _resolve_card_art(card_id)
+	if art_tex != null:
+		draw_texture_rect(art_tex, art_rect, false)
+
+	# Role marker badge
+	var role: String = _resolve_role(card_id)
+	if role != "":
+		var role_y: float = art_rect.position.y + art_h + 6
+		draw_string(font, pos + Vector2(padding, role_y + 14), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(card_h * 0.04), CARD_TEXT_MUTED)
+
+	# Rules text area
+	var rules_y: float = pos.y + 3 + title_h + art_h + 24
+	var rules: String = _resolve_rules(card_id)
 	if rules != "":
-		draw_string(font, pos + Vector2(8, 48), rules, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 16), 13, CARD_TEXT)
+		# Wrap text manually by drawing multiple lines
+		var line_h: float = card_h * 0.05
+		var rules_font_size: int = int(card_h * 0.045)
+		var lines: Array = rules.split(" \u2022 ")
+		for li in range(lines.size()):
+			draw_string(font, Vector2(pos.x + padding, rules_y + float(li) * (line_h + 4)), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), rules_font_size, CARD_TEXT)
 
-	# Playability indicator
+	# Footer — tooltip or locked state
 	if not playable:
-		draw_string(font, pos + Vector2(8, card_h - 12), "locked", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 16), 12, TEXT_BAD)
+		var lock_y: float = pos.y + card_h - footer_h
+		draw_rect(Rect2(Vector2(pos.x + 3, lock_y), Vector2(card_w - 6, footer_h - 3)), Color("#402020"))
+		draw_string(font, Vector2(pos.x + padding, lock_y + footer_h * 0.6), "LOCKED", HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(footer_h * 0.5), TEXT_BAD)
+
+func _resolve_display_name(card_id: String) -> String:
+	if runner != null and runner.has_method("_display_name_for_card"):
+		return str(runner.call("_display_name_for_card", card_id))
+	return card_id.replace("_", " ").capitalize() if card_id != "" else "?"
+
+func _resolve_cost(card_id: String) -> int:
+	if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
+		return int(runner.card_catalog.base_cost(card_id))
+	return 1
+
+func _resolve_rules(card_id: String) -> String:
+	if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
+		return str(runner.card_catalog.hand_rules_text(card_id))
+	return ""
+
+func _resolve_role(card_id: String) -> String:
+	if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
+		return str(runner.card_catalog.role_marker(card_id))
+	return ""
+
+func _resolve_card_art(card_id: String) -> Texture2D:
+	var paths := {
+		"strike": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
+		"defend": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
+		"scheme_flow": "res://assets/generated/cards/card_scheme_seep_goblin_md.png",
+		"strike_plus": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
+		"strike_precise": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
+		"defend_plus": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
+		"defend_hold": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
+		"heavy_guard": "res://assets/generated/cards/card_defend_badger_bulwark_md.png",
+		"quick_slash": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
+		"steady_hand": "res://assets/generated/cards/card_scheme_seep_goblin_md.png",
+		"gem_produce_ruby": "res://assets/generated/cards/card_ember_jab_ruby_md.png",
+		"gem_produce_sapphire": "res://assets/generated/cards/card_ward_polish_sapphire_md.png",
+		"gem_hybrid_ruby_strike": "res://assets/generated/cards/card_ember_jab_ruby_md.png",
+		"gem_hybrid_sapphire_guard": "res://assets/generated/cards/card_ward_polish_sapphire_md.png",
+		"gem_focus": "res://assets/generated/cards/card_vault_focus_seal_md.png",
+	}
+	var resolved: String = card_id
+	if runner != null and runner.card_catalog != null:
+		var r: String = str(runner.card_catalog.resolved_card_id(card_id))
+		if r != "":
+			resolved = r
+	var path: String = str(paths.get(resolved, ""))
+	if path == "":
+		path = "res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png"
+	return _load_tex(path)
+
+func _card_border_color(card_id: String) -> Color:
+	var palette: String = "utility"
+	if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
+		palette = str(runner.card_catalog.palette_key(card_id))
+	match palette:
+		"attack":
+			return CARD_BORDER_ATTACK
+		"defend":
+			return CARD_BORDER_DEFEND
+		_:
+			return CARD_BORDER_UTILITY
 
 func _draw_status_bar(w: float) -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -333,7 +436,7 @@ func _card_at_position(pos: Vector2) -> int:
 	# Check from rightmost card (topmost in draw order) to leftmost
 	for i in range(card_count - 1, -1, -1):
 		var card_x: float = start_x + float(i) * CARD_OVERLAP
-		var card_y: float = hand_y
+		var card_y: float = hand_y + 20.0
 		if i == hovered_card_index:
 			card_y -= CARD_HOVER_LIFT
 		var rect := Rect2(Vector2(card_x, card_y), Vector2(CARD_WIDTH, CARD_HEIGHT))
