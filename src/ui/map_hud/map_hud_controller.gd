@@ -4,21 +4,21 @@ class_name MapHudController
 ## Renders a FloorGraph as a navigable node graph.
 ## Single-click on a legal adjacent room to enter it.
 
-const PANEL_BG := Color("#12161f")
-const TEXT_PRIMARY := Color("#f3f6fb")
-const TEXT_MUTED := Color("#8090a8")
-const TEXT_ACCENT := Color("#7ec6ff")
-const TEXT_GOOD := Color("#8be28b")
-const TEXT_WARN := Color("#ffd36a")
-const NODE_RUBY := Color("#b83838")
-const NODE_SAPPHIRE := Color("#3868b8")
-const NODE_NEUTRAL := Color("#586070")
-const NODE_CLEARED := Color("#282c34")
-const NODE_CURRENT := Color("#d4a830")
-const NODE_LEGAL_RING := Color("#b9985a")
-const EDGE_DEFAULT := Color("#333844")
-const EDGE_LEGAL := Color("#7ec6ff")
-const NODE_RADIUS := 36.0
+const PANEL_BG := Color("#1a1520")
+const TEXT_PRIMARY := Color("#fffdf5")
+const TEXT_MUTED := Color("#a0a8b8")
+const TEXT_ACCENT := Color("#60d0ff")
+const TEXT_GOOD := Color("#70e870")
+const TEXT_WARN := Color("#ffcc44")
+const NODE_RUBY := Color("#e04040")
+const NODE_SAPPHIRE := Color("#3090e0")
+const NODE_NEUTRAL := Color("#707880")
+const NODE_CLEARED := Color("#383040")
+const NODE_CURRENT := Color("#f0c030")
+const NODE_LEGAL_RING := Color("#e0b840")
+const EDGE_DEFAULT := Color("#403848")
+const EDGE_LEGAL := Color("#60d0ff")
+const NODE_RADIUS := 72.0
 
 var floor_vm: Dictionary = {}
 var gem_stack: Array = []
@@ -99,12 +99,12 @@ func _draw() -> void:
 
 		# Legal ring (thick gold border on clickable rooms)
 		if is_legal and not cleared:
-			draw_circle(pos, NODE_RADIUS + 5.0, NODE_LEGAL_RING)
+			draw_circle(pos, NODE_RADIUS + 8.0, NODE_LEGAL_RING)
 
-		# Current position ring (bright pulsing-style double ring)
+		# Current position ring (bright double ring)
 		if is_current:
-			draw_circle(pos, NODE_RADIUS + 8.0, NODE_CURRENT)
-			draw_circle(pos, NODE_RADIUS + 4.0, PANEL_BG)
+			draw_circle(pos, NODE_RADIUS + 12.0, NODE_CURRENT)
+			draw_circle(pos, NODE_RADIUS + 6.0, PANEL_BG)
 
 		# Node body
 		draw_circle(pos, NODE_RADIUS, fill_color)
@@ -112,23 +112,23 @@ func _draw() -> void:
 		# Room type label inside node
 		var type_label: String = _type_label(node_type)
 		var label_color: Color = TEXT_PRIMARY if not cleared else TEXT_MUTED
-		_draw_text_centered(pos + Vector2(0, -6), type_label, 13, label_color)
+		_draw_text_centered(pos + Vector2(0, -10), type_label, 22, label_color)
 
 		# Affinity label below type
 		if not cleared:
 			var aff_label: String = affinity if affinity != "neutral" else "---"
-			_draw_text_centered(pos + Vector2(0, 10), aff_label, 11, TEXT_MUTED)
+			_draw_text_centered(pos + Vector2(0, 18), aff_label, 18, TEXT_MUTED)
 
-		# Cleared check mark
+		# Cleared overlay
 		if cleared and not is_current:
-			_draw_text_centered(pos, "done", 12, TEXT_MUTED)
+			_draw_text_centered(pos, "DONE", 20, TEXT_MUTED)
 
 		# Gem gate cost above node
 		var gem_gate: Variant = node.get("gem_gate", null)
 		if gem_gate is Dictionary and not cleared:
 			var gate_gem: String = str(gem_gate.get("gem", ""))
 			var gate_cost: int = int(gem_gate.get("cost", 0))
-			_draw_text_centered(pos + Vector2(0, -(NODE_RADIUS + 16)), "%d %s" % [gate_cost, gate_gem], 12, TEXT_WARN)
+			_draw_text_centered(pos + Vector2(0, -(NODE_RADIUS + 22)), "%d %s needed" % [gate_cost, gate_gem], 18, TEXT_WARN)
 
 	# HUD elements
 	_draw_gem_stack_bar()
@@ -156,7 +156,7 @@ func _draw_text_centered(pos: Vector2, text: String, font_size: int, color: Colo
 
 func _draw_gem_stack_bar() -> void:
 	var font: Font = ThemeDB.fallback_font
-	var y: float = size.y - 50.0
+	var y: float = size.y - 70.0
 	var label: String = "Gem Stack [%d/%d]: " % [gem_stack.size(), gem_stack_cap]
 	if gem_stack.is_empty():
 		label += "(empty)"
@@ -165,21 +165,21 @@ func _draw_gem_stack_bar() -> void:
 		for gem in gem_stack:
 			gems.append(str(gem))
 		label += " | ".join(gems)
-	draw_string(font, Vector2(20, y), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, TEXT_ACCENT)
+	draw_string(font, Vector2(24, y), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
 
 	# Slot indicators
-	var slot_y: float = y + 18.0
+	var slot_y: float = y + 24.0
 	for i in range(gem_stack_cap):
-		var slot_x: float = 20.0 + float(i) * 22.0
+		var slot_x: float = 24.0 + float(i) * 36.0
 		var slot_color: Color = TEXT_ACCENT if i < gem_stack.size() else Color("#2a2f38")
-		draw_rect(Rect2(slot_x, slot_y, 18, 8), slot_color)
+		draw_rect(Rect2(slot_x, slot_y, 30, 12), slot_color)
 
 func _draw_floor_banner() -> void:
 	var font: Font = ThemeDB.fallback_font
 	var floor_idx: int = int(floor_vm.get("floor_index", 1))
 	var rooms: int = int(floor_vm.get("rooms_cleared", 0))
 	var info: String = "FLOOR %d  |  Rooms cleared: %d" % [floor_idx, rooms]
-	draw_string(font, Vector2(20, 30), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_PRIMARY)
+	draw_string(font, Vector2(24, 40), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_PRIMARY)
 
 func _draw_conduit_banner() -> void:
 	var constraint: String = str(floor_vm.get("active_constraint", ""))
@@ -192,10 +192,10 @@ func _draw_conduit_banner() -> void:
 		return
 
 	var font: Font = ThemeDB.fallback_font
-	var origin := Vector2(size.x - 280, 30)
+	var origin := Vector2(size.x - 400, 40)
 
 	if matched:
-		draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_GOOD)
+		draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
 		return
 
 	var label: String = "Conduit: "
@@ -207,7 +207,7 @@ func _draw_conduit_banner() -> void:
 			label += ">%s< " % gem_char
 		else:
 			label += " %s  " % gem_char
-	draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, TEXT_ACCENT)
+	draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
 
 func _draw_instructions() -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -224,7 +224,7 @@ func _draw_instructions() -> void:
 	elif state == "floor_complete":
 		text = "Floor complete!"
 	if text != "":
-		draw_string(font, Vector2(20, size.y - 16), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, TEXT_MUTED)
+		draw_string(font, Vector2(24, size.y - 20), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_MUTED)
 
 func _gui_input(event: InputEvent) -> void:
 	if _busy:
@@ -248,7 +248,7 @@ func _handle_node_click(node_id: int) -> void:
 func _node_at_position(pos: Vector2) -> int:
 	for node_id in node_positions:
 		var node_pos: Vector2 = node_positions[node_id]
-		if pos.distance_to(node_pos) <= NODE_RADIUS + 8.0:
+		if pos.distance_to(node_pos) <= NODE_RADIUS + 12.0:
 			return int(node_id)
 	return -1
 
