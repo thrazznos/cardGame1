@@ -684,6 +684,123 @@
       "weight_modifiers": []
     },
     {
+      "card_id": "heavy_guard",
+      "aliases": [],
+      "display_name": "Heavy Guard",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 2,
+      "rarity": "uncommon",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 6,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Defense \u2022 12 block \u2022 Cost 2",
+      "tooltip_text": "Heavy defense: gain 12 block. Expensive but absorbs big hits.",
+      "reward_rules_text": "Add to deck \u2022 Gain 12 block \u2022 Cost 2",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 12
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "quick_slash",
+      "aliases": [],
+      "display_name": "Quick Slash",
+      "role_marker": "[ATK]",
+      "palette": "attack",
+      "base_cost": 0,
+      "rarity": "uncommon",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 7,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Attack \u2022 3 dmg \u2022 Cost 0",
+      "tooltip_text": "Free attack: deal 3 damage at no energy cost. Rewards aggression.",
+      "reward_rules_text": "Add to deck \u2022 Deal 3 dmg \u2022 Cost 0",
+      "sim_metadata": {
+        "value_proxy": 4.5,
+        "report_role": "tempo_attack"
+      },
+      "effects": [
+        {
+          "type": "deal_damage",
+          "amount": 3
+        }
+      ],
+      "speed_class": "fast",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "single_enemy",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "steady_hand",
+      "aliases": [],
+      "display_name": "Steady Hand",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "rarity": "uncommon",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 8,
+      "pool_tags": [
+        "base_reward"
+      ],
+      "hand_rules_text": "Utility \u2022 3 block + Draw 1 \u2022 Cost 1",
+      "tooltip_text": "Recover card: gain 3 block and draw 1. Replaces itself to resist hand disruption.",
+      "reward_rules_text": "Add to deck \u2022 3 block + Draw 1 \u2022 Cost 1",
+      "sim_metadata": {
+        "value_proxy": 4.0,
+        "report_role": "cantrip_defend"
+      },
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 3
+        },
+        {
+          "type": "draw_n",
+          "amount": 1
+        }
+      ],
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
       "card_id": "probe_contract_anchor",
       "aliases": [],
       "display_name": "Contract Anchor",

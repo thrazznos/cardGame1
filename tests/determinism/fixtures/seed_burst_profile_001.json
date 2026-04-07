@@ -1,0 +1,48 @@
+{
+  "fixture_id": "seed_burst_profile_001",
+  "seed_root": 77889900,
+  "inputs": [
+    {
+      "turn": 1,
+      "action": "play",
+      "card_id": "strike_01",
+      "target": "enemy_01"
+    },
+    {
+      "turn": 1,
+      "action": "pass"
+    },
+    {
+      "turn": 2,
+      "action": "play",
+      "card_id": "defend_01",
+      "target": "self"
+    },
+    {
+      "turn": 2,
+      "action": "pass"
+    },
+    {
+      "turn": 3,
+      "action": "play",
+      "card_id": "strike_02",
+      "target": "enemy_01"
+    },
+    {
+      "turn": 3,
+      "action": "pass"
+    },
+    {
+      "turn": 4,
+      "action": "play",
+      "card_id": "defend_02",
+      "target": "self"
+    },
+    {
+      "turn": 4,
+      "action": "pass"
+    }
+  ],
+  "auto_finish_max_turns": 12,
+  "expected": {}
+}

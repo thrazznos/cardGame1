@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "profile_id": "steady",
+      "display_name": "Steady Pressure",
+      "script_mode": "fixed_cycle",
+      "description": "Consistent damage each turn. Tests raw card efficiency.",
+      "enemy_hp_base": 24,
+      "cycle": [
+        {
+          "intent_type": "attack",
+          "damage_min": 5,
+          "damage_max": 8,
+          "telegraph_text": "Attack for {dmg}"
+        }
+      ],
+      "enrage_start_turn": 12,
+      "enrage_damage_step": 1
+    },
+    {
+      "profile_id": "burst",
+      "display_name": "Burst Charger",
+      "script_mode": "fixed_cycle",
+      "description": "Alternates charging and slamming. Tests block timing.",
+      "enemy_hp_base": 28,
+      "cycle": [
+        {
+          "intent_type": "charge",
+          "damage_min": 0,
+          "damage_max": 2,
+          "block_gain": 4,
+          "telegraph_text": "Charging up... (+{block} block)"
+        },
+        {
+          "intent_type": "slam",
+          "damage_min": 11,
+          "damage_max": 14,
+          "telegraph_text": "SLAM for {dmg}!"
+        }
+      ],
+      "enrage_start_turn": 10,
+      "enrage_damage_step": 2
+    },
+    {
+      "profile_id": "escalating",
+      "display_name": "Escalating Threat",
+      "script_mode": "state_reactive",
+      "description": "Damage ramps each turn. Tests aggressive play to end fights fast.",
+      "enemy_hp_base": 20,
+      "base_damage_min": 3,
+      "base_damage_max": 4,
+      "escalation_per_turn": 1,
+      "escalation_cap": 8,
+      "cycle": [
+        {
+          "intent_type": "attack",
+          "telegraph_text": "Attack for {dmg} (escalating)"
+        }
+      ],
+      "enrage_start_turn": 8,
+      "enrage_damage_step": 2
+    },
+    {
+      "profile_id": "attrition",
+      "display_name": "Attrition Drainer",
+      "script_mode": "weighted_policy",
+      "description": "Lower damage but applies resource pressure. Tests gem stack defenses and adaptation.",
+      "enemy_hp_base": 22,
+      "intent_weights": {
+        "attack": 40,
+        "drain_energy": 30,
+        "force_discard": 30
+      },
+      "cycle": [
+        {
+          "intent_type": "attack",
+          "damage_min": 3,
+          "damage_max": 5,
+          "telegraph_text": "Attack for {dmg}"
+        },
+        {
+          "intent_type": "drain_energy",
+          "damage_min": 1,
+          "damage_max": 2,
+          "energy_drain": 1,
+          "telegraph_text": "Draining energy (-{drain} energy, {dmg} dmg)"
+        },
+        {
+          "intent_type": "force_discard",
+          "damage_min": 1,
+          "damage_max": 3,
+          "discard_count": 1,
+          "telegraph_text": "Disrupting hand (discard {discard}, {dmg} dmg)"
+        }
+      ],
+      "enrage_start_turn": 14,
+      "enrage_damage_step": 1
+    }
+  ],
+  "encounter_sequence": [
+    { "encounter_index": 1, "profile_id": "steady",     "title": "Ambush Patrol",      "flavor": "Scout whistles echo through the corridor." },
+    { "encounter_index": 2, "profile_id": "burst",       "title": "Warden Counterpush",  "flavor": "Heavy boots thunder as the warden rushes in." },
+    { "encounter_index": 3, "profile_id": "escalating",  "title": "Frenzied Lookout",    "flavor": "The sentry's eyes widen with desperate fury." },
+    { "encounter_index": 4, "profile_id": "attrition",   "title": "Hex Weaver",          "flavor": "Whispered syllables tug at your reserves." }
+  ]
+}

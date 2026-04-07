@@ -1,11 +1,9 @@
 {
   "fixture_id": "seed_smoke_001",
-  "final_state_hash": "1897483478",
-  "event_sequence_hash": "3222636054",
-  "rng_cursor_snapshot": {
-    "encounter.intent": 4,
-    "reward.card": 3
-  },
+  "final_state_hash": "2916530773",
+  "event_sequence_hash": "1433453719",
+  "rng_cursor_snapshot": {"encounter.intent": 4, "reward.card": 3},
   "encounter_title": "Encounter 1 \u2022 Ambush Patrol",
-  "encounter_intent_style": "Steady pressure"
+  "encounter_intent_style": "Steady Pressure",
+  "pressure_profile_id": "steady"
 }
