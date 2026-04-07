@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://src/bootstrap/floor_runner.gd" id="1_floor"]
 [ext_resource type="Script" path="res://src/ui/map_hud/map_hud_controller.gd" id="2_map"]
-[ext_resource type="PackedScene" path="res://scenes/combat/combat_slice.tscn" id="3_combat"]
+[ext_resource type="PackedScene" path="res://scenes/combat/combat_stage.tscn" id="3_combat"]
 
 [node name="FloorRun" type="Control"]
 layout_mode = 3

@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/bootstrap/combat_slice_runner.gd" id="1_runner"]
+[ext_resource type="Script" path="res://src/ui/combat_stage/combat_stage_controller.gd" id="2_stage"]
+
+[node name="CombatSlice" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_runner")
+
+[node name="CombatHud" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_stage")
