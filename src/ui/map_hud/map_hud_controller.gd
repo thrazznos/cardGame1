@@ -146,6 +146,9 @@ func _draw() -> void:
 	# Floor info (top-left)
 	_draw_floor_info()
 
+	# Conduit objective banner (top-right)
+	_draw_conduit_banner()
+
 func _draw_centered_text(pos: Vector2, text: String, font_size: int) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size)
@@ -219,6 +222,35 @@ func _node_at_position(pos: Vector2) -> int:
 		if pos.distance_to(node_pos) <= NODE_RADIUS + 8.0:
 			return int(node_id)
 	return -1
+
+func _draw_conduit_banner() -> void:
+	var constraint: String = str(floor_vm.get("active_constraint", ""))
+	if constraint != "conduit":
+		return
+	var pattern: Array = floor_vm.get("conduit_pattern", [])
+	var progress: int = int(floor_vm.get("conduit_progress", 0))
+	var matched: bool = bool(floor_vm.get("conduit_matched", false))
+
+	if pattern.is_empty():
+		return
+
+	var font: Font = ThemeDB.fallback_font
+	var origin := Vector2(size.x - 250, 20)
+
+	if matched:
+		draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_GOOD)
+		return
+
+	var label: String = "Conduit: "
+	for i in range(pattern.size()):
+		var gem_char: String = str(pattern[i])[0]
+		if i < progress:
+			label += "[%s] " % gem_char  # completed
+		elif i == progress:
+			label += ">%s< " % gem_char  # next needed
+		else:
+			label += "%s " % gem_char  # upcoming
+	draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, TEXT_ACCENT)
 
 func _type_char(node_type: String) -> String:
 	match node_type:
