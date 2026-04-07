@@ -108,9 +108,11 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	# Wire the callback so combat hands control back to us
 	combat_runner.floor_runner = self
 	combat_runner.use_external_gsm = true
-	combat_runner.gsm = gsm
 	combat_runner.encounter_index = profile_index
-	combat_runner.reset_battle(rng.draw_next("map.combat_seed").get("value", 0))
+	var seed_val: int = int(rng.draw_next("map.combat_seed").get("value", 0))
+	combat_runner.reset_battle(seed_val)
+	# Inject GSM AFTER reset so it's not overwritten
+	combat_runner.gsm = gsm
 
 	_show_combat()
 	# Re-refresh after making visible so _draw triggers

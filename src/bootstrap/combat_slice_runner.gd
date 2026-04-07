@@ -198,6 +198,10 @@ func get_view_model() -> Dictionary:
 	}
 
 func refresh_hud() -> void:
+	if hud == null:
+		hud = get_node_or_null("CombatHud")
+		if hud != null:
+			hud.bind_runner(self)
 	if hud != null:
 		hud.refresh(get_view_model())
 
