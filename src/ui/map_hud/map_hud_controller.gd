@@ -214,14 +214,14 @@ func _draw_instructions() -> void:
 	var legal: Array = floor_vm.get("legal_moves", [])
 	var state: String = str(floor_vm.get("state", ""))
 	var text: String = ""
-	if state == "room_select":
+	if state == FloorController.STATE_ROOM_SELECT:
 		if legal.is_empty():
 			text = "No rooms available. Floor complete?"
 		else:
 			text = "Click a highlighted room to enter it."
-	elif state == "combat":
+	elif state == FloorController.STATE_COMBAT:
 		text = "Fighting..."
-	elif state == "floor_complete":
+	elif state == FloorController.STATE_FLOOR_COMPLETE:
 		text = "Floor complete!"
 	if text != "":
 		draw_string(font, Vector2(24, size.y - 20), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_MUTED)
