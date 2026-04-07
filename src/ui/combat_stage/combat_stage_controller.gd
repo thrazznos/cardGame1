@@ -5,37 +5,7 @@ class_name CombatStageController
 ## gem stack icons, and compact event feed.
 ## Same refresh(vm) contract as the old CombatHudController.
 
-const PANEL_BG := Color("#1a1520")
-const PANEL_BORDER := Color("#4b3860")
-const ARENA_BG := Color("#0e0a14")
-const TEXT_PRIMARY := Color("#fffdf5")
-const TEXT_MUTED := Color("#a0a8b8")
-const TEXT_ACCENT := Color("#60d0ff")
-const TEXT_GOOD := Color("#70e870")
-const TEXT_WARN := Color("#ffd36a")
-const TEXT_BAD := Color("#ff6666")
-const HP_PLAYER := Color("#50c860")
-const HP_ENEMY := Color("#e05050")
-const ENERGY_COLOR := Color("#60a0e0")
-const BLOCK_COLOR := Color("#60d0ff")
-const CARD_BODY := Color("#eadfc7")
-const CARD_BODY_DISABLED := Color("#938b7e")
-const CARD_BORDER := Color("#5a4733")
-const CARD_BORDER_ATTACK := Color("#c04040")
-const CARD_BORDER_DEFEND := Color("#4080c0")
-const CARD_BORDER_UTILITY := Color("#c09030")
-const CARD_TITLE_BG := Color("#33261a")
-const CARD_TITLE_TEXT := Color("#f7efe2")
-const CARD_TEXT := Color("#2c2218")
-const CARD_TEXT_MUTED := Color("#6d5d49")
-const CARD_COST_BG := Color("#2a2040")
-const CARD_COST_TEXT := Color("#e0d8f0")
-const CARD_ART_BG := Color("#c8bda5")
-const CARD_WIDTH := 320.0
-const CARD_HEIGHT := 440.0
-const CARD_OVERLAP := 200.0
-const CARD_HOVER_LIFT := 60.0
-const CARD_HOVER_SCALE := 1.15
+## Colors and layout constants are sourced from UITheme (src/ui/theme.gd).
 
 var _player_portrait_tex: Texture2D
 var _enemy_portrait_tex: Texture2D
@@ -91,11 +61,11 @@ func _draw() -> void:
 	var hand_y: float = arena_h
 
 	# Arena background
-	draw_rect(Rect2(0, 0, w, arena_h), ARENA_BG)
-	draw_rect(Rect2(0, arena_h, w, h - arena_h), PANEL_BG)
+	draw_rect(Rect2(0, 0, w, arena_h), UITheme.ARENA_BG)
+	draw_rect(Rect2(0, arena_h, w, h - arena_h), UITheme.PANEL_BG)
 
 	# Arena divider line
-	draw_line(Vector2(0, arena_h), Vector2(w, arena_h), PANEL_BORDER, 2.0)
+	draw_line(Vector2(0, arena_h), Vector2(w, arena_h), UITheme.PANEL_BORDER, 2.0)
 
 	var reward_state: String = str(vm.get("reward_state", "none"))
 	if reward_state == "presented" or reward_state == "applied":
@@ -120,10 +90,10 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	var player_hp: int = int(vm.get("player_hp", 0))
 	var player_max: int = int(vm.get("player_max_hp", 40))
 	var player_block: int = int(vm.get("player_block", 0))
-	_draw_hp_bar(Vector2(player_x - 64, center_y + 72), 128.0, player_hp, player_max, HP_PLAYER)
-	draw_string(font, Vector2(player_x - 64, center_y + 100), "HP %d/%d" % [player_hp, player_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, TEXT_PRIMARY)
+	_draw_hp_bar(Vector2(player_x - 64, center_y + 72), 128.0, player_hp, player_max, UITheme.HP_PLAYER)
+	draw_string(font, Vector2(player_x - 64, center_y + 100), "HP %d/%d" % [player_hp, player_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, UITheme.TEXT_PRIMARY)
 	if player_block > 0:
-		draw_string(font, Vector2(player_x - 64, center_y + 120), "Block %d" % player_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, BLOCK_COLOR)
+		draw_string(font, Vector2(player_x - 64, center_y + 120), "Block %d" % player_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
 
 	# Enemy (right side)
 	var enemy_x: float = w * 0.8
@@ -133,10 +103,10 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	var enemy_hp: int = int(vm.get("enemy_hp", 0))
 	var enemy_max: int = int(vm.get("enemy_max_hp", 24))
 	var enemy_block: int = int(vm.get("enemy_block", 0))
-	_draw_hp_bar(Vector2(enemy_x - 64, center_y + 72), 128.0, enemy_hp, enemy_max, HP_ENEMY)
-	draw_string(font, Vector2(enemy_x - 64, center_y + 100), "HP %d/%d" % [enemy_hp, enemy_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, TEXT_PRIMARY)
+	_draw_hp_bar(Vector2(enemy_x - 64, center_y + 72), 128.0, enemy_hp, enemy_max, UITheme.HP_ENEMY)
+	draw_string(font, Vector2(enemy_x - 64, center_y + 100), "HP %d/%d" % [enemy_hp, enemy_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, UITheme.TEXT_PRIMARY)
 	if enemy_block > 0:
-		draw_string(font, Vector2(enemy_x - 64, center_y + 120), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, BLOCK_COLOR)
+		draw_string(font, Vector2(enemy_x - 64, center_y + 120), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
 
 	# Enemy intent (centered between portraits)
 	var intent: Dictionary = vm.get("enemy_intent", {})
@@ -145,21 +115,21 @@ func _draw_arena(w: float, arena_h: float) -> void:
 		telegraph = "Intent: %d dmg" % int(vm.get("enemy_intent_damage", 0))
 	var intent_x: float = w * 0.5
 	var intent_y: float = center_y - 20
-	draw_string(font, Vector2(intent_x - 150, intent_y), telegraph, HORIZONTAL_ALIGNMENT_CENTER, 300, 24, TEXT_WARN)
+	draw_string(font, Vector2(intent_x - 150, intent_y), telegraph, HORIZONTAL_ALIGNMENT_CENTER, 300, 24, UITheme.TEXT_WARN)
 
 	# Profile name below intent
 	var profile: String = str(vm.get("pressure_profile_name", ""))
 	if profile != "":
-		draw_string(font, Vector2(intent_x - 100, intent_y + 30), profile, HORIZONTAL_ALIGNMENT_CENTER, 200, 16, TEXT_MUTED)
+		draw_string(font, Vector2(intent_x - 100, intent_y + 30), profile, HORIZONTAL_ALIGNMENT_CENTER, 200, 16, UITheme.TEXT_MUTED)
 
 	# Encounter title at top of arena
 	var title: String = str(vm.get("encounter_title", ""))
 	if title != "":
-		draw_string(font, Vector2(20, 30), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_PRIMARY)
+		draw_string(font, Vector2(20, 30), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, UITheme.TEXT_PRIMARY)
 
 func _draw_hp_bar(pos: Vector2, bar_width: float, current: int, maximum: int, fill_color: Color) -> void:
 	var bar_h: float = 12.0
-	draw_rect(Rect2(pos, Vector2(bar_width, bar_h)), Color("#1a1520"))
+	draw_rect(Rect2(pos, Vector2(bar_width, bar_h)), UITheme.PANEL_BG)
 	if maximum > 0:
 		var fill_w: float = bar_width * clampf(float(current) / float(maximum), 0.0, 1.0)
 		draw_rect(Rect2(pos, Vector2(fill_w, bar_h)), fill_color)
@@ -174,16 +144,16 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 	var card_count: int = hand.size()
 
 	if card_count == 0:
-		draw_string(font, Vector2(w * 0.5 - 60, hand_y + 80), "Hand empty", HORIZONTAL_ALIGNMENT_CENTER, 120, 20, TEXT_MUTED)
+		draw_string(font, Vector2(w * 0.5 - 60, hand_y + 80), "Hand empty", HORIZONTAL_ALIGNMENT_CENTER, 120, 20, UITheme.TEXT_MUTED)
 		return
 
 	# Calculate card positions for fan layout — cards overlap, centered
-	var total_width: float = CARD_WIDTH + float(card_count - 1) * CARD_OVERLAP
+	var total_width: float = UITheme.CARD_WIDTH + float(card_count - 1) * UITheme.CARD_OVERLAP
 	var start_x: float = (w - total_width) / 2.0
 	var base_y: float = hand_y + 16.0
 
 	for i in range(card_count):
-		var card_x: float = start_x + float(i) * CARD_OVERLAP
+		var card_x: float = start_x + float(i) * UITheme.CARD_OVERLAP
 		var card_y: float = base_y
 		var is_hovered: bool = i == hovered_card_index
 		var card_id: String = str(hand_card_ids[i]) if i < hand_card_ids.size() else ""
@@ -192,41 +162,41 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 		var playable: bool = reject_reason == ""
 
 		if is_hovered:
-			card_y -= CARD_HOVER_LIFT
+			card_y -= UITheme.CARD_HOVER_LIFT
 
 		_draw_card(Vector2(card_x, card_y), card_id, instance_id, playable, is_hovered)
 
 	# Energy counter
 	var energy_text: String = "Energy %d/%d" % [energy, max_energy]
-	draw_string(font, Vector2(w - 180, hand_y + CARD_HEIGHT + 30), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, ENERGY_COLOR)
+	draw_string(font, Vector2(w - 180, hand_y + UITheme.CARD_HEIGHT + 30), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UITheme.ENERGY_COLOR)
 
 	# Phase / combat result
 	var phase: String = str(vm.get("ui_phase_text", ""))
 	var result: String = str(vm.get("combat_result", "in_progress"))
 	var phase_text: String = phase
-	var phase_color: Color = TEXT_MUTED
+	var phase_color: Color = UITheme.TEXT_MUTED
 	if result == "player_win":
 		phase_text = "VICTORY"
-		phase_color = TEXT_GOOD
+		phase_color = UITheme.TEXT_GOOD
 	elif result == "player_lose":
 		phase_text = "DEFEAT"
-		phase_color = TEXT_BAD
-	draw_string(font, Vector2(20, hand_y + CARD_HEIGHT + 30), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, phase_color)
+		phase_color = UITheme.TEXT_BAD
+	draw_string(font, Vector2(20, hand_y + UITheme.CARD_HEIGHT + 30), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, phase_color)
 
 	# Pass button hint
 	if result == "in_progress":
-		draw_string(font, Vector2(20, hand_y + CARD_HEIGHT + 56), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_MUTED)
+		draw_string(font, Vector2(20, hand_y + UITheme.CARD_HEIGHT + 56), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UITheme.TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool) -> void:
 	var font: Font = ThemeDB.fallback_font
-	var card_w: float = CARD_WIDTH
-	var card_h: float = CARD_HEIGHT
+	var card_w: float = UITheme.CARD_WIDTH
+	var card_h: float = UITheme.CARD_HEIGHT
 
 	if hovered:
-		card_w *= CARD_HOVER_SCALE
-		card_h *= CARD_HOVER_SCALE
+		card_w *= UITheme.CARD_HOVER_SCALE
+		card_h *= UITheme.CARD_HOVER_SCALE
 
-	var body_color: Color = CARD_BODY if playable else CARD_BODY_DISABLED
+	var body_color: Color = UITheme.CARD_BODY if playable else UITheme.CARD_BODY_DISABLED
 	var border_color: Color = _card_border_color(card_id)
 	var title_h: float = card_h * 0.1
 	var art_h: float = card_h * 0.35
@@ -243,19 +213,19 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 
 	# Title bar
 	var title_rect := Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h))
-	draw_rect(title_rect, CARD_TITLE_BG)
+	draw_rect(title_rect, UITheme.CARD_TITLE_BG)
 	var display_name: String = _resolve_display_name(card_id)
-	draw_string(font, pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), CARD_TITLE_TEXT)
+	draw_string(font, pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
 
 	# Cost badge (top-left circle)
 	var cost_center := pos + Vector2(padding + cost_size * 0.5, 3 + title_h * 0.5)
 	var cost: int = _resolve_cost(card_id)
-	draw_circle(cost_center, cost_size * 0.5, CARD_COST_BG)
-	draw_string(font, cost_center + Vector2(-6, 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, int(cost_size * 0.6), CARD_COST_TEXT)
+	draw_circle(cost_center, cost_size * 0.5, UITheme.CARD_COST_BG)
+	draw_string(font, cost_center + Vector2(-6, 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, int(cost_size * 0.6), UITheme.CARD_COST_TEXT)
 
 	# Art area
 	var art_rect := Rect2(pos + Vector2(padding, 3 + title_h + 4), Vector2(inner_w, art_h))
-	draw_rect(art_rect, CARD_ART_BG)
+	draw_rect(art_rect, UITheme.CARD_ART_BG)
 	# Load and draw card art thumbnail
 	var art_tex: Texture2D = _resolve_card_art(card_id)
 	if art_tex != null:
@@ -265,7 +235,7 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	var role: String = _resolve_role(card_id)
 	if role != "":
 		var role_y: float = art_rect.position.y + art_h + 6
-		draw_string(font, pos + Vector2(padding, role_y + 14), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(card_h * 0.04), CARD_TEXT_MUTED)
+		draw_string(font, pos + Vector2(padding, role_y + 14), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(card_h * 0.04), UITheme.CARD_TEXT_MUTED)
 
 	# Rules text area
 	var rules_y: float = pos.y + 3 + title_h + art_h + 24
@@ -276,13 +246,13 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 		var rules_font_size: int = int(card_h * 0.045)
 		var lines: Array = rules.split(" \u2022 ")
 		for li in range(lines.size()):
-			draw_string(font, Vector2(pos.x + padding, rules_y + float(li) * (line_h + 4)), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), rules_font_size, CARD_TEXT)
+			draw_string(font, Vector2(pos.x + padding, rules_y + float(li) * (line_h + 4)), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), rules_font_size, UITheme.CARD_TEXT)
 
 	# Footer — tooltip or locked state
 	if not playable:
 		var lock_y: float = pos.y + card_h - footer_h
-		draw_rect(Rect2(Vector2(pos.x + 3, lock_y), Vector2(card_w - 6, footer_h - 3)), Color("#402020"))
-		draw_string(font, Vector2(pos.x + padding, lock_y + footer_h * 0.6), "LOCKED", HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(footer_h * 0.5), TEXT_BAD)
+		draw_rect(Rect2(Vector2(pos.x + 3, lock_y), Vector2(card_w - 6, footer_h - 3)), UITheme.CARD_FOOTER_LOCKED)
+		draw_string(font, Vector2(pos.x + padding, lock_y + footer_h * 0.6), "LOCKED", HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(footer_h * 0.5), UITheme.TEXT_BAD)
 
 func _resolve_display_name(card_id: String) -> String:
 	if runner != null and runner.has_method("_display_name_for_card"):
@@ -332,11 +302,11 @@ func _card_border_color(card_id: String) -> Color:
 		palette = str(runner.card_catalog.palette_key(card_id))
 	match palette:
 		"attack":
-			return CARD_BORDER_ATTACK
+			return UITheme.CARD_BORDER_ATTACK
 		"defend":
-			return CARD_BORDER_DEFEND
+			return UITheme.CARD_BORDER_DEFEND
 		_:
-			return CARD_BORDER_UTILITY
+			return UITheme.CARD_BORDER_UTILITY
 
 func _draw_status_bar(w: float) -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -347,7 +317,7 @@ func _draw_status_bar(w: float) -> void:
 		int(zones.get("draw", 0)),
 		int(zones.get("discard", 0)),
 	]
-	draw_string(font, Vector2(w - 320, 30), status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 16, TEXT_MUTED)
+	draw_string(font, Vector2(w - 320, 30), status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 16, UITheme.TEXT_MUTED)
 
 func _draw_gem_stack_icons(w: float, h: float) -> void:
 	var gem_stack: Array = vm.get("gem_stack", [])
@@ -365,7 +335,7 @@ func _draw_gem_stack_icons(w: float, h: float) -> void:
 		var tex: Texture2D = _gem_ruby_tex if gem == "Ruby" else _gem_sapphire_tex
 		var x: float = start_x + float(i) * 40.0
 		# Slot outline
-		draw_rect(Rect2(Vector2(x - 2, y - 2), slot_size), PANEL_BORDER, false, 1.5)
+		draw_rect(Rect2(Vector2(x - 2, y - 2), slot_size), UITheme.PANEL_BORDER, false, 1.5)
 		if tex != null:
 			draw_texture_rect(tex, Rect2(Vector2(x, y), icon_size), false)
 
@@ -373,7 +343,7 @@ func _draw_gem_stack_icons(w: float, h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
 	if focus > 0:
 		var focus_x: float = start_x + float(display_gems.size()) * 40.0 + 20.0
-		draw_string(font, Vector2(focus_x, y + 22), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_ACCENT)
+		draw_string(font, Vector2(focus_x, y + 22), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UITheme.TEXT_ACCENT)
 
 func _draw_event_feed(w: float, arena_h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -384,7 +354,7 @@ func _draw_event_feed(w: float, arena_h: float) -> void:
 		var line: String = str(events[events.size() - 1 - i])
 		if line.length() > 50:
 			line = line.substr(0, 47) + "..."
-		draw_string(font, Vector2(x, y - float(i) * 18.0), line, HORIZONTAL_ALIGNMENT_LEFT, 300, 13, TEXT_MUTED)
+		draw_string(font, Vector2(x, y - float(i) * 18.0), line, HORIZONTAL_ALIGNMENT_LEFT, 300, 13, UITheme.TEXT_MUTED)
 
 func _draw_reward_overlay(w: float, h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -397,12 +367,12 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 	var title: String = "VICTORY — Choose a Reward"
 	if reward_state == "applied":
 		title = "Card Added to Deck"
-	draw_string(font, Vector2(w * 0.5 - 200, 60), title, HORIZONTAL_ALIGNMENT_CENTER, 400, 28, TEXT_GOOD)
+	draw_string(font, Vector2(w * 0.5 - 200, 60), title, HORIZONTAL_ALIGNMENT_CENTER, 400, 28, UITheme.TEXT_GOOD)
 
 	# Subtitle
 	var summary: String = str(vm.get("reward_summary_text", ""))
 	if summary != "":
-		draw_string(font, Vector2(w * 0.5 - 250, 100), summary, HORIZONTAL_ALIGNMENT_CENTER, 500, 18, TEXT_MUTED)
+		draw_string(font, Vector2(w * 0.5 - 250, 100), summary, HORIZONTAL_ALIGNMENT_CENTER, 500, 18, UITheme.TEXT_MUTED)
 
 	# Reward cards
 	var offers: Array = vm.get("reward_offer", [])
@@ -429,8 +399,8 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 		# Card rendering
 		var border: Color = _card_border_color(card_id)
 		if is_selected:
-			border = TEXT_GOOD
-		var body: Color = CARD_BODY if is_pickable else CARD_BODY_DISABLED
+			border = UITheme.TEXT_GOOD
+		var body: Color = UITheme.CARD_BODY if is_pickable else UITheme.CARD_BODY_DISABLED
 		var pos := Vector2(x, card_y)
 		if is_hovered and is_pickable:
 			pos.y -= 10.0
@@ -441,14 +411,14 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 
 		# Title bar
 		var title_h: float = card_h * 0.1
-		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h)), CARD_TITLE_BG)
+		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h)), UITheme.CARD_TITLE_BG)
 		var name: String = _resolve_display_name(card_id)
-		draw_string(font, pos + Vector2(12, title_h * 0.7), name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), int(title_h * 0.55), CARD_TITLE_TEXT)
+		draw_string(font, pos + Vector2(12, title_h * 0.7), name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
 
 		# Cost badge
 		var cost: int = _resolve_cost(card_id)
-		draw_circle(pos + Vector2(card_w - 28, 3 + title_h * 0.5), 16.0, CARD_COST_BG)
-		draw_string(font, pos + Vector2(card_w - 34, 3 + title_h * 0.5 + 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, 14, CARD_COST_TEXT)
+		draw_circle(pos + Vector2(card_w - 28, 3 + title_h * 0.5), 16.0, UITheme.CARD_COST_BG)
+		draw_string(font, pos + Vector2(card_w - 34, 3 + title_h * 0.5 + 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, 14, UITheme.CARD_COST_TEXT)
 
 		# Art area
 		var art_rect := Rect2(pos + Vector2(12, title_h + 8), Vector2(card_w - 24, card_h * 0.35))
@@ -456,7 +426,7 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 		if art_tex != null:
 			draw_texture_rect(art_tex, art_rect, false)
 		else:
-			draw_rect(art_rect, CARD_ART_BG)
+			draw_rect(art_rect, UITheme.CARD_ART_BG)
 
 		# Rules text
 		var rules: String = ""
@@ -466,15 +436,15 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 			var rules_y: float = pos.y + title_h + card_h * 0.35 + 24
 			var lines: Array = rules.split(" \u2022 ")
 			for li in range(lines.size()):
-				draw_string(font, Vector2(pos.x + 12, rules_y + float(li) * 22.0), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 15, CARD_TEXT)
+				draw_string(font, Vector2(pos.x + 12, rules_y + float(li) * 22.0), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 15, UITheme.CARD_TEXT)
 
 		# Selected badge
 		if is_selected:
-			draw_string(font, pos + Vector2(12, card_h - 20), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 16, TEXT_GOOD)
+			draw_string(font, pos + Vector2(12, card_h - 20), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 16, UITheme.TEXT_GOOD)
 
 	# Continue prompt
 	if reward_state == "applied":
-		draw_string(font, Vector2(w * 0.5 - 150, card_y + card_h + 50), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300, 20, TEXT_ACCENT)
+		draw_string(font, Vector2(w * 0.5 - 150, card_y + card_h + 50), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300, 20, UITheme.TEXT_ACCENT)
 
 var _reward_hover_index: int = -1
 
@@ -552,16 +522,16 @@ func _card_at_position(pos: Vector2) -> int:
 	var w: float = size.x
 	var arena_h: float = size.y * 0.55
 	var hand_y: float = arena_h + 20.0
-	var total_width: float = CARD_WIDTH + float(card_count - 1) * CARD_OVERLAP
+	var total_width: float = UITheme.CARD_WIDTH + float(card_count - 1) * UITheme.CARD_OVERLAP
 	var start_x: float = (w - total_width) / 2.0
 
 	# Check from rightmost card (topmost in draw order) to leftmost
 	for i in range(card_count - 1, -1, -1):
-		var card_x: float = start_x + float(i) * CARD_OVERLAP
+		var card_x: float = start_x + float(i) * UITheme.CARD_OVERLAP
 		var card_y: float = hand_y + 20.0
 		if i == hovered_card_index:
-			card_y -= CARD_HOVER_LIFT
-		var rect := Rect2(Vector2(card_x, card_y), Vector2(CARD_WIDTH, CARD_HEIGHT))
+			card_y -= UITheme.CARD_HOVER_LIFT
+		var rect := Rect2(Vector2(card_x, card_y), Vector2(UITheme.CARD_WIDTH, UITheme.CARD_HEIGHT))
 		if rect.has_point(pos):
 			return i
 	return -1
