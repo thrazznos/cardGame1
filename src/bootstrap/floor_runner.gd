@@ -140,14 +140,14 @@ func on_combat_complete(combat_result: String) -> void:
 	var result: Dictionary = floor_controller.complete_combat(gsm, combat_result)
 	if not result.get("ok", false):
 		return
-	if combat_result == "player_lose":
+	if combat_result == CombatSliceRunner.RESULT_PLAYER_LOSE:
 		_show_map()
 		return
 	_after_room_clear()
 
 func _after_room_clear() -> void:
 	var fc_state: String = floor_controller.state
-	if fc_state == "floor_complete":
+	if fc_state == FloorController.STATE_FLOOR_COMPLETE:
 		_on_floor_complete()
 	else:
 		_show_map()

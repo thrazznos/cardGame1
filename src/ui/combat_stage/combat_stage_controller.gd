@@ -97,8 +97,8 @@ func _draw() -> void:
 	# Arena divider line
 	draw_line(Vector2(0, arena_h), Vector2(w, arena_h), PANEL_BORDER, 2.0)
 
-	var reward_state: String = str(vm.get("reward_state", "none"))
-	if reward_state == "presented" or reward_state == "applied":
+	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
+	if reward_state == CombatSliceRunner.REWARD_PRESENTED or reward_state == CombatSliceRunner.REWARD_APPLIED:
 		_draw_reward_overlay(w, h)
 	else:
 		_draw_arena(w, arena_h)
@@ -202,19 +202,19 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 	# Phase / combat result
 	var phase: String = str(vm.get("ui_phase_text", ""))
-	var result: String = str(vm.get("combat_result", "in_progress"))
+	var result: String = str(vm.get("combat_result", CombatSliceRunner.RESULT_IN_PROGRESS))
 	var phase_text: String = phase
 	var phase_color: Color = TEXT_MUTED
-	if result == "player_win":
+	if result == CombatSliceRunner.RESULT_PLAYER_WIN:
 		phase_text = "VICTORY"
 		phase_color = TEXT_GOOD
-	elif result == "player_lose":
+	elif result == CombatSliceRunner.RESULT_PLAYER_LOSE:
 		phase_text = "DEFEAT"
 		phase_color = TEXT_BAD
 	draw_string(font, Vector2(20, hand_y + CARD_HEIGHT + 30), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, phase_color)
 
 	# Pass button hint
-	if result == "in_progress":
+	if result == CombatSliceRunner.RESULT_IN_PROGRESS:
 		draw_string(font, Vector2(20, hand_y + CARD_HEIGHT + 56), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool) -> void:
@@ -388,14 +388,14 @@ func _draw_event_feed(w: float, arena_h: float) -> void:
 
 func _draw_reward_overlay(w: float, h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
-	var reward_state: String = str(vm.get("reward_state", "none"))
+	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
 
 	# Scrim
 	draw_rect(Rect2(Vector2.ZERO, Vector2(w, h)), Color(0, 0, 0, 0.75))
 
 	# Title
 	var title: String = "VICTORY — Choose a Reward"
-	if reward_state == "applied":
+	if reward_state == CombatSliceRunner.REWARD_APPLIED:
 		title = "Card Added to Deck"
 	draw_string(font, Vector2(w * 0.5 - 200, 60), title, HORIZONTAL_ALIGNMENT_CENTER, 400, 28, TEXT_GOOD)
 
@@ -419,7 +419,7 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 		var card_id: String = str(offer.get("card_id", ""))
 		var x: float = start_x + float(i) * (card_w + gap)
 		var is_selected: bool = card_id == selected and selected != ""
-		var is_pickable: bool = reward_state == "presented"
+		var is_pickable: bool = reward_state == CombatSliceRunner.REWARD_PRESENTED
 
 		# Check hover
 		var is_hovered: bool = false
@@ -473,14 +473,14 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 			draw_string(font, pos + Vector2(12, card_h - 20), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 16, TEXT_GOOD)
 
 	# Continue prompt
-	if reward_state == "applied":
+	if reward_state == CombatSliceRunner.REWARD_APPLIED:
 		draw_string(font, Vector2(w * 0.5 - 150, card_y + card_h + 50), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300, 20, TEXT_ACCENT)
 
 var _reward_hover_index: int = -1
 
 func _gui_input(event: InputEvent) -> void:
-	var reward_state: String = str(vm.get("reward_state", "none"))
-	var in_reward: bool = reward_state == "presented" or reward_state == "applied"
+	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
+	var in_reward: bool = reward_state == CombatSliceRunner.REWARD_PRESENTED or reward_state == CombatSliceRunner.REWARD_APPLIED
 
 	if event is InputEventMouseMotion:
 		var mm: InputEventMouseMotion = event
@@ -497,7 +497,7 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-			if in_reward and reward_state == "presented":
+			if in_reward and reward_state == CombatSliceRunner.REWARD_PRESENTED:
 				var reward_idx: int = _reward_card_at_position(mb.position)
 				if reward_idx >= 0 and runner != null:
 					runner.choose_reward_by_index(reward_idx)
@@ -524,13 +524,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			_play_card_at_index(idx)
 
 func _handle_pass_or_continue() -> void:
-	var result: String = str(vm.get("combat_result", "in_progress"))
-	var reward_state: String = str(vm.get("reward_state", "none"))
-	if result != "in_progress":
-		if reward_state == "presented":
+	var result: String = str(vm.get("combat_result", CombatSliceRunner.RESULT_IN_PROGRESS))
+	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
+	if result != CombatSliceRunner.RESULT_IN_PROGRESS:
+		if reward_state == CombatSliceRunner.REWARD_PRESENTED:
 			# Auto-pick first reward
 			runner.choose_reward_by_index(0)
-		elif reward_state == "applied" or reward_state == "closed":
+		elif reward_state == CombatSliceRunner.REWARD_APPLIED or reward_state == CombatSliceRunner.REWARD_CLOSED:
 			runner.start_next_encounter()
 		return
 	runner.player_pass()
