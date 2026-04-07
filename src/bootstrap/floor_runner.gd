@@ -87,34 +87,40 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	if combat_runner == null:
 		return
 
-	# Configure combat with the current floor's gem affinity and profile
 	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
 	var node_type: String = str(node.get("node_type", "combat"))
 
-	# Determine encounter profile based on node position / floor
+	# Determine encounter profile based on room visit order within floor
 	var profile_index: int = floor_controller.rooms_cleared + 1
 	if node_type == "boss":
-		profile_index = 99  # Boss uses escalating or special profile
+		profile_index = 99
 
-	# Reset battle with current floor seed offset
+	# Wire the callback so combat hands control back to us
+	combat_runner.floor_runner = self
+	combat_runner.use_external_gsm = true
+	combat_runner.gsm = gsm
 	combat_runner.encounter_index = profile_index
 	combat_runner.reset_battle(rng.draw_next("map.combat_seed").get("value", 0))
-
-	# Inject the persisted GSM state into combat
-	combat_runner.gsm = gsm
 
 	_show_combat()
 
 func on_combat_complete(combat_result: String) -> void:
 	## Called by combat runner when combat ends and reward is handled.
+	# Sync GSM back from combat (it may have been modified)
+	if combat_runner != null and combat_runner.gsm != null:
+		gsm = combat_runner.gsm
 	var result: Dictionary = floor_controller.complete_combat(gsm, combat_result)
 	if not result.get("ok", false):
+		return
+	if combat_result == "player_lose":
+		# TODO: run over screen
+		_show_map()
 		return
 	_after_room_clear()
 
 func _after_room_clear() -> void:
 	var fc_state: String = floor_controller.state
-	if fc_state == FloorController.STATE_FLOOR_COMPLETE:
+	if fc_state == "floor_complete":
 		_on_floor_complete()
 	else:
 		_show_map()
