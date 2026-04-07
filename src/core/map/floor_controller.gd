@@ -231,6 +231,21 @@ func complete_non_combat(gsm: Variant) -> Dictionary:
 		"legal_moves": _get_uncleared_legal_moves(),
 	}
 
+## Returns the current state string (e.g. STATE_FLOOR_COMPLETE).
+func get_state() -> String:
+	return state
+
+## Returns the data dictionary for the current node, or an empty dictionary
+## if no graph or node is active.
+func get_current_node_data() -> Dictionary:
+	if graph == null or current_node < 0:
+		return {}
+	return graph.get_node(current_node)
+
+## Returns the number of rooms cleared on this floor.
+func get_rooms_cleared() -> int:
+	return rooms_cleared
+
 func get_view_model() -> Dictionary:
 	var graph_vm: Dictionary = graph.get_view_model() if graph != null else {}
 	return {
