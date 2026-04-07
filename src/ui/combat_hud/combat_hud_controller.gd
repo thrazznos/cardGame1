@@ -1131,13 +1131,15 @@ func _player_stats_text(vm: Dictionary) -> String:
 	]
 
 func _enemy_stats_text(vm: Dictionary) -> String:
-	var intent_style: String = str(vm.get("encounter_intent_style", "Steady pressure"))
-	return "ENEMY  HP %d/%d  •  Block %d  •  Intent %d dmg\nPattern: %s" % [
+	var profile_name: String = str(vm.get("pressure_profile_name", "Steady Pressure"))
+	var intent: Dictionary = vm.get("enemy_intent", {})
+	var telegraph: String = str(intent.get("telegraph_text", "Attack for %d" % int(vm.get("enemy_intent_damage", 0))))
+	return "ENEMY  HP %d/%d  •  Block %d\nIntent: %s\nPattern: %s" % [
 		int(vm.get("enemy_hp", 0)),
 		int(vm.get("enemy_max_hp", 0)),
 		int(vm.get("enemy_block", 0)),
-		int(vm.get("enemy_intent_damage", 0)),
-		intent_style,
+		telegraph,
+		profile_name,
 	]
 
 func _zones_text(vm: Dictionary) -> String:
@@ -1400,11 +1402,11 @@ func _refresh_card_button_visuals(button: Button, card_id: String) -> void:
 func _card_art_path(card_id: String) -> String:
 	var canonical_card_id: String = _canonical_card_id(card_id)
 	match canonical_card_id:
-		"strike", "strike_plus", "strike_precise":
+		"strike", "strike_plus", "strike_precise", "quick_slash":
 			return CARD_ART_STRIKE_PATH
-		"defend", "defend_plus", "defend_hold":
+		"defend", "defend_plus", "defend_hold", "heavy_guard":
 			return CARD_ART_DEFEND_PATH
-		"scheme_flow":
+		"scheme_flow", "steady_hand":
 			return CARD_ART_UTILITY_PATH
 		"gem_produce_ruby", "gem_hybrid_ruby_strike", "gem_consume_top_ruby", "gem_offset_consume_ruby":
 			return CARD_ART_RUBY_PATH

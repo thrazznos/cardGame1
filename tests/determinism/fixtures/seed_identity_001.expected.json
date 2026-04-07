@@ -1,10 +1,9 @@
 {
   "fixture_id": "seed_identity_001",
   "final_state_hash": "4159937739",
-  "event_sequence_hash": "4212735146",
-  "rng_cursor_snapshot": {
-    "encounter.intent": 1
-  },
+  "event_sequence_hash": "142033439",
+  "rng_cursor_snapshot": {"encounter.intent": 1},
   "encounter_title": "Encounter 1 \u2022 Ambush Patrol",
-  "encounter_intent_style": "Steady pressure"
+  "encounter_intent_style": "Steady Pressure",
+  "pressure_profile_id": "steady"
 }

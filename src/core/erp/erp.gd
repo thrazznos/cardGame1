@@ -32,5 +32,9 @@ func resolve_effect(effect: Dictionary, state: Dictionary) -> Dictionary:
 			if gsm_offset == null:
 				return {"ok": false, "reason": "ERR_GSM_STATE_MISSING"}
 			return gsm_offset.consume_from_top_offset(int(effect.get("offset", 0)), str(effect.get("gem", "")))
+		"energy_drain":
+			return {"ok": true, "delta": {"energy_drain": int(effect.get("amount", 1))}}
+		"force_discard":
+			return {"ok": true, "delta": {"force_discard": int(effect.get("count", 1))}}
 		_:
 			return {"ok": false, "reason": "ERR_UNSUPPORTED_EFFECT_TYPE", "effect_type": effect_type}
