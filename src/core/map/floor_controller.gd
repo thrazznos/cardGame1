@@ -89,6 +89,14 @@ func enter_room(gsm: Variant) -> Dictionary:
 	if not gsm_floor_state.is_empty():
 		gsm.restore_state(gsm_floor_state)
 
+	# Check gem gate
+	var gem_gate: Variant = node.get("gem_gate", null)
+	var gate_result: Dictionary = {}
+	if gem_gate is Dictionary:
+		var gate_gem: String = str(gem_gate.get("gem", ""))
+		var gate_cost: int = int(gem_gate.get("cost", 0))
+		gate_result = _try_pay_gate(gsm, gate_gem, gate_cost)
+
 	# Grant affinity gem
 	var gem_grant: Dictionary = {}
 	if gem_affinity != "" and gem_affinity != "neutral":
@@ -99,6 +107,7 @@ func enter_room(gsm: Variant) -> Dictionary:
 		"node_type": node_type,
 		"gem_affinity": gem_affinity,
 		"gem_grant": gem_grant,
+		"gem_gate": gate_result,
 		"stack_on_entry": gsm.stack_snapshot(),
 	})
 
@@ -231,6 +240,45 @@ func _get_uncleared_legal_moves() -> Array:
 		if not bool(exit_node.get("cleared", false)):
 			uncleared.append(graph.exit_node)
 	return uncleared
+
+func _try_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> Dictionary:
+	if gate_cost <= 0 or gate_gem == "":
+		return {"ok": true, "paid": true, "cost": 0}
+
+	# Try to consume gems from the stack
+	var consumed: int = 0
+	for _i in range(gate_cost):
+		var result: Dictionary = gsm.consume_top(gate_gem)
+		if bool(result.get("ok", false)):
+			consumed += 1
+		else:
+			break
+
+	if consumed >= gate_cost:
+		_record_event("gem_gate_paid", {
+			"gem": gate_gem,
+			"cost": gate_cost,
+			"consumed": consumed,
+		})
+		return {"ok": true, "paid": true, "cost": gate_cost, "consumed": consumed}
+
+	# Couldn't afford — trigger gem slot loss
+	var slot_loss: Dictionary = gsm.reduce_cap(1)
+	_record_event("gem_slot_lost", {
+		"gem": gate_gem,
+		"cost": gate_cost,
+		"consumed": consumed,
+		"shortfall": gate_cost - consumed,
+		"cap_after": int(slot_loss.get("cap_after", 0)),
+	})
+	return {
+		"ok": true,
+		"paid": false,
+		"slot_lost": true,
+		"cost": gate_cost,
+		"consumed": consumed,
+		"cap_after": int(slot_loss.get("cap_after", 0)),
+	}
 
 func _record_event(kind: String, payload: Dictionary) -> void:
 	event_stream.append({
