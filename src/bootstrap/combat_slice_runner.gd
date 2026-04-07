@@ -51,6 +51,8 @@ var enemy_intent: Dictionary = {}
 var combat_result: String = "in_progress"
 var active_profile: Dictionary = {}
 var cycle_step: int = 0
+var floor_runner: Variant = null
+var use_external_gsm: bool = false
 var last_event_text: String = "Battle ready"
 var last_reject_reason: String = ""
 var last_resolved_queue_item: Dictionary = {}
@@ -80,13 +82,20 @@ func _ready() -> void:
 	_load_pressure_profiles()
 	hud = $CombatHud
 	hud.bind_runner(self)
-	reset_battle(13371337)
+	# Don't auto-start if we're a child of a floor runner
+	var parent_node: Node = get_parent()
+	if parent_node != null and parent_node.has_method("on_combat_complete"):
+		floor_runner = parent_node
+		use_external_gsm = false  # Will be set true when floor launches combat
+	else:
+		reset_battle(13371337)
 
 func reset_battle(seed_root: int = 13371337) -> void:
 	rng.bootstrap(seed_root)
 	event_stream.clear()
 	effect_resolve_draw_annotations.clear()
-	gsm = GSM_SCRIPT.new()
+	if not use_external_gsm:
+		gsm = GSM_SCRIPT.new()
 
 	tsre.phase = tsre.PHASE_TURN_START
 	tsre.turn_index = 1
@@ -548,6 +557,8 @@ func _check_combat_end() -> void:
 		combat_result = "player_lose"
 		tsre.transition_to(tsre.PHASE_COMBAT_END)
 		_record_event("combat_end", {"result": combat_result, "turn": tsre.turn_index})
+		if floor_runner != null:
+			floor_runner.on_combat_complete(combat_result)
 
 func choose_reward_by_index(offer_index: int) -> Dictionary:
 	if offer_index < 0 or offer_index >= reward_offer.size():
@@ -599,6 +610,10 @@ func start_next_encounter() -> void:
 	if reward_state != "applied" and reward_state != "closed":
 		_remember_reject("ERR_REWARD_NOT_AVAILABLE")
 		refresh_hud()
+		return
+	# If running under a floor controller, hand control back to it
+	if floor_runner != null:
+		floor_runner.on_combat_complete(combat_result)
 		return
 	encounter_index += 1
 	combat_result = "in_progress"
