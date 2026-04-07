@@ -8,6 +8,8 @@ const FLOOR_CONTROLLER_SCRIPT := preload("res://src/core/map/floor_controller.gd
 const RSGC_SCRIPT := preload("res://src/core/rng/rsgc.gd")
 const GSM_SCRIPT := preload("res://src/core/gsm/gem_stack_machine.gd")
 
+const CONSTRAINT_TYPES := ["conduit", "circuit", "seal"]
+
 var floor_controller: Variant
 var rng: Variant
 var gsm: Variant
@@ -15,6 +17,8 @@ var combat_runner: Variant
 var map_hud: Variant
 var floor_index: int = 1
 var run_seed: int = 42424242
+var active_constraint: String = ""
+var constraint_history: Array = []
 
 func _ready() -> void:
 	rng = RSGC_SCRIPT.new()
@@ -31,7 +35,7 @@ func _ready() -> void:
 	_start_floor()
 
 func _start_floor() -> void:
-	var result: Dictionary = floor_controller.start_floor(rng, floor_index)
+	var result: Dictionary = floor_controller.start_floor(rng, floor_index, active_constraint)
 	if not result.get("ok", false):
 		push_error("Floor start failed: %s" % str(result))
 		return
@@ -109,11 +113,20 @@ func on_combat_complete(combat_result: String) -> void:
 	# Sync GSM back from combat (it may have been modified)
 	if combat_runner != null and combat_runner.gsm != null:
 		gsm = combat_runner.gsm
+
+	# Check if this was a boss kill — extract constraint from reward pick
+	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
+	var is_boss: bool = bool(node.get("is_exit", false))
+	if is_boss and combat_runner != null:
+		var selected_card: String = str(combat_runner.reward_selected_card_id)
+		if selected_card != "":
+			active_constraint = _constraint_for_card(selected_card)
+			constraint_history.append(active_constraint)
+
 	var result: Dictionary = floor_controller.complete_combat(gsm, combat_result)
 	if not result.get("ok", false):
 		return
 	if combat_result == "player_lose":
-		# TODO: run over screen
 		_show_map()
 		return
 	_after_room_clear()
@@ -134,4 +147,23 @@ func get_floor_view_model() -> Dictionary:
 	var fc_vm: Dictionary = floor_controller.get_view_model() if floor_controller != null else {}
 	fc_vm["gem_stack"] = gsm.stack_snapshot() if gsm != null else []
 	fc_vm["gem_stack_cap"] = gsm.stack_cap() if gsm != null else 6
+	fc_vm["active_constraint"] = active_constraint
+	fc_vm["constraint_history"] = constraint_history.duplicate(true)
 	return fc_vm
+
+func _constraint_for_card(card_id: String) -> String:
+	## Deterministically assign a constraint type based on card_id hash.
+	## In a full implementation, this would be authored per card or per reward offer.
+	var h: int = hash(card_id)
+	return CONSTRAINT_TYPES[abs(h) % CONSTRAINT_TYPES.size()]
+
+func get_constraint_label(constraint: String) -> String:
+	match constraint:
+		"conduit":
+			return "Conduit — match a gem pattern for a pre-boss bonus"
+		"circuit":
+			return "Circuit — trace the correct color sequence through rooms"
+		"seal":
+			return "Seal — break gem-locked checkpoints to reach the boss"
+		_:
+			return ""

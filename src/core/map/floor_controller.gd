@@ -21,12 +21,19 @@ var current_node: int = -1
 var floor_index: int = 1
 var rooms_cleared: int = 0
 var event_stream: Array[Dictionary] = []
+var active_constraint: String = ""
+
+## Conduit objective state
+var conduit_pattern: Array = []
+var conduit_progress: int = 0
+var conduit_matched: bool = false
 
 ## GSM state saved between rooms
 var gsm_floor_state: Dictionary = {}
 
-func start_floor(rng: Variant, p_floor_index: int = 1) -> Dictionary:
+func start_floor(rng: Variant, p_floor_index: int = 1, p_constraint: String = "") -> Dictionary:
 	floor_index = p_floor_index
+	active_constraint = p_constraint
 	graph = FLOOR_GRAPH_SCRIPT.new()
 	var gen_result: Dictionary = graph.generate(rng, floor_index)
 	if not gen_result.get("ok", false):
@@ -37,6 +44,13 @@ func start_floor(rng: Variant, p_floor_index: int = 1) -> Dictionary:
 	state = STATE_ROOM_SELECT
 	event_stream = []
 	gsm_floor_state = {}
+
+	# Generate conduit pattern if constraint is active
+	conduit_pattern = []
+	conduit_progress = 0
+	conduit_matched = false
+	if active_constraint == "conduit":
+		conduit_pattern = _generate_conduit_pattern(rng)
 
 	graph.mark_cleared(current_node)
 	_record_event("floor_start", {
@@ -101,6 +115,9 @@ func enter_room(gsm: Variant) -> Dictionary:
 	var gem_grant: Dictionary = {}
 	if gem_affinity != "" and gem_affinity != "neutral":
 		gem_grant = gsm.grant_affinity_gem(gem_affinity)
+
+	# Track conduit progress
+	_check_conduit_progress(node)
 
 	_record_event("room_entered", {
 		"node_id": current_node,
@@ -223,6 +240,10 @@ func get_view_model() -> Dictionary:
 		"rooms_cleared": rooms_cleared,
 		"legal_moves": _get_uncleared_legal_moves(),
 		"graph": graph_vm,
+		"active_constraint": active_constraint,
+		"conduit_pattern": conduit_pattern.duplicate(true),
+		"conduit_progress": conduit_progress,
+		"conduit_matched": conduit_matched,
 	}
 
 func _get_uncleared_legal_moves() -> Array:
@@ -240,6 +261,33 @@ func _get_uncleared_legal_moves() -> Array:
 		if not bool(exit_node.get("cleared", false)):
 			uncleared.append(graph.exit_node)
 	return uncleared
+
+func _generate_conduit_pattern(rng: Variant) -> Array:
+	var gems := ["Ruby", "Sapphire"]
+	var pattern: Array = []
+	var length: int = 3 + (floor_index - 1)  # 3 on floor 1, grows with depth
+	length = min(length, 5)  # Cap at 5
+	for _i in range(length):
+		var draw: Dictionary = rng.draw_next("map.conduit")
+		pattern.append(gems[int(draw.get("value", 0)) % gems.size()])
+	return pattern
+
+func _check_conduit_progress(node: Dictionary) -> void:
+	if active_constraint != "conduit" or conduit_pattern.is_empty():
+		return
+	if conduit_matched:
+		return
+	var affinity: String = str(node.get("gem_affinity", ""))
+	if affinity == "neutral" or affinity == "":
+		return
+	if conduit_progress < conduit_pattern.size() and affinity == conduit_pattern[conduit_progress]:
+		conduit_progress += 1
+		if conduit_progress >= conduit_pattern.size():
+			conduit_matched = true
+			_record_event("conduit_matched", {
+				"pattern": conduit_pattern,
+				"progress": conduit_progress,
+			})
 
 func _try_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> Dictionary:
 	if gate_cost <= 0 or gate_gem == "":
