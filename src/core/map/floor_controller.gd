@@ -82,7 +82,7 @@ func start_floor(rng: Variant, p_floor_index: int = 1, p_constraint: String = ""
 		"ok": true,
 		"floor_index": floor_index,
 		"current_node": current_node,
-		"legal_moves": graph.get_legal_moves(current_node),
+		"legal_moves": _get_uncleared_legal_moves(),
 	}
 
 func select_room(node_id: int) -> Dictionary:
@@ -91,6 +91,10 @@ func select_room(node_id: int) -> Dictionary:
 
 	var legal: Array = _get_uncleared_legal_moves()
 	if not legal.has(node_id):
+		var node: Dictionary = graph.get_node(node_id)
+		var lock_reason: String = _node_lock_reason(node)
+		if lock_reason != "":
+			return {"ok": false, "reason": lock_reason, "node_id": node_id, "legal": legal}
 		return {"ok": false, "reason": "ERR_ILLEGAL_MOVE", "node_id": node_id, "legal": legal}
 
 	var node: Dictionary = graph.get_node(node_id)
@@ -128,6 +132,15 @@ func enter_room(gsm: Variant) -> Dictionary:
 	if gem_gate is Dictionary:
 		var gate_gem: String = str(gem_gate.get("gem", ""))
 		var gate_cost: int = int(gem_gate.get("cost", 0))
+		if not _can_pay_gate(gsm, gate_gem, gate_cost):
+			state = STATE_ROOM_SELECT
+			return {
+				"ok": false,
+				"reason": "ERR_GEM_GATE_UNAFFORDABLE",
+				"node_id": current_node,
+				"gate_gem": gate_gem,
+				"gate_cost": gate_cost,
+			}
 		gate_result = _try_pay_gate(gsm, gate_gem, gate_cost)
 
 	# Grant affinity gem
@@ -296,14 +309,25 @@ func _get_uncleared_legal_moves() -> Array:
 	var uncleared: Array = []
 	for n_id in neighbors:
 		var node: Dictionary = graph.get_node(n_id)
-		if not bool(node.get("cleared", false)):
-			uncleared.append(n_id)
-	# Boss node — accessible unless seals are active and unbroken
-	if not uncleared.has(graph.exit_node) and neighbors.has(graph.exit_node):
-		var exit_node: Dictionary = graph.get_node(graph.exit_node)
-		if not bool(exit_node.get("cleared", false)) and not is_boss_locked():
-			uncleared.append(graph.exit_node)
+		if bool(node.get("cleared", false)):
+			continue
+		if _node_lock_reason(node) != "":
+			continue
+		uncleared.append(n_id)
 	return uncleared
+
+func _node_lock_reason(node: Dictionary) -> String:
+	if node.is_empty():
+		return ""
+	if bool(node.get("is_exit", false)) and is_boss_locked():
+		return "ERR_BOSS_LOCKED"
+	var gem_gate: Variant = node.get("gem_gate", null)
+	if gem_gate is Dictionary:
+		var gate_gem: String = str(gem_gate.get("gem", ""))
+		var gate_cost: int = int(gem_gate.get("cost", 0))
+		if not _can_pay_gate_from_state(gsm_floor_state, gate_gem, gate_cost):
+			return "ERR_GEM_GATE_UNAFFORDABLE"
+	return ""
 
 func _generate_conduit_pattern(rng: Variant) -> Array:
 	var gems := ["Ruby", "Sapphire"]
@@ -422,23 +446,48 @@ func _try_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> Dictionary
 		})
 		return {"ok": true, "paid": true, "cost": gate_cost, "consumed": consumed}
 
-	# Couldn't afford — trigger gem slot loss
-	var slot_loss: Dictionary = gsm.reduce_cap(1)
-	_record_event("gem_slot_lost", {
-		"gem": gate_gem,
-		"cost": gate_cost,
-		"consumed": consumed,
-		"shortfall": gate_cost - consumed,
-		"cap_after": int(slot_loss.get("cap_after", 0)),
-	})
 	return {
-		"ok": true,
+		"ok": false,
 		"paid": false,
-		"slot_lost": true,
 		"cost": gate_cost,
 		"consumed": consumed,
-		"cap_after": int(slot_loss.get("cap_after", 0)),
+		"reason": "ERR_GEM_GATE_UNAFFORDABLE",
 	}
+
+func _can_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> bool:
+	if gate_cost <= 0 or gate_gem == "":
+		return true
+	if gsm == null:
+		return false
+	var normalized_gate: String = _normalize_gate_gem(gate_gem)
+	var top_gems: Array = gsm.peek_n(gate_cost)
+	if top_gems.size() < gate_cost:
+		return false
+	for gem in top_gems:
+		if _normalize_gate_gem(str(gem)) != normalized_gate:
+			return false
+	return true
+
+func _can_pay_gate_from_state(state: Dictionary, gate_gem: String, gate_cost: int) -> bool:
+	if gate_cost <= 0 or gate_gem == "":
+		return true
+	var stack: Array = state.get("stack", [])
+	if stack.size() < gate_cost:
+		return false
+	var normalized_gate: String = _normalize_gate_gem(gate_gem)
+	var start_index: int = stack.size() - gate_cost
+	for i in range(start_index, stack.size()):
+		if _normalize_gate_gem(str(stack[i])) != normalized_gate:
+			return false
+	return true
+
+func _normalize_gate_gem(gem: String) -> String:
+	var value: String = str(gem).strip_edges()
+	if value == "ruby" or value == "Ruby":
+		return "Ruby"
+	if value == "sapphire" or value == "Sapphire":
+		return "Sapphire"
+	return value
 
 func _record_event(kind: String, payload: Dictionary) -> void:
 	event_stream.append({

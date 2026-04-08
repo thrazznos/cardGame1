@@ -44,11 +44,11 @@ Between floors, the player drafts which constraint to add (like drafting cards):
 - No room revisits (cleared rooms are muted)
 - Hub/junction nodes can be traversed without triggering encounters
 
-### 5. Debt Spiral — Gem Slot Loss
+### 5. Gem Gates — Affordability Gating
 
-- If a player depletes their gem stack completely and can't afford a gem gate: they LOSE a gem slot (permanent stack capacity reduction for the rest of the run)
-- A starting relic on easy difficulty masks this penalty (acts as a buffer before actual slot loss)
-- Gem gates are always optional (free path to boss exists), so this punishes greed, not routing failure
+- If a player can't afford a gem gate, that room is unavailable until they can pay the full cost.
+- Unaffordable gated rooms should not appear as legal/clickable destinations in the map view.
+- Gem gates are always optional (free path to boss exists), so affordability redirects route choice instead of forcing debt damage.
 
 ### 6. Variant Exclusivity
 
@@ -120,7 +120,7 @@ Between floors, the player drafts which constraint to add (like drafting cards):
 
 | Question | Notes |
 |----------|-------|
-| Does gem slot loss carry between floors or only within a floor? | Within-run seems right |
+| Should gate affordability remain a hard routing requirement or soften later into a debt mechanic? | Hard gating is the current prototype behavior; only revisit if playtests say route choice feels too flat. |
 | How does the reward draft weight gems after persistence is active? | Game-designer suggests gem_affinity_weight modifier on RDS |
 | What polyhedra work best at each floor depth? | Tetra=4, Octa=6, Cube=8 — needs playtesting |
 | How are constraint-card pairings generated? | Random? Authored? Weighted by encounter history? |
