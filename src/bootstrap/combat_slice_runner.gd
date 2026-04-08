@@ -12,6 +12,7 @@ const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
 const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
 const CARD_PRESENTER_SCRIPT := preload("res://src/core/card/card_presenter.gd")
 const CARD_INSTANCE_SCRIPT := preload("res://src/core/card/card_instance.gd")
+const STATUS_TRACKER_SCRIPT := preload("res://src/core/status/status_tracker.gd")
 
 const PRESSURE_PROFILES_PATH := "res://data/encounters/pressure_profiles_v1.json"
 const PLAYER_MAX_HP := 40
@@ -64,6 +65,8 @@ var active_profile: Dictionary = {}
 var cycle_step: int = 0
 var floor_runner: Variant = null
 var use_external_gsm: bool = false
+var player_statuses: Variant = null
+var enemy_statuses: Variant = null
 var last_event_text: String = "Battle ready"
 var last_reject_reason: String = ""
 var last_resolved_queue_item: Dictionary = {}
@@ -107,6 +110,8 @@ func reset_battle(seed_root: int = 13371337) -> void:
 	effect_resolve_draw_annotations.clear()
 	if not use_external_gsm:
 		gsm = GSM_SCRIPT.new()
+	player_statuses = STATUS_TRACKER_SCRIPT.new()
+	enemy_statuses = STATUS_TRACKER_SCRIPT.new()
 
 	tsre.phase = tsre.PHASE_TURN_START
 	tsre.turn_index = 1
@@ -206,6 +211,8 @@ func get_view_model() -> Dictionary:
 		"encounter_intro_flavor": _encounter_intro_flavor(),
 		"combat_result": combat_result,
 		"last_event_text": last_event_text,
+		"player_statuses": player_statuses.snapshot() if player_statuses != null else [],
+		"enemy_statuses": enemy_statuses.snapshot() if enemy_statuses != null else [],
 	}
 
 func refresh_hud() -> void:
@@ -302,7 +309,11 @@ func player_pass() -> Dictionary:
 
 func _enemy_take_turn() -> void:
 	var intent_type: String = str(enemy_intent.get("intent_type", "attack"))
-	var incoming: int = int(enemy_intent.get("damage", 0))
+	var raw_incoming: int = int(enemy_intent.get("damage", 0))
+	# Apply enemy's outgoing damage multiplier and player's incoming multiplier
+	var enemy_deal: float = enemy_statuses.get_damage_dealt_multiplier() if enemy_statuses != null else 1.0
+	var player_take: float = player_statuses.get_damage_taken_multiplier() if player_statuses != null else 1.0
+	var incoming: int = max(0, int(float(raw_incoming) * enemy_deal * player_take))
 	var blocked: int = min(player_block, incoming)
 	player_block -= blocked
 	var hp_loss: int = max(0, incoming - blocked)
@@ -330,6 +341,14 @@ func _enemy_take_turn() -> void:
 		var discarded: Array = _force_discard_random(discard_count)
 		event_payload["force_discarded"] = discarded
 
+	# Enemy-applied status effects
+	var apply_status_id: String = str(enemy_intent.get("apply_status", ""))
+	if apply_status_id != "" and player_statuses != null:
+		var stacks: int = int(enemy_intent.get("status_stacks", 1))
+		player_statuses.apply(apply_status_id, stacks)
+		event_payload["applied_status"] = apply_status_id
+		event_payload["status_stacks"] = stacks
+
 	_record_event("enemy_attack", event_payload)
 
 func _force_discard_random(count: int) -> Array:
@@ -345,9 +364,32 @@ func _force_discard_random(count: int) -> Array:
 	return discarded
 
 func _start_next_turn() -> void:
+	# Tick durations at turn end
+	if player_statuses != null:
+		player_statuses.tick_turn_end()
+	if enemy_statuses != null:
+		enemy_statuses.tick_turn_end()
+
 	tsre.transition_to(tsre.PHASE_TURN_END)
 	tsre.turn_index += 1
 	tsre.transition_to(tsre.PHASE_TURN_START)
+
+	# Tick turn-start effects (poison)
+	if player_statuses != null:
+		var player_ticks: Array = player_statuses.tick_turn_start()
+		for tick in player_ticks:
+			var tick_dmg: int = int(tick.get("damage", 0))
+			if tick_dmg > 0:
+				player_hp = max(0, player_hp - tick_dmg)
+				_record_event("status_tick", {"target": "player", "effect_id": str(tick.get("effect_id", "")), "damage": tick_dmg, "player_hp_after": player_hp})
+	if enemy_statuses != null:
+		var enemy_ticks: Array = enemy_statuses.tick_turn_start()
+		for tick in enemy_ticks:
+			var tick_dmg: int = int(tick.get("damage", 0))
+			if tick_dmg > 0:
+				enemy_hp = max(0, enemy_hp - tick_dmg)
+				_record_event("status_tick", {"target": "enemy", "effect_id": str(tick.get("effect_id", "")), "damage": tick_dmg, "enemy_hp_after": enemy_hp})
+
 	player_block = 0
 	energy = TURN_ENERGY
 	var energy_drain_amount: int = int(enemy_intent.get("energy_drain", 0))
@@ -398,6 +440,9 @@ func _roll_fixed_cycle_intent() -> Dictionary:
 	}
 	if step.has("block_gain"):
 		intent["block_gain"] = int(step.get("block_gain", 0))
+	if step.has("apply_status"):
+		intent["apply_status"] = str(step.get("apply_status", ""))
+		intent["status_stacks"] = int(step.get("status_stacks", 1))
 	return intent
 
 func _roll_escalating_intent() -> Dictionary:
@@ -459,6 +504,9 @@ func _roll_weighted_intent() -> Dictionary:
 		intent["energy_drain"] = int(selected.get("energy_drain", 0))
 	if selected.has("discard_count"):
 		intent["discard_count"] = int(selected.get("discard_count", 0))
+	if selected.has("apply_status"):
+		intent["apply_status"] = str(selected.get("apply_status", ""))
+		intent["status_stacks"] = int(selected.get("status_stacks", 1))
 	return intent
 
 func _roll_damage_in_range(dmg_min: int, dmg_max: int) -> int:
@@ -546,8 +594,12 @@ func _apply_effect_result(result: Dictionary) -> Array:
 		return drawn_cards
 	var delta: Dictionary = result.get("delta", {})
 	if delta.has("hp_delta"):
-		# Negative hp_delta means damage to enemy in this prototype.
-		var dmg: int = max(0, -int(delta.get("hp_delta", 0)))
+		var raw_dmg: int = max(0, -int(delta.get("hp_delta", 0)))
+		# Apply player's outgoing damage multiplier (strength/weakness)
+		var deal_mult: float = player_statuses.get_damage_dealt_multiplier() if player_statuses != null else 1.0
+		# Apply enemy's incoming damage multiplier (vulnerability)
+		var take_mult: float = enemy_statuses.get_damage_taken_multiplier() if enemy_statuses != null else 1.0
+		var dmg: int = max(0, int(float(raw_dmg) * deal_mult * take_mult))
 		var blocked: int = min(enemy_block, dmg)
 		enemy_block -= blocked
 		var hp_loss: int = max(0, dmg - blocked)
@@ -559,6 +611,15 @@ func _apply_effect_result(result: Dictionary) -> Array:
 			var drawn: Variant = dls.draw_one()
 			if drawn != null:
 				drawn_cards.append(_card_instance_id(drawn))
+	if delta.has("apply_status"):
+		var status_id: String = str(delta.get("apply_status", ""))
+		var stacks: int = int(delta.get("status_stacks", 1))
+		var duration: int = int(delta.get("status_duration", -1))
+		var target: String = str(delta.get("status_target", "enemy"))
+		if status_id != "":
+			var tracker: Variant = enemy_statuses if target == "enemy" else player_statuses
+			if tracker != null:
+				tracker.apply(status_id, stacks, duration)
 	return drawn_cards
 
 func _check_combat_end() -> void:

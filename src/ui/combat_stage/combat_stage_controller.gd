@@ -108,6 +108,14 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	if enemy_block > 0:
 		draw_string(font, Vector2(enemy_x - 64, center_y + 120), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
 
+	# Player statuses below HP
+	var player_statuses: Array = vm.get("player_statuses", [])
+	_draw_status_strip(Vector2(player_x - 64, center_y + 138), player_statuses, font)
+
+	# Enemy statuses below HP
+	var enemy_statuses_arr: Array = vm.get("enemy_statuses", [])
+	_draw_status_strip(Vector2(enemy_x - 64, center_y + 138), enemy_statuses_arr, font)
+
 	# Enemy intent (centered between portraits)
 	var intent: Dictionary = vm.get("enemy_intent", {})
 	var telegraph: String = str(intent.get("telegraph_text", ""))
@@ -307,6 +315,24 @@ func _card_border_color(card_id: String) -> Color:
 			return UITheme.CARD_BORDER_DEFEND
 		_:
 			return UITheme.CARD_BORDER_UTILITY
+
+func _draw_status_strip(pos: Vector2, statuses: Array, font: Font) -> void:
+	if statuses.is_empty():
+		return
+	var x_offset: float = 0.0
+	for status in statuses:
+		if not (status is Dictionary):
+			continue
+		var name: String = str(status.get("display_name", str(status.get("effect_id", "?"))))
+		var stacks: int = int(status.get("stacks", 0))
+		var duration: int = int(status.get("duration", 0))
+		var is_debuff: bool = bool(status.get("is_debuff", false))
+		var color: Color = UITheme.TEXT_BAD if is_debuff else UITheme.TEXT_GOOD
+		var label: String = "%s %d" % [name, stacks] if stacks > 1 else name
+		if duration > 0:
+			label += " (%dt)" % duration
+		draw_string(font, pos + Vector2(x_offset, 0), label, HORIZONTAL_ALIGNMENT_LEFT, 120, 13, color)
+		x_offset += 70.0
 
 func _draw_status_bar(w: float) -> void:
 	var font: Font = ThemeDB.fallback_font
