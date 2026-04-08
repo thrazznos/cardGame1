@@ -12,27 +12,31 @@ func choose_action(view_model: Dictionary) -> Dictionary:
 		return {"type": "pass"}
 
 	var hand: Array = view_model.get("hand", [])
+	var hand_card_ids: Array = view_model.get("hand_card_ids", [])
 	var energy: int = int(view_model.get("energy", 0))
 	var play_gate_reason: String = str(view_model.get("play_gate_reason", ""))
 	if energy <= 0 or play_gate_reason != "" or hand.is_empty():
 		return {"type": "pass"}
 
-	var best_card_id: String = ""
+	var best_action_token: String = ""
 	var best_score: float = -INF
-	for card in hand:
-		var card_id: String = str(card)
+	for index in range(hand.size()):
+		var action_token: String = str(hand[index])
+		var card_id: String = action_token
+		if index >= 0 and index < hand_card_ids.size():
+			card_id = str(hand_card_ids[index])
 		var score: float = _score_card(card_id, view_model)
 		if score > best_score:
 			best_score = score
-			best_card_id = card_id
-		elif score == best_score and card_id < best_card_id:
-			best_card_id = card_id
+			best_action_token = action_token
+		elif score == best_score and action_token < best_action_token:
+			best_action_token = action_token
 
-	if best_card_id == "":
+	if best_action_token == "":
 		return {"type": "pass"}
 	return {
 		"type": "play",
-		"card_id": best_card_id,
+		"card_id": best_action_token,
 	}
 
 func _score_card(card_id: String, view_model: Dictionary) -> float:

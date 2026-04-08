@@ -50,12 +50,14 @@ func _init() -> void:
 	var runner: Node = root_node
 
 	runner.call("reset_battle", 13371337)
+	var first_context: Dictionary = runner.call("_live_reward_context_for_checkpoint_count", "combat_clear_1", 1)
 	runner.call("_present_reward_checkpoint")
 	await process_frame
 	var first_profile: Dictionary = _capture_offer_profile(runner)
 
 	runner.call("reset_battle", 13371337)
 	runner.set("reward_checkpoint_count", 1)
+	var second_context: Dictionary = runner.call("_live_reward_context_for_checkpoint_count", "combat_clear_2", 2)
 	runner.call("_present_reward_checkpoint")
 	await process_frame
 	var second_profile: Dictionary = _capture_offer_profile(runner)
@@ -63,17 +65,24 @@ func _init() -> void:
 	runner.call("reset_battle", 13371337)
 	runner.set("run_master_deck", BASE_ONLY_DECK.duplicate(true))
 	runner.set("reward_checkpoint_count", 1)
+	var base_only_second_context: Dictionary = runner.call("_live_reward_context_for_checkpoint_count", "combat_clear_2", 2)
 	runner.call("_present_reward_checkpoint")
 	await process_frame
 	var base_only_second_profile: Dictionary = _capture_offer_profile(runner)
 
 	var payload: Dictionary = {
+		"first_context_reward_pool_tag": str(first_context.get("reward_pool_tag", "")),
+		"first_context_active_unlock_key": str(first_context.get("active_unlock_key", "")),
 		"first_offer_ids": first_profile.get("offer_ids", []),
 		"first_offer_unlock_keys": first_profile.get("unlock_keys", []),
 		"first_offer_all_base": bool(first_profile.get("all_base", false)),
+		"second_context_reward_pool_tag": str(second_context.get("reward_pool_tag", "")),
+		"second_context_active_unlock_key": str(second_context.get("active_unlock_key", "")),
 		"second_offer_ids": second_profile.get("offer_ids", []),
 		"second_offer_unlock_keys": second_profile.get("unlock_keys", []),
 		"second_offer_all_gsm": bool(second_profile.get("all_gsm", false)),
+		"base_only_second_context_reward_pool_tag": str(base_only_second_context.get("reward_pool_tag", "")),
+		"base_only_second_context_active_unlock_key": str(base_only_second_context.get("active_unlock_key", "")),
 		"base_only_second_offer_ids": base_only_second_profile.get("offer_ids", []),
 		"base_only_second_offer_unlock_keys": base_only_second_profile.get("unlock_keys", []),
 		"base_only_second_offer_all_base": bool(base_only_second_profile.get("all_base", false)),

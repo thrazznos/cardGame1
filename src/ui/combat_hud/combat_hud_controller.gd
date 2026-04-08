@@ -1463,17 +1463,17 @@ func _toggle_card_style_variant() -> void:
 func _reason_text(reason_code: String) -> String:
 	match reason_code:
 		"ERR_RESOLVE_LOCKED":
-			return "Effects are resolving right now."
+			return "Effects are still resolving."
 		"ERR_NOT_ENOUGH_ENERGY":
-			return "You need 1 energy to play another card."
+			return "You do not have enough energy to play this card."
 		"ERR_COMBAT_COMPLETE":
 			return "Combat is over. Restart to play again."
 		"ERR_NO_VALID_TARGETS":
-			return "No valid target is available for this card."
+			return "No living target matches this card right now."
 		"ERR_CARD_NOT_IN_HAND":
 			return "That card is no longer in hand."
 		"ERR_PHASE_DISALLOWS_INPUT":
-			return "You cannot act during the enemy or end step."
+			return "You can only act during your turn."
 		"ERR_REWARD_NOT_AVAILABLE":
 			return "No reward is available right now."
 		"ERR_REWARD_ALREADY_CLAIMED":
@@ -1481,15 +1481,15 @@ func _reason_text(reason_code: String) -> String:
 		"ERR_INVALID_REWARD_SELECTION":
 			return "That reward choice is not valid."
 		"ERR_FOCUS_REQUIRED":
-			return "This advanced gem action requires FOCUS."
+			return "This card needs FOCUS before it can resolve."
 		"ERR_STACK_EMPTY":
-			return "The gem stack is empty."
+			return "This card needs a gem on the stack first."
 		"ERR_STACK_TOP_MISMATCH":
-			return "Top gem does not match this card's requirement."
+			return "The top gem does not match this card."
 		"ERR_STACK_TARGET_MISMATCH":
-			return "Targeted gem does not match this card's requirement."
+			return "The selected gem does not match this card."
 		"ERR_SELECTOR_INVALID":
-			return "That gem selector is out of range."
+			return "The selected gem position is out of range."
 		_:
 			return "UNMAPPED_REASON(%s)" % reason_code
 

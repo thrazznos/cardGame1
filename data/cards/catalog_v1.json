@@ -24,8 +24,10 @@
       "reward_rules_text": "Add to deck \u2022 Deal 6 dmg \u2022 Cost 1",
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 6
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 6
+          }
         }
       ],
       "speed_class": "normal",
@@ -135,8 +137,10 @@
       },
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 7
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 7
+          }
         }
       ],
       "speed_class": "normal",
@@ -174,12 +178,16 @@
       },
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 6
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 6
+          }
         },
         {
-          "type": "draw_n",
-          "amount": 1
+          "effect_id": "draw_n",
+          "params": {
+            "amount": 1
+          }
         }
       ],
       "speed_class": "normal",
@@ -959,6 +967,50 @@
       "combo_tags": [
         "probe",
         "contract"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_stack_top_anchor",
+      "aliases": [],
+      "display_name": "Ruby Open",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Top Ruby • Draw 1 • Cost 1",
+      "tooltip_text": "Debug probe card: requires Ruby on top of the gem stack and draws 1 card. No combat target required.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "effect_id": "draw_n",
+          "params": {
+            "amount": 1
+          },
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "none",
+      "max_targets": 0,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [
+        {
+          "condition_id": "stack_top_is",
+          "gem": "Ruby"
+        }
+      ],
+      "combo_tags": [
+        "probe",
+        "stack"
       ],
       "chain_flags": [],
       "weight_modifiers": []

@@ -110,9 +110,22 @@ func validate_catalog(payload: Dictionary) -> Array[String]:
 				if not (condition_variant is Dictionary):
 					errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
 					break
-				if str((condition_variant as Dictionary).get("condition_id", "")).strip_edges() == "":
+				var condition: Dictionary = condition_variant
+				var condition_id: String = str(condition.get("condition_id", "")).strip_edges()
+				if condition_id == "":
 					errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
 					break
+				match condition_id:
+					"focus_at_least":
+						if not condition.has("amount"):
+							errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
+							break
+					"stack_top_is":
+						if str(condition.get("gem", "")).strip_edges() == "":
+							errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
+							break
+					_:
+						pass
 		var combo_tags: Variant = card.get("combo_tags", [])
 		if not (combo_tags is Array):
 			errors.append("ERR_CARD_COMBO_TAGS_INVALID:%s" % card_id)

@@ -501,6 +501,15 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("alias_resolved_id"), "strike")
         self.assertEqual(probe.get("reward_variant_name"), "Strike+")
         self.assertTrue(probe.get("has_effects"))
+        self.assertEqual(probe.get("strike_authored_effect_id"), "deal_damage")
+        self.assertEqual(probe.get("strike_authored_effect_params"), {"amount": 6})
+        self.assertEqual(probe.get("strike_normalized_effect", {}).get("type"), "deal_damage")
+        self.assertEqual(probe.get("strike_normalized_effect", {}).get("amount"), 6)
+        self.assertEqual(probe.get("strike_precise_authored_effect_ids"), ["deal_damage", "draw_n"])
+        self.assertEqual(
+            [effect.get("type") for effect in probe.get("strike_precise_normalized_effects", [])],
+            ["deal_damage", "draw_n"],
+        )
 
     def test_card_play_contract_comes_from_authored_data(self):
         probe = self._run_card_play_contract_probe()
@@ -518,6 +527,13 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("catalog_zone_on_play"), "exhaust")
         self.assertEqual(probe.get("normalized_effect", {}).get("type"), "deal_damage")
         self.assertEqual(probe.get("normalized_effect", {}).get("amount"), 1)
+        self.assertEqual(probe.get("stack_probe_target_mode"), "none")
+        self.assertEqual(probe.get("stack_probe_max_targets"), 0)
+        self.assertEqual(probe.get("stack_probe_invalid_target_policy"), "fizzle")
+        self.assertEqual(
+            probe.get("stack_probe_play_conditions"),
+            [{"condition_id": "stack_top_is", "gem": "Ruby"}],
+        )
         self.assertFalse(probe.get("low_energy_ok"))
         self.assertEqual(probe.get("low_energy_reason"), "ERR_NOT_ENOUGH_ENERGY")
         self.assertEqual(probe.get("low_energy_hand_after"), ["probe_contract_anchor_runtime"])
@@ -534,6 +550,19 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("hand_after_play"), [])
         self.assertEqual(probe.get("exhaust_top_instance_id"), "probe_contract_anchor_runtime")
         self.assertEqual(probe.get("exhaust_top_card_id"), "probe_contract_anchor")
+        self.assertFalse(probe.get("stack_empty_ok"))
+        self.assertEqual(probe.get("stack_empty_reason"), "ERR_STACK_EMPTY")
+        self.assertEqual(probe.get("stack_empty_hand_after"), ["probe_stack_top_anchor_runtime"])
+        self.assertFalse(probe.get("stack_mismatch_ok"))
+        self.assertEqual(probe.get("stack_mismatch_reason"), "ERR_STACK_TOP_MISMATCH")
+        self.assertFalse(probe.get("no_target_attack_ok"))
+        self.assertEqual(probe.get("no_target_attack_reason"), "ERR_NO_VALID_TARGETS")
+        self.assertTrue(probe.get("targetless_play_ok"))
+        self.assertEqual(probe.get("targetless_energy_after"), 0)
+        self.assertEqual(probe.get("targetless_hand_after"), ["probe_draw_strike_runtime"])
+        self.assertEqual(probe.get("targetless_last_resolved_card_id"), "probe_stack_top_anchor")
+        self.assertEqual(probe.get("targetless_last_resolved_effect_type"), "draw_n")
+        self.assertEqual(probe.get("targetless_last_resolved_effect_amount"), 1)
 
     def test_runtime_card_instances_preserve_instance_id_and_card_id(self):
         probe = self._run_card_instance_probe()
@@ -547,6 +576,8 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("hand_internal_uses_dictionaries"))
         self.assertTrue(probe.get("draw_internal_uses_dictionaries"))
         self.assertEqual(probe.get("view_hand_first"), "strike_01")
+        self.assertTrue(probe.get("raw_string_hand_normalized"))
+        self.assertTrue(probe.get("raw_string_draw_normalized"))
 
     def test_runtime_card_instances_resolve_authored_effects_without_alias_ids(self):
         probe = self._run_card_instance_probe()
@@ -773,10 +804,16 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
 
     def test_live_reward_context_only_switches_to_gsm_on_second_live_checkpoint(self):
         probe = self._run_live_reward_context_probe()
+        self.assertEqual(probe.get("first_context_reward_pool_tag"), "base_reward")
+        self.assertEqual(probe.get("first_context_active_unlock_key"), "base_set")
         self.assertEqual(len(probe.get("first_offer_ids", [])), 3)
         self.assertTrue(probe.get("first_offer_all_base"))
+        self.assertEqual(probe.get("second_context_reward_pool_tag"), "gsm_reward")
+        self.assertEqual(probe.get("second_context_active_unlock_key"), "gsm_set")
         self.assertEqual(len(probe.get("second_offer_ids", [])), 3)
         self.assertTrue(probe.get("second_offer_all_gsm"))
+        self.assertEqual(probe.get("base_only_second_context_reward_pool_tag"), "base_reward")
+        self.assertEqual(probe.get("base_only_second_context_active_unlock_key"), "base_set")
         self.assertEqual(len(probe.get("base_only_second_offer_ids", [])), 3)
         self.assertTrue(probe.get("base_only_second_offer_all_base"))
 
@@ -790,7 +827,11 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Defend+", probe.get("reward_line", ""))
         self.assertIn("Precise Strike", probe.get("reward_line", ""))
         self.assertIn("Offset Scalpel", probe.get("reject_line", ""))
-        self.assertIn("requires FOCUS", probe.get("reject_line", ""))
+        self.assertIn("needs FOCUS", probe.get("reject_line", ""))
+        self.assertIn("Strike", probe.get("no_target_reject_line", ""))
+        self.assertIn("living target", probe.get("no_target_reject_line", ""))
+        self.assertIn("Ruby Open", probe.get("stack_reject_line", ""))
+        self.assertIn("top gem does not match", probe.get("stack_reject_line", ""))
 
     def test_hybrid_cards_resolve_combat_and_gem_effects_together(self):
         probe = self._run_hybrid_payoff_probe()
