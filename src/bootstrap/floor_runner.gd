@@ -91,11 +91,11 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	if combat_runner == null:
 		return
 
-	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
-	var node_type: String = str(node.get("node_type", "combat"))
+	var node_data: Dictionary = floor_controller.get_current_node_data()
+	var node_type: String = str(node_data.get("node_type", "combat"))
 
 	# Determine encounter profile based on room visit order within floor
-	var profile_index: int = floor_controller.rooms_cleared + 1
+	var profile_index: int = floor_controller.get_rooms_cleared() + 1
 	if node_type == "boss":
 		profile_index = 99
 
@@ -115,8 +115,8 @@ func on_combat_complete(combat_result: String) -> void:
 		gsm = combat_runner.gsm
 
 	# Check if this was a boss kill — extract constraint from reward pick
-	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
-	var is_boss: bool = bool(node.get("is_exit", false))
+	var node_data: Dictionary = floor_controller.get_current_node_data()
+	var is_boss: bool = bool(node_data.get("is_exit", false))
 	if is_boss and combat_runner != null:
 		var selected_card: String = str(combat_runner.reward_selected_card_id)
 		if selected_card != "":
@@ -132,8 +132,8 @@ func on_combat_complete(combat_result: String) -> void:
 	_after_room_clear()
 
 func _after_room_clear() -> void:
-	var fc_state: String = floor_controller.state
-	if fc_state == FloorController.STATE_FLOOR_COMPLETE:
+	var fc_state: String = floor_controller.get_state()
+	if fc_state == FLOOR_CONTROLLER_SCRIPT.STATE_FLOOR_COMPLETE:
 		_on_floor_complete()
 	else:
 		_show_map()
