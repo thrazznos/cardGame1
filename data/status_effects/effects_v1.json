@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "effects": [
+    {
+      "effect_id": "poison",
+      "display_name": "Poison",
+      "description": "Deals damage at turn start. Loses 1 stack per tick.",
+      "icon_key": "poison",
+      "stack_behavior": "additive",
+      "max_stacks": 5,
+      "tick_timing": "turn_start",
+      "tick_formula": "damage_per_stack",
+      "tick_params": { "damage_per_stack": 1 },
+      "duration_type": "until_depleted",
+      "tags": ["debuff", "damage_over_time"]
+    },
+    {
+      "effect_id": "weakness",
+      "display_name": "Weakness",
+      "description": "Reduces outgoing damage by 25%. Duration-based.",
+      "icon_key": "weakness",
+      "stack_behavior": "duration_refresh",
+      "max_stacks": 1,
+      "tick_timing": "on_deal_damage",
+      "tick_formula": "damage_multiplier",
+      "tick_params": { "multiplier": 0.75 },
+      "duration_type": "turns",
+      "default_duration": 2,
+      "tags": ["debuff", "damage_modifier"]
+    },
+    {
+      "effect_id": "strength",
+      "display_name": "Strength",
+      "description": "Increases outgoing damage by 50%. Duration-based.",
+      "icon_key": "strength",
+      "stack_behavior": "duration_refresh",
+      "max_stacks": 1,
+      "tick_timing": "on_deal_damage",
+      "tick_formula": "damage_multiplier",
+      "tick_params": { "multiplier": 1.5 },
+      "duration_type": "turns",
+      "default_duration": 2,
+      "tags": ["buff", "damage_modifier"]
+    },
+    {
+      "effect_id": "vulnerability",
+      "display_name": "Vulnerable",
+      "description": "Increases incoming damage by 50%. Duration-based.",
+      "icon_key": "vulnerability",
+      "stack_behavior": "duration_refresh",
+      "max_stacks": 1,
+      "tick_timing": "on_take_damage",
+      "tick_formula": "damage_multiplier",
+      "tick_params": { "multiplier": 1.5 },
+      "duration_type": "turns",
+      "default_duration": 2,
+      "tags": ["debuff", "damage_modifier"]
+    }
+  ]
+}

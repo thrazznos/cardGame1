@@ -30,7 +30,9 @@
           "damage_min": 0,
           "damage_max": 2,
           "block_gain": 4,
-          "telegraph_text": "Charging up... (+{block} block)"
+          "apply_status": "vulnerability",
+          "status_stacks": 1,
+          "telegraph_text": "Charging up... (+{block} block, applies Vulnerable)"
         },
         {
           "intent_type": "slam",
@@ -68,9 +70,10 @@
       "description": "Lower damage but applies resource pressure. Tests gem stack defenses and adaptation.",
       "enemy_hp_base": 22,
       "intent_weights": {
-        "attack": 40,
-        "drain_energy": 30,
-        "force_discard": 30
+        "attack": 30,
+        "drain_energy": 25,
+        "force_discard": 25,
+        "apply_poison": 20
       },
       "cycle": [
         {
@@ -92,6 +95,14 @@
           "damage_max": 3,
           "discard_count": 1,
           "telegraph_text": "Disrupting hand (discard {discard}, {dmg} dmg)"
+        },
+        {
+          "intent_type": "apply_poison",
+          "damage_min": 1,
+          "damage_max": 2,
+          "apply_status": "poison",
+          "status_stacks": 2,
+          "telegraph_text": "Toxic cloud ({dmg} dmg + 2 Poison)"
         }
       ],
       "enrage_start_turn": 14,

@@ -108,6 +108,14 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	if enemy_block > 0:
 		draw_string(font, Vector2(enemy_x - 64, center_y + 120), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
 
+	# Player statuses below HP
+	var player_statuses: Array = vm.get("player_statuses", [])
+	_draw_status_strip(Vector2(player_x - 64, center_y + 138), player_statuses, font)
+
+	# Enemy statuses below HP
+	var enemy_statuses_arr: Array = vm.get("enemy_statuses", [])
+	_draw_status_strip(Vector2(enemy_x - 64, center_y + 138), enemy_statuses_arr, font)
+
 	# Enemy intent (centered between portraits)
 	var intent: Dictionary = vm.get("enemy_intent", {})
 	var telegraph: String = str(intent.get("telegraph_text", ""))
@@ -129,7 +137,7 @@ func _draw_arena(w: float, arena_h: float) -> void:
 
 func _draw_hp_bar(pos: Vector2, bar_width: float, current: int, maximum: int, fill_color: Color) -> void:
 	var bar_h: float = 12.0
-	draw_rect(Rect2(pos, Vector2(bar_width, bar_h)), Color("#1a1520"))
+	draw_rect(Rect2(pos, Vector2(bar_width, bar_h)), UITheme.PANEL_BG)
 	if maximum > 0:
 		var fill_w: float = bar_width * clampf(float(current) / float(maximum), 0.0, 1.0)
 		draw_rect(Rect2(pos, Vector2(fill_w, bar_h)), fill_color)
@@ -251,7 +259,7 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	# Footer — tooltip or locked state
 	if not playable:
 		var lock_y: float = pos.y + card_h - footer_h
-		draw_rect(Rect2(Vector2(pos.x + 3, lock_y), Vector2(card_w - 6, footer_h - 3)), Color("#402020"))
+		draw_rect(Rect2(Vector2(pos.x + 3, lock_y), Vector2(card_w - 6, footer_h - 3)), UITheme.CARD_FOOTER_LOCKED)
 		draw_string(font, Vector2(pos.x + padding, lock_y + footer_h * 0.6), "LOCKED", HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(footer_h * 0.5), UITheme.TEXT_BAD)
 
 func _resolve_display_name(card_id: String) -> String:
@@ -307,6 +315,24 @@ func _card_border_color(card_id: String) -> Color:
 			return UITheme.CARD_BORDER_DEFEND
 		_:
 			return UITheme.CARD_BORDER_UTILITY
+
+func _draw_status_strip(pos: Vector2, statuses: Array, font: Font) -> void:
+	if statuses.is_empty():
+		return
+	var x_offset: float = 0.0
+	for status in statuses:
+		if not (status is Dictionary):
+			continue
+		var name: String = str(status.get("display_name", str(status.get("effect_id", "?"))))
+		var stacks: int = int(status.get("stacks", 0))
+		var duration: int = int(status.get("duration", 0))
+		var is_debuff: bool = bool(status.get("is_debuff", false))
+		var color: Color = UITheme.TEXT_BAD if is_debuff else UITheme.TEXT_GOOD
+		var label: String = "%s %d" % [name, stacks] if stacks > 1 else name
+		if duration > 0:
+			label += " (%dt)" % duration
+		draw_string(font, pos + Vector2(x_offset, 0), label, HORIZONTAL_ALIGNMENT_LEFT, 120, 13, color)
+		x_offset += 70.0
 
 func _draw_status_bar(w: float) -> void:
 	var font: Font = ThemeDB.fallback_font

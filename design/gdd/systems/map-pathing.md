@@ -90,15 +90,16 @@ This persistence is the load-bearing mechanic: room visit order determines what 
 
 On `enter_room()`, `FloorController` checks the node's `gem_affinity`. If it is not `"neutral"` or empty, `gsm.grant_affinity_gem(gem_affinity)` is called, pushing one gem of the matching color onto the stack (subject to the cap). The grant is recorded in the `room_entered` event payload.
 
-### 6. Gem Gates and Slot-Loss Debt
+### 6. Gem Gates and Room Entry Gating
 
 Premium rooms (combat, event) may carry a `gem_gate` dictionary assigned at generation time:
 - **Gate cost**: 1-2 gems of the node's affinity color (neutral defaults to Ruby).
 - **1-2 gated nodes per floor**, chosen randomly from eligible nodes.
 - **Payment**: `FloorController._try_pay_gate()` consumes gems from the top of the stack.
 - **Success**: gems are consumed, room proceeds normally.
-- **Failure (shortfall)**: the player cannot afford the gate cost. Instead of blocking entry, the system calls `gsm.reduce_cap(1)` -- the player **loses a gem slot permanently** for the rest of the run. The room is still entered.
-- **Gates are always optional**: a free path to the boss node exists without passing through any gated room, so slot loss punishes greed, not routing failure.
+- **Failure (shortfall)**: the player cannot afford the gate cost, so the room is **not** a legal move and `select_room()` rejects it with `ERR_GEM_GATE_UNAFFORDABLE`.
+- **UI contract**: unaffordable gated rooms are not surfaced inside `legal_moves`, so they should not render as highlighted/clickable destinations.
+- **Gates are always optional**: a free path to the boss node exists without passing through any gated room, so the player is rerouted by affordability rather than forced into debt.
 
 ### 7. Floor Objective Variants
 

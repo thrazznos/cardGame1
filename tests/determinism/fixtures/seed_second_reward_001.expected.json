@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_second_reward_001",
-  "final_state_hash": "3976411477",
-  "event_sequence_hash": "3465097485",
+  "final_state_hash": "2204543119",
+  "event_sequence_hash": "2868816708",
   "rng_cursor_snapshot": {"encounter.intent": 7, "reward.card": 6},
   "encounter_title": "Encounter 2 \u2022 Warden Counterpush",
   "encounter_intent_style": "Burst Charger",

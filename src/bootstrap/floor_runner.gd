@@ -76,13 +76,19 @@ func map_commit_room(node_id: int) -> void:
 		"start_combat":
 			_launch_combat(enter_result)
 		"event":
-			# MVP: auto-complete events
-			floor_controller.complete_non_combat(gsm)
-			_after_room_clear()
+			if map_hud != null:
+				var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
+				var affinity: String = str(node.get("gem_affinity", "neutral"))
+				map_hud.show_event("A %s-attuned shrine hums with residual energy." % affinity if affinity != "neutral" else "You find a quiet moment to catch your breath.")
+			else:
+				floor_controller.complete_non_combat(gsm)
+				_after_room_clear()
 		"rest":
-			# MVP: auto-complete rest (could heal later)
-			floor_controller.complete_non_combat(gsm)
-			_after_room_clear()
+			if map_hud != null:
+				map_hud.show_event("A sheltered alcove offers a moment of rest.")
+			else:
+				floor_controller.complete_non_combat(gsm)
+				_after_room_clear()
 		"pass_through":
 			floor_controller.complete_non_combat(gsm)
 			_after_room_clear()
@@ -91,22 +97,30 @@ func _launch_combat(enter_result: Dictionary) -> void:
 	if combat_runner == null:
 		return
 
-	var node_data: Dictionary = floor_controller.get_current_node_data()
-	var node_type: String = str(node_data.get("node_type", "combat"))
+	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
+	var node_type: String = str(node.get("node_type", "combat"))
 
 	# Determine encounter profile based on room visit order within floor
-	var profile_index: int = floor_controller.get_rooms_cleared() + 1
+	var profile_index: int = floor_controller.rooms_cleared + 1
 	if node_type == "boss":
 		profile_index = 99
 
 	# Wire the callback so combat hands control back to us
 	combat_runner.floor_runner = self
 	combat_runner.use_external_gsm = true
-	combat_runner.gsm = gsm
 	combat_runner.encounter_index = profile_index
-	combat_runner.reset_battle(rng.draw_next("map.combat_seed").get("value", 0))
+	var seed_val: int = int(rng.draw_next("map.combat_seed").get("value", 0))
+	combat_runner.reset_battle(seed_val)
+	# Inject GSM AFTER reset so it's not overwritten
+	combat_runner.gsm = gsm
 
 	_show_combat()
+	# Re-refresh after making visible so _draw triggers
+	combat_runner.refresh_hud()
+
+func map_event_dismissed() -> void:
+	floor_controller.complete_non_combat(gsm)
+	_after_room_clear()
 
 func on_combat_complete(combat_result: String) -> void:
 	## Called by combat runner when combat ends and reward is handled.
@@ -115,8 +129,8 @@ func on_combat_complete(combat_result: String) -> void:
 		gsm = combat_runner.gsm
 
 	# Check if this was a boss kill — extract constraint from reward pick
-	var node_data: Dictionary = floor_controller.get_current_node_data()
-	var is_boss: bool = bool(node_data.get("is_exit", false))
+	var node: Dictionary = floor_controller.graph.get_node(floor_controller.current_node)
+	var is_boss: bool = bool(node.get("is_exit", false))
 	if is_boss and combat_runner != null:
 		var selected_card: String = str(combat_runner.reward_selected_card_id)
 		if selected_card != "":
@@ -132,8 +146,8 @@ func on_combat_complete(combat_result: String) -> void:
 	_after_room_clear()
 
 func _after_room_clear() -> void:
-	var fc_state: String = floor_controller.get_state()
-	if fc_state == FLOOR_CONTROLLER_SCRIPT.STATE_FLOOR_COMPLETE:
+	var fc_state: String = floor_controller.state
+	if fc_state == FloorController.STATE_FLOOR_COMPLETE:
 		_on_floor_complete()
 	else:
 		_show_map()

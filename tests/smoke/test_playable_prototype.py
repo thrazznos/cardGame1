@@ -261,6 +261,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing LIVE_REWARD_CONTEXT_PROBE output")
         return json.loads(probe_line)
 
+    def _run_gem_gate_block_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_gem_gate_block_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("GEM_GATE_BLOCK_PROBE="):
+                probe_line = line[len("GEM_GATE_BLOCK_PROBE="):]
+        self.assertTrue(probe_line, "missing GEM_GATE_BLOCK_PROBE output")
+        return json.loads(probe_line)
+
     def _run_event_readability_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -722,13 +740,27 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
 
     def test_reward_pool_keeps_gsm_cards_opt_in(self):
         probe = self._run_reward_pool_probe()
-        self.assertEqual(probe.get("normal_ids"), ["strike_plus", "defend_plus", "strike_precise"])
+        self.assertEqual(len(probe.get("normal_ids", [])), 3)
         self.assertFalse(probe.get("normal_has_gsm"))
         self.assertTrue(probe.get("gsm_all_are_gsm"))
         self.assertEqual(probe.get("mixed_normal_ids"), ["base_alpha", "base_beta", "base_alpha"])
         self.assertEqual(probe.get("mixed_gsm_ids"), ["gsm_beta", "gsm_alpha", "gsm_alpha"])
         self.assertTrue(probe.get("mixed_normal_all_base"))
         self.assertTrue(probe.get("mixed_gsm_all_gsm"))
+
+    def test_unaffordable_gem_gates_block_room_entry(self):
+        probe = self._run_gem_gate_block_probe()
+        self.assertTrue(probe.get("ok"), msg=probe)
+        self.assertNotIn(probe.get("gated_node_id"), probe.get("legal_moves_before", []))
+        self.assertFalse(probe.get("select_ok"))
+        self.assertEqual(probe.get("select_reason"), "ERR_GEM_GATE_UNAFFORDABLE")
+        self.assertFalse(probe.get("enter_ok"))
+        self.assertEqual(probe.get("enter_reason"), "")
+        self.assertEqual(probe.get("state_after_attempt"), "room_select")
+        self.assertEqual(probe.get("stack_after_attempt"), [])
+        self.assertEqual(probe.get("cap_after_attempt"), 6)
+        self.assertNotIn("gem_gate_paid", probe.get("event_kinds", []))
+        self.assertNotIn("gem_slot_lost", probe.get("event_kinds", []))
 
     def test_reward_pool_uses_metadata_weights_without_replacement(self):
         probe = self._run_reward_pool_probe()

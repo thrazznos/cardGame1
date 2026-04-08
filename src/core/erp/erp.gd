@@ -36,5 +36,12 @@ func resolve_effect(effect: Dictionary, state: Dictionary) -> Dictionary:
 			return {"ok": true, "delta": {"energy_drain": int(effect.get("amount", 1))}}
 		"force_discard":
 			return {"ok": true, "delta": {"force_discard": int(effect.get("count", 1))}}
+		"apply_status":
+			return {"ok": true, "delta": {
+				"apply_status": str(effect.get("status_id", "")),
+				"status_stacks": int(effect.get("stacks", 1)),
+				"status_duration": int(effect.get("duration", -1)),
+				"status_target": str(effect.get("target", "enemy")),
+			}}
 		_:
 			return {"ok": false, "reason": "ERR_UNSUPPORTED_EFFECT_TYPE", "effect_type": effect_type}

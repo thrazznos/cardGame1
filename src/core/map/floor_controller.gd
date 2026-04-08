@@ -28,6 +28,15 @@ var conduit_pattern: Array = []
 var conduit_progress: int = 0
 var conduit_matched: bool = false
 
+## Circuit objective state
+var circuit_sequence: Array = []
+var circuit_progress: int = 0
+var circuit_penalties: int = 0
+
+## Seal objective state
+var seal_nodes: Array = []
+var seals_broken: int = 0
+
 ## GSM state saved between rooms
 var gsm_floor_state: Dictionary = {}
 
@@ -49,8 +58,18 @@ func start_floor(rng: Variant, p_floor_index: int = 1, p_constraint: String = ""
 	conduit_pattern = []
 	conduit_progress = 0
 	conduit_matched = false
+	circuit_sequence = []
+	circuit_progress = 0
+	circuit_penalties = 0
+	seal_nodes = []
+	seals_broken = 0
+
 	if active_constraint == "conduit":
 		conduit_pattern = _generate_conduit_pattern(rng)
+	elif active_constraint == "circuit":
+		circuit_sequence = _generate_circuit_sequence(rng)
+	elif active_constraint == "seal":
+		seal_nodes = _generate_seal_nodes(rng)
 
 	graph.mark_cleared(current_node)
 	_record_event("floor_start", {
@@ -63,7 +82,7 @@ func start_floor(rng: Variant, p_floor_index: int = 1, p_constraint: String = ""
 		"ok": true,
 		"floor_index": floor_index,
 		"current_node": current_node,
-		"legal_moves": graph.get_legal_moves(current_node),
+		"legal_moves": _get_uncleared_legal_moves(),
 	}
 
 func select_room(node_id: int) -> Dictionary:
@@ -72,6 +91,10 @@ func select_room(node_id: int) -> Dictionary:
 
 	var legal: Array = _get_uncleared_legal_moves()
 	if not legal.has(node_id):
+		var node: Dictionary = graph.get_node(node_id)
+		var lock_reason: String = _node_lock_reason(node)
+		if lock_reason != "":
+			return {"ok": false, "reason": lock_reason, "node_id": node_id, "legal": legal}
 		return {"ok": false, "reason": "ERR_ILLEGAL_MOVE", "node_id": node_id, "legal": legal}
 
 	var node: Dictionary = graph.get_node(node_id)
@@ -109,6 +132,15 @@ func enter_room(gsm: Variant) -> Dictionary:
 	if gem_gate is Dictionary:
 		var gate_gem: String = str(gem_gate.get("gem", ""))
 		var gate_cost: int = int(gem_gate.get("cost", 0))
+		if not _can_pay_gate(gsm, gate_gem, gate_cost):
+			state = STATE_ROOM_SELECT
+			return {
+				"ok": false,
+				"reason": "ERR_GEM_GATE_UNAFFORDABLE",
+				"node_id": current_node,
+				"gate_gem": gate_gem,
+				"gate_cost": gate_cost,
+			}
 		gate_result = _try_pay_gate(gsm, gate_gem, gate_cost)
 
 	# Grant affinity gem
@@ -116,8 +148,10 @@ func enter_room(gsm: Variant) -> Dictionary:
 	if gem_affinity != "" and gem_affinity != "neutral":
 		gem_grant = gsm.grant_affinity_gem(gem_affinity)
 
-	# Track conduit progress
+	# Track objective progress
 	_check_conduit_progress(node)
+	_check_circuit_progress(node)
+	_check_seal_progress(node, gsm)
 
 	_record_event("room_entered", {
 		"node_id": current_node,
@@ -231,23 +265,6 @@ func complete_non_combat(gsm: Variant) -> Dictionary:
 		"legal_moves": _get_uncleared_legal_moves(),
 	}
 
-
-## Returns the current state string (e.g. STATE_FLOOR_COMPLETE).
-func get_state() -> String:
-	return state
-
-## Returns the data dictionary for the current node, or an empty dictionary
-## if no graph or node is active.
-func get_current_node_data() -> Dictionary:
-	if graph == null or current_node < 0:
-		return {}
-	return graph.get_node(current_node)
-
-## Returns the number of rooms cleared on this floor.
-func get_rooms_cleared() -> int:
-	return rooms_cleared
-
-
 ## Returns the current state string (e.g. STATE_FLOOR_COMPLETE).
 func get_state() -> String:
 	return state
@@ -276,6 +293,13 @@ func get_view_model() -> Dictionary:
 		"conduit_pattern": conduit_pattern.duplicate(true),
 		"conduit_progress": conduit_progress,
 		"conduit_matched": conduit_matched,
+		"circuit_sequence": circuit_sequence.duplicate(true),
+		"circuit_progress": circuit_progress,
+		"circuit_penalties": circuit_penalties,
+		"seal_nodes": seal_nodes.duplicate(true),
+		"seals_broken": seals_broken,
+		"seals_total": seal_nodes.size(),
+		"boss_locked": is_boss_locked(),
 	}
 
 func _get_uncleared_legal_moves() -> Array:
@@ -285,14 +309,25 @@ func _get_uncleared_legal_moves() -> Array:
 	var uncleared: Array = []
 	for n_id in neighbors:
 		var node: Dictionary = graph.get_node(n_id)
-		if not bool(node.get("cleared", false)):
-			uncleared.append(n_id)
-	# Boss node is always accessible even if "cleared" logic doesn't apply
-	if not uncleared.has(graph.exit_node) and neighbors.has(graph.exit_node):
-		var exit_node: Dictionary = graph.get_node(graph.exit_node)
-		if not bool(exit_node.get("cleared", false)):
-			uncleared.append(graph.exit_node)
+		if bool(node.get("cleared", false)):
+			continue
+		if _node_lock_reason(node) != "":
+			continue
+		uncleared.append(n_id)
 	return uncleared
+
+func _node_lock_reason(node: Dictionary) -> String:
+	if node.is_empty():
+		return ""
+	if bool(node.get("is_exit", false)) and is_boss_locked():
+		return "ERR_BOSS_LOCKED"
+	var gem_gate: Variant = node.get("gem_gate", null)
+	if gem_gate is Dictionary:
+		var gate_gem: String = str(gem_gate.get("gem", ""))
+		var gate_cost: int = int(gem_gate.get("cost", 0))
+		if not _can_pay_gate_from_state(gsm_floor_state, gate_gem, gate_cost):
+			return "ERR_GEM_GATE_UNAFFORDABLE"
+	return ""
 
 func _generate_conduit_pattern(rng: Variant) -> Array:
 	var gems := ["Ruby", "Sapphire"]
@@ -321,6 +356,75 @@ func _check_conduit_progress(node: Dictionary) -> void:
 				"progress": conduit_progress,
 			})
 
+func _generate_circuit_sequence(rng: Variant) -> Array:
+	var gems := ["Ruby", "Sapphire"]
+	var seq: Array = []
+	var length: int = 3 + min(floor_index - 1, 2)
+	for _i in range(length):
+		var draw: Dictionary = rng.draw_next("map.circuit")
+		seq.append(gems[int(draw.get("value", 0)) % gems.size()])
+	return seq
+
+func _check_circuit_progress(node: Dictionary) -> void:
+	if active_constraint != "circuit" or circuit_sequence.is_empty():
+		return
+	if circuit_progress >= circuit_sequence.size():
+		return
+	var affinity: String = str(node.get("gem_affinity", ""))
+	if affinity == "neutral" or affinity == "":
+		return
+	if affinity == circuit_sequence[circuit_progress]:
+		circuit_progress += 1
+		_record_event("circuit_advance", {"progress": circuit_progress, "total": circuit_sequence.size(), "gem": affinity})
+		if circuit_progress >= circuit_sequence.size():
+			_record_event("circuit_complete", {"sequence": circuit_sequence})
+	else:
+		circuit_penalties += 1
+		_record_event("circuit_wrong", {"expected": circuit_sequence[circuit_progress], "got": affinity, "penalties": circuit_penalties})
+
+func _generate_seal_nodes(rng: Variant) -> Array:
+	var seals: Array = []
+	var candidates: Array = []
+	for node in graph.nodes:
+		var ntype: String = str(node.get("node_type", ""))
+		if ntype == "combat" or ntype == "event":
+			candidates.append(int(node.get("node_id", -1)))
+	var seal_count: int = min(3, candidates.size())
+	for _i in range(seal_count):
+		if candidates.is_empty():
+			break
+		var draw: Dictionary = rng.draw_next("map.seal")
+		var idx: int = int(draw.get("value", 0)) % candidates.size()
+		var target: int = candidates[idx]
+		candidates.remove_at(idx)
+		seals.append(target)
+		# Mark the node as a seal node
+		if target >= 0 and target < graph.nodes.size():
+			graph.nodes[target]["is_seal"] = true
+	return seals
+
+func _check_seal_progress(node: Dictionary, gsm: Variant) -> void:
+	if active_constraint != "seal":
+		return
+	var node_id: int = int(node.get("node_id", -1))
+	if not seal_nodes.has(node_id):
+		return
+	if bool(node.get("seal_broken", false)):
+		return
+	# Break the seal — costs 1 gem of the room's affinity
+	var affinity: String = str(node.get("gem_affinity", "neutral"))
+	if affinity != "neutral" and affinity != "" and gsm != null:
+		gsm.consume_top(affinity)
+	seals_broken += 1
+	if node_id >= 0 and node_id < graph.nodes.size():
+		graph.nodes[node_id]["seal_broken"] = true
+	_record_event("seal_broken", {"node_id": node_id, "seals_broken": seals_broken, "total": seal_nodes.size()})
+
+func is_boss_locked() -> bool:
+	if active_constraint != "seal":
+		return false
+	return seals_broken < seal_nodes.size()
+
 func _try_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> Dictionary:
 	if gate_cost <= 0 or gate_gem == "":
 		return {"ok": true, "paid": true, "cost": 0}
@@ -342,23 +446,48 @@ func _try_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> Dictionary
 		})
 		return {"ok": true, "paid": true, "cost": gate_cost, "consumed": consumed}
 
-	# Couldn't afford — trigger gem slot loss
-	var slot_loss: Dictionary = gsm.reduce_cap(1)
-	_record_event("gem_slot_lost", {
-		"gem": gate_gem,
-		"cost": gate_cost,
-		"consumed": consumed,
-		"shortfall": gate_cost - consumed,
-		"cap_after": int(slot_loss.get("cap_after", 0)),
-	})
 	return {
-		"ok": true,
+		"ok": false,
 		"paid": false,
-		"slot_lost": true,
 		"cost": gate_cost,
 		"consumed": consumed,
-		"cap_after": int(slot_loss.get("cap_after", 0)),
+		"reason": "ERR_GEM_GATE_UNAFFORDABLE",
 	}
+
+func _can_pay_gate(gsm: Variant, gate_gem: String, gate_cost: int) -> bool:
+	if gate_cost <= 0 or gate_gem == "":
+		return true
+	if gsm == null:
+		return false
+	var normalized_gate: String = _normalize_gate_gem(gate_gem)
+	var top_gems: Array = gsm.peek_n(gate_cost)
+	if top_gems.size() < gate_cost:
+		return false
+	for gem in top_gems:
+		if _normalize_gate_gem(str(gem)) != normalized_gate:
+			return false
+	return true
+
+func _can_pay_gate_from_state(state: Dictionary, gate_gem: String, gate_cost: int) -> bool:
+	if gate_cost <= 0 or gate_gem == "":
+		return true
+	var stack: Array = state.get("stack", [])
+	if stack.size() < gate_cost:
+		return false
+	var normalized_gate: String = _normalize_gate_gem(gate_gem)
+	var start_index: int = stack.size() - gate_cost
+	for i in range(start_index, stack.size()):
+		if _normalize_gate_gem(str(stack[i])) != normalized_gate:
+			return false
+	return true
+
+func _normalize_gate_gem(gem: String) -> String:
+	var value: String = str(gem).strip_edges()
+	if value == "ruby" or value == "Ruby":
+		return "Ruby"
+	if value == "sapphire" or value == "Sapphire":
+		return "Sapphire"
+	return value
 
 func _record_event(kind: String, payload: Dictionary) -> void:
 	event_stream.append({
