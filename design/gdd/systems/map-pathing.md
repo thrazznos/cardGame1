@@ -18,7 +18,7 @@ MPS is responsible for:
 - Traversal checkpoints that trigger encounter setup and reward generation.
 
 Design intent:
-- Deliver meaningful route planning each run without forcing grind-heavy “correct” routes.
+- Deliver meaningful route planning each run without forcing grind-heavy "correct" routes.
 - Keep choices legible: risk/reward should be readable from map UI.
 - Make progression deterministic and replay-verifiable from seed + state.
 
@@ -30,12 +30,104 @@ Out of scope (MVP):
 ## Player Fantasy
 
 The player fantasy is:
-- “I can read upcoming risks and rewards and choose my line intentionally.”
-- “Each run’s map feels fresh, but not random nonsense.”
-- “My sequencing skill matters: I can route toward what my deck needs now.”
-- “When a path is blocked or risky, I understand why.”
+- "I can read upcoming risks and rewards and choose my line intentionally."
+- "Each run's map feels fresh, but not random nonsense."
+- "My sequencing skill matters: I can route toward what my deck needs now."
+- "When a path is blocked or risky, I understand why."
 
 The map should feel like strategic routing, not hallway autopilot.
+
+## Sprint 009 Revision — Polyhedra Gem-Graph
+
+> **Revision Date**: 2026-04-06
+> **Source**: `design/gdd/systems/gem-graph-map-decisions.md`, `src/core/map/floor_graph.gd`, `src/core/map/floor_controller.gd`
+
+Sprint 009 replaced the layered-acyclic topology with polyhedra projections and added a gem-economy layer that makes room visit order load-bearing. The sections below describe the live implementation.
+
+### 1. Polyhedra Topology
+
+Floor graphs are 2D projections of regular polyhedra, selected by floor depth:
+
+| Floor Range | Base Shape | Nodes | Edges (pruned) | Connectivity Target |
+|-------------|-----------|------:|----------------:|:-------------------:|
+| 1 | Tetrahedron | 4 | 6 | 2-3 per node |
+| 2-3 | Octahedron | 6 | 8 | 2-3 per node |
+| 4+ | Cube | 8 | 12 | 3 per node |
+
+Each floor applies one random modification drawn from the `map.generation` RNG stream:
+- **Shortcut edge** -- adds a single edge between two previously non-adjacent nodes, widening routing options.
+- **Extra node** -- inserts a new combat node connected to two random interior nodes, adding an optional detour.
+- **No modification** -- base polyhedron used as-is.
+
+Node 0 is always `start` (neutral affinity, no encounter). The highest-index node is always `boss` (neutral affinity). Edges are undirected; traversal is free within the graph but cleared rooms cannot be revisited.
+
+### 2. Gem Attunement per Node
+
+Every non-terminal node is assigned a gem affinity at generation time:
+- **Ruby** -- grants 1 Ruby gem on room entry.
+- **Sapphire** -- grants 1 Sapphire gem on room entry.
+- **Neutral** -- grants no gem.
+
+Affinity is drawn deterministically from the `map.generation` RNG stream (`affinity_idx = draw % 3`). Start and boss nodes are forced neutral.
+
+### 3. Gem Stack Persistence Between Rooms
+
+The GemStackMachine (GSM) state carries fully between all rooms on a floor:
+- Stack contents survive room transitions via `save_state()` / `restore_state()` on `FloorController`.
+- Each room entry grants 1 free affinity gem (if the room is Ruby or Sapphire) via `gsm.grant_affinity_gem()`.
+- The stack resets between floors.
+
+This persistence is the load-bearing mechanic: room visit order determines what gems are banked for upcoming gates and combats. Routing 3 Ruby rooms in sequence banks 3 free Rubies before the next fight.
+
+### 4. Gem Stack Capacity — 6-Slot Cap
+
+- Default stack cap: **6 slots** (`GemStackMachine.DEFAULT_STACK_CAP`).
+- The cap limits affinity gem accumulation naturally -- banking affinity gems costs combat headroom.
+- Slot loss (see below) reduces the cap permanently within the run.
+- Capacity math: losing 1 slot = 17% capacity hit; losing 2 = 33%.
+
+### 5. Room Affinity Gem Grants
+
+On `enter_room()`, `FloorController` checks the node's `gem_affinity`. If it is not `"neutral"` or empty, `gsm.grant_affinity_gem(gem_affinity)` is called, pushing one gem of the matching color onto the stack (subject to the cap). The grant is recorded in the `room_entered` event payload.
+
+### 6. Gem Gates and Slot-Loss Debt
+
+Premium rooms (combat, event) may carry a `gem_gate` dictionary assigned at generation time:
+- **Gate cost**: 1-2 gems of the node's affinity color (neutral defaults to Ruby).
+- **1-2 gated nodes per floor**, chosen randomly from eligible nodes.
+- **Payment**: `FloorController._try_pay_gate()` consumes gems from the top of the stack.
+- **Success**: gems are consumed, room proceeds normally.
+- **Failure (shortfall)**: the player cannot afford the gate cost. Instead of blocking entry, the system calls `gsm.reduce_cap(1)` -- the player **loses a gem slot permanently** for the rest of the run. The room is still entered.
+- **Gates are always optional**: a free path to the boss node exists without passing through any gated room, so slot loss punishes greed, not routing failure.
+
+### 7. Floor Objective Variants
+
+`FloorController` supports an `active_constraint` string that activates a floor objective. Three variants are implemented or designed:
+
+**Conduit** (implemented):
+- A gem-color pattern (e.g., R-S-R) is generated at floor start from the `map.conduit` RNG stream.
+- Pattern length: `3 + (floor_index - 1)`, capped at 5.
+- Visiting rooms whose affinity matches the next pattern element advances the tracker.
+- Matching the full pattern before the boss grants a pre-boss reward (relic or stack bonus).
+- Missing the pattern has no penalty -- lowest friction variant, suitable for introductory floors.
+
+**Circuit** (designed, not yet implemented):
+- Target gem color sequence visible from floor entry (e.g., R-S-R-S).
+- Correct-color room visits advance the tracker; wrong color triggers a penalty node insertion.
+- Generator must verify the sequence is achievable on the graph.
+
+**Seal** (designed, not yet implemented):
+- 3 mandatory seal nodes with explicit gem costs.
+- All 3 must be cleared to unlock the boss gate.
+- Remaining nodes are optional prep rooms.
+- Generator must verify solvability.
+
+### 8. Constraint Draft Merged with Card Reward
+
+After beating a boss, the card reward draft and floor constraint draft are presented on a single screen:
+- Each reward card is paired with a constraint: e.g., "Heavy Guard + Circuit rules" vs. "Quick Slash + Seal rules."
+- One decision carries two consequences: deck improvement + floor difficulty.
+- Floors 1-3 allow persistence + one objective (mutually exclusive); floors 4+ allow pairing two constraints if the player opts in.
 
 ## Detailed Design
 
@@ -54,6 +146,8 @@ The map should feel like strategic routing, not hallway autopilot.
 - Same seed + same profile/run snapshot + same commits -> identical graph, encounters, rewards, and traversal outcomes.
 
 ### Core Rules
+
+> **Note**: The original layered-acyclic rules below were the MVP spec. Sprint 009 replaced the topology with polyhedra projections. The traversal contracts (node types, checkpoint events) remain valid.
 
 1) Graph is layered and acyclic (MVP)
 - Map is generated as ordered layers `L0..L_last`.
