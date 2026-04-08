@@ -1,0 +1,15 @@
+{
+  "fixture_id": "seed_floor_traverse_001",
+  "description": "Determinism test: traverse a floor graph, consume gems across rooms, verify stack state is consistent across replays.",
+  "seed_root": 33445566,
+  "floor_index": 1,
+  "steps": [
+    { "action": "start_floor" },
+    { "action": "select_room", "room_index": 0 },
+    { "action": "auto_finish_combat", "max_turns": 12 },
+    { "action": "pick_reward", "offer_index": 0 },
+    { "action": "select_room", "room_index": 0 },
+    { "action": "auto_finish_combat", "max_turns": 12 },
+    { "action": "pick_reward", "offer_index": 0 }
+  ]
+}
