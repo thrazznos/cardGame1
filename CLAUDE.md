@@ -52,3 +52,21 @@ See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for full protocol and examples.
 ## Context Management
 
 @.claude/docs/context-management.md
+
+## Preflight Validation
+
+Before concluding any implementation or bugfix change on a non-`main` branch, run:
+
+```bash
+./scripts/hermes/preflight.sh
+```
+
+Preflight requirements:
+- Local mode must be run from a non-`main` branch
+- Local mode must fail if the working tree is dirty
+- Local mode must fetch `origin` and rebase the current branch onto `origin/main`
+- Local mode must stop immediately on rebase conflicts
+- CI mode must not rebase; it should warn if the checked-out revision is behind `origin/main`
+- Both modes must run `godot --headless --path . --quit`
+
+If preflight fails, do not finalize the change until the failure is fixed or explicitly discussed with the user.
