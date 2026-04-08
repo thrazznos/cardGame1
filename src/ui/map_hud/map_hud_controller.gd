@@ -171,7 +171,7 @@ func _draw() -> void:
 	# HUD elements
 	_draw_gem_stack_bar()
 	_draw_floor_banner()
-	_draw_conduit_banner()
+	_draw_objective_banner()
 	_draw_instructions()
 
 func _node_fill(affinity: String, cleared: bool, is_current: bool) -> Color:
@@ -222,33 +222,65 @@ func _draw_floor_banner() -> void:
 	var info: String = "FLOOR %d  |  Rooms cleared: %d" % [floor_idx, rooms]
 	draw_string(font, Vector2(24, 40), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_PRIMARY)
 
-func _draw_conduit_banner() -> void:
+func _draw_objective_banner() -> void:
 	var constraint: String = str(floor_vm.get("active_constraint", ""))
-	if constraint != "conduit":
+	if constraint == "":
 		return
-	var pattern: Array = floor_vm.get("conduit_pattern", [])
-	var progress: int = int(floor_vm.get("conduit_progress", 0))
-	var matched: bool = bool(floor_vm.get("conduit_matched", false))
-	if pattern.is_empty():
-		return
-
 	var font: Font = ThemeDB.fallback_font
 	var origin := Vector2(size.x - 400, 40)
 
-	if matched:
-		draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
-		return
+	match constraint:
+		"conduit":
+			var pattern: Array = floor_vm.get("conduit_pattern", [])
+			var progress: int = int(floor_vm.get("conduit_progress", 0))
+			var matched: bool = bool(floor_vm.get("conduit_matched", false))
+			if pattern.is_empty():
+				return
+			if matched:
+				draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
+				return
+			var label: String = "Conduit: "
+			for i in range(pattern.size()):
+				var gem_char: String = str(pattern[i])[0]
+				if i < progress:
+					label += "[%s] " % gem_char
+				elif i == progress:
+					label += ">%s< " % gem_char
+				else:
+					label += " %s  " % gem_char
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
 
-	var label: String = "Conduit: "
-	for i in range(pattern.size()):
-		var gem_char: String = str(pattern[i])[0]
-		if i < progress:
-			label += "[%s] " % gem_char
-		elif i == progress:
-			label += ">%s< " % gem_char
-		else:
-			label += " %s  " % gem_char
-	draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
+		"circuit":
+			var seq: Array = floor_vm.get("circuit_sequence", [])
+			var progress: int = int(floor_vm.get("circuit_progress", 0))
+			var penalties: int = int(floor_vm.get("circuit_penalties", 0))
+			if seq.is_empty():
+				return
+			if progress >= seq.size():
+				draw_string(font, origin, "CIRCUIT COMPLETE!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
+				return
+			var label: String = "Circuit: "
+			for i in range(seq.size()):
+				var gem_char: String = str(seq[i])[0]
+				if i < progress:
+					label += "[%s] " % gem_char
+				elif i == progress:
+					label += ">%s< " % gem_char
+				else:
+					label += " %s  " % gem_char
+			if penalties > 0:
+				label += " (%d wrong)" % penalties
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_WARN)
+
+		"seal":
+			var broken: int = int(floor_vm.get("seals_broken", 0))
+			var total: int = int(floor_vm.get("seals_total", 0))
+			var locked: bool = bool(floor_vm.get("boss_locked", false))
+			var label: String = "Seals: %d/%d broken" % [broken, total]
+			if locked:
+				label += " (BOSS LOCKED)"
+			var color: Color = TEXT_GOOD if not locked else TEXT_WARN
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, color)
 
 func _draw_instructions() -> void:
 	var font: Font = ThemeDB.fallback_font
