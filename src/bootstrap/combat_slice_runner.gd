@@ -974,6 +974,10 @@ func _play_condition_reason(condition_variant: Variant) -> String:
 				return "ERR_STACK_EMPTY"
 			if expected_gem != "" and actual_top != expected_gem:
 				return "ERR_STACK_TOP_MISMATCH"
+		"discard_at_least":
+			var required_discard: int = max(1, int(condition.get("amount", 1)))
+			if dls == null or dls.discard_pile.size() < required_discard:
+				return "ERR_DISCARD_REQUIRED"
 		_:
 			pass
 	return ""
@@ -1147,6 +1151,8 @@ func _reason_text(reason_code: String) -> String:
 			return "that reward choice is not valid"
 		"ERR_FOCUS_REQUIRED":
 			return "this card needs FOCUS before it can resolve"
+		"ERR_DISCARD_REQUIRED":
+			return "this card needs more discard setup first"
 		"ERR_STACK_EMPTY":
 			return "this card needs a gem on the stack first"
 		"ERR_STACK_TOP_MISMATCH":
@@ -1300,6 +1306,16 @@ func _format_event_line(event: Dictionary) -> String:
 				order_index,
 				_display_name_for_card(str(payload.get("card_id", "-"))),
 			]
+		"reward_reject":
+			var rejected_card_id: String = str(payload.get("card_id", "")).strip_edges()
+			var reward_reason: String = _reason_text(str(payload.get("reason", "")))
+			if rejected_card_id != "":
+				return "#%d Reward selection rejected for %s: %s." % [
+					order_index,
+					_display_name_for_card(rejected_card_id),
+					reward_reason,
+				]
+			return "#%d Reward selection rejected: %s." % [order_index, reward_reason]
 		"reward_checkpoint_closed":
 			return "#%d Reward panel closed." % order_index
 		_:

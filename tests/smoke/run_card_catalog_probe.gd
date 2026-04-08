@@ -1,9 +1,11 @@
 extends SceneTree
 
 const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
+const CARD_VALIDATOR_SCRIPT := preload("res://src/core/card/card_validator.gd")
 
 func _init() -> void:
 	var catalog = CARD_CATALOG_SCRIPT.new()
+	var validator = CARD_VALIDATOR_SCRIPT.new()
 	var strike_alias: Dictionary = catalog.get_card("strike_01")
 	var strike_plus: Dictionary = catalog.get_card("strike_plus")
 	var strike_effects: Array = strike_alias.get("effects", [])
@@ -14,6 +16,62 @@ func _init() -> void:
 	for effect_variant in strike_precise_effects:
 		if effect_variant is Dictionary:
 			strike_precise_effect_ids.append(str((effect_variant as Dictionary).get("effect_id", "")))
+	var invalid_weight_modifier_errors: Array = validator.validate_catalog({
+		"cards": [
+			{
+				"card_id": "probe_invalid_weight_modifier",
+				"aliases": [],
+				"display_name": "Invalid Weight Modifier Probe",
+				"role_marker": "[UTL]",
+				"palette": "utility",
+				"rarity": "common",
+				"unlock_key": "base_set",
+				"weight_base": 1.0,
+				"pool_tags": [],
+				"effects": [{"type": "gain_block", "amount": 1}],
+				"base_cost": 1,
+				"speed_class": "normal",
+				"timing_window": "main",
+				"zone_on_play": "discard",
+				"cost_type": "energy",
+				"target_mode": "self",
+				"max_targets": 1,
+				"invalid_target_policy": "fizzle",
+				"play_conditions": [],
+				"combo_tags": [],
+				"chain_flags": [],
+				"weight_modifiers": [{"modifier_id": "bad_type", "type": "bogus", "value": 1.0}]
+			}
+		]
+	})
+	var valid_weight_modifier_errors: Array = validator.validate_catalog({
+		"cards": [
+			{
+				"card_id": "probe_valid_weight_modifier",
+				"aliases": [],
+				"display_name": "Valid Weight Modifier Probe",
+				"role_marker": "[UTL]",
+				"palette": "utility",
+				"rarity": "common",
+				"unlock_key": "base_set",
+				"weight_base": 1.0,
+				"pool_tags": [],
+				"effects": [{"type": "gain_block", "amount": 1}],
+				"base_cost": 1,
+				"speed_class": "normal",
+				"timing_window": "main",
+				"zone_on_play": "discard",
+				"cost_type": "energy",
+				"target_mode": "self",
+				"max_targets": 1,
+				"invalid_target_policy": "fizzle",
+				"play_conditions": [],
+				"combo_tags": [],
+				"chain_flags": [],
+				"weight_modifiers": [{"modifier_id": "good_type", "type": "multiply", "value": 1.5}]
+			}
+		]
+	})
 	var payload: Dictionary = {
 		"validation_errors": catalog.validation_errors(),
 		"starter_deck_size": catalog.starter_run_deck().size(),
@@ -26,6 +84,8 @@ func _init() -> void:
 		"strike_normalized_effect": catalog.effects_for("strike"),
 		"strike_precise_authored_effect_ids": strike_precise_effect_ids,
 		"strike_precise_normalized_effects": catalog.effects_for("strike_precise"),
+		"invalid_weight_modifier_errors": invalid_weight_modifier_errors,
+		"valid_weight_modifier_errors": valid_weight_modifier_errors,
 	}
 	print("CARD_CATALOG_PROBE=" + JSON.stringify(payload))
 	quit()

@@ -2,6 +2,7 @@ extends SceneTree
 
 const REWARD_DRAFT_SCRIPT := preload("res://src/core/reward/reward_draft.gd")
 const RSGC_SCRIPT := preload("res://src/core/rng/rsgc.gd")
+const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
 
 class StubCatalog:
 	extends RefCounted
@@ -64,16 +65,23 @@ func _all_prefixed(cards: Array, prefix: String) -> bool:
 			return false
 	return true
 
-func _reward_context(checkpoint_id: String, reward_pool_tag: String, active_unlock_key: String) -> Dictionary:
+func _reward_context(checkpoint_id: String, reward_pool_tag: String, active_unlock_key: String, weight_modifier_conditions: Array = []) -> Dictionary:
 	return {
 		"checkpoint_id": checkpoint_id,
 		"reward_pool_tag": reward_pool_tag,
 		"active_unlock_key": active_unlock_key,
+		"weight_modifier_conditions": weight_modifier_conditions.duplicate(true),
 	}
 
 func _run_offer_with_entries(entries: Array, reward_context: Dictionary, stream_values: Array) -> Array:
 	var draft = REWARD_DRAFT_SCRIPT.new()
 	draft.set_card_catalog(StubCatalog.new(entries))
+	var offer: Dictionary = draft.build_card_offer(StubRng.new(stream_values), reward_context, [])
+	return _extract_ids(offer.get("offers", []))
+
+func _run_offer_with_catalog(catalog: Variant, reward_context: Dictionary, stream_values: Array) -> Array:
+	var draft = REWARD_DRAFT_SCRIPT.new()
+	draft.set_card_catalog(catalog)
 	var offer: Dictionary = draft.build_card_offer(StubRng.new(stream_values), reward_context, [])
 	return _extract_ids(offer.get("offers", []))
 
@@ -108,6 +116,25 @@ func _init() -> void:
 	]
 	var weighted_ids: Array = _run_offer_with_entries(weighted_entries, _reward_context("shared_weighted_probe", "base_reward", "base_set"), [2, 0, 0])
 
+	var modifier_entries: Array = [
+		{"card_id": "mod_heavy", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": [{"modifier_id": "boost_cap", "type": "multiply", "value": 10.0}]},
+		{"card_id": "mod_light", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": [{"modifier_id": "trim_floor", "type": "multiply", "value": 0.1}]},
+		{"card_id": "mod_plain", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": []},
+	]
+	var modifier_weight_ids: Array = _run_offer_with_entries(modifier_entries, _reward_context("shared_modifier_probe", "base_reward", "base_set"), [1, 0, 0])
+
+	var conditional_entries: Array = [
+		{"card_id": "cond_boost", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": [{"modifier_id": "focus_bonus", "type": "multiply", "value": 2.0, "condition_key": "focus_family"}]},
+		{"card_id": "cond_plain_a", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": []},
+		{"card_id": "cond_plain_b", "unlock_key": "base_set", "weight_base": 1.0, "weight_modifiers": []},
+	]
+	var conditional_inactive_ids: Array = _run_offer_with_entries(conditional_entries, _reward_context("shared_condition_probe", "base_reward", "base_set"), [1, 0, 0])
+	var conditional_active_ids: Array = _run_offer_with_entries(conditional_entries, _reward_context("shared_condition_probe", "base_reward", "base_set", ["focus_family"]), [1, 0, 0])
+
+	var live_catalog = CARD_CATALOG_SCRIPT.new()
+	var real_catalog_modifier_inactive_ids: Array = _run_offer_with_catalog(live_catalog, _reward_context("real_modifier_probe", "test_reward_weight_mod", "base_set"), [1, 0, 0])
+	var real_catalog_modifier_active_ids: Array = _run_offer_with_catalog(live_catalog, _reward_context("real_modifier_probe", "test_reward_weight_mod", "base_set", ["focus_family"]), [1, 0, 0])
+
 	var equal_weight_entries: Array = [
 		{"card_id": "equal_a", "unlock_key": "base_set", "weight_base": 2.0},
 		{"card_id": "equal_b", "unlock_key": "base_set", "weight_base": 2.0},
@@ -135,6 +162,11 @@ func _init() -> void:
 		"mixed_normal_all_base": _all_prefixed(mixed_normal_ids, "base_"),
 		"mixed_gsm_all_gsm": _all_prefixed(mixed_gsm_ids, "gsm_"),
 		"weighted_ids": weighted_ids,
+		"modifier_weight_ids": modifier_weight_ids,
+		"conditional_inactive_ids": conditional_inactive_ids,
+		"conditional_active_ids": conditional_active_ids,
+		"real_catalog_modifier_inactive_ids": real_catalog_modifier_inactive_ids,
+		"real_catalog_modifier_active_ids": real_catalog_modifier_active_ids,
 		"equal_weight_ids": equal_weight_ids,
 		"history_refill_ids": history_refill_ids,
 	}

@@ -7,6 +7,10 @@ Current state
 - Current local game process has been restarted after the latest changes.
 - Sprint 004 is effectively closed and Sprint 005 card-data migration is implemented at the Must-Have level, with additional post-sprint combat-card hardening now landed around runtime identity, RewardDraft metadata use, fixture-boundary coverage, a data-driven base card play contract, partial GDD-schema broadening for future card-library growth, first runtime handling for authored play conditions, and per-card playability surfaces in the HUD/view-model.
 - Latest repair on `hermes/combat-ui-scaling-followthrough`: after validating against merged Sprint 010/011 work, the branch needed a local baseline true-up. Six determinism expected files were refreshed for intentional reward/status drift, and the GSM opt-in reward-pool smoke assertion was loosened so it checks the contract instead of a stale exact base-offer trio. Full unittest discover and headless Godot startup are green again.
+- Latest visual polish pass on the Sprint 012 branch: `CombatStageController`, `MapHudController`, and `UITheme` now carry a small premium-feel pass (stronger hover lift, card shadows/glow, portrait mounts, intent anchoring, larger/clearer event feed, reward-overlay framing, map-node hover panel and cursor feedback). New locally-generated art also landed for the reward seal and focus card lane under `assets/generated/ui/reward/reward_seal_steward_polish.png` and `assets/generated/cards/card_vault_focus_seal_polish_md.png`.
+- Latest autonomous follow-through on the same lane: `CombatHudController` now points its reward seal and focus card lane at those newer generated polish assets too, and a new headless smoke probe `tests/smoke/run_reward_overlay_probe.gd` plus `test_reward_overlay_presents_and_then_confirms_reward_state_cleanly` locks the reward-overlay presentation contract for both `presented` and `applied` states without depending on exact offer ids.
+- Next autonomous passes after that: (1) `CombatStageController` recent-event feed now renders as a compact three-row panel with order badges, tone-aware row styling, and a highlighted latest event, covered by `tests/smoke/run_combat_stage_event_feed_probe.gd`; (2) runtime play-condition support now includes authored `discard_at_least` via new proof card `probe_discard_ready_anchor`, with validator/runner/HUD/stage copy and `run_card_play_contract_probe.gd` updated accordingly; (3) lifecycle-tag proof coverage now includes authored `retain` and `temp` via `probe_retain_anchor` and `probe_temp_anchor`, with smoke asserting retain returns to hand and temp exhausts after play; (4) `RewardDraft` now consumes a bounded runtime subset of authored `weight_modifiers[]` via deterministic `multiply` modifiers plus optional explicit `reward_context.weight_modifier_conditions[]` activation keys, with `run_reward_pool_probe.gd` proving both clamp behavior and condition-key activation. Full smoke, determinism compare, and full unittest discover are green after the latest slice too.
+- Local imagegen breaking-point follow-through: FLUX Schnell runs were failing because the repo's current ComfyUI stack rejects the bundled `taef1` VAE in `VAELoader`. `tools/imagegen/run_workflow.py` now fails fast with an actionable message unless authenticated `ae.safetensors` is installed, automatically prefers `ae.safetensors` when present, and is covered by `tests/test_imagegen_run_workflow.py`.
 - Latest map-pathing fix: unaffordable gem-gated rooms are now actually gated. `FloorController` filters them out of `legal_moves`, `select_room()` rejects them with `ERR_GEM_GATE_UNAFFORDABLE`, room entry no longer burns stack cap on shortfall, and new smoke coverage lives in `tests/smoke/run_gem_gate_block_probe.gd` plus `test_unaffordable_gem_gates_block_room_entry`.
 
 What just landed
@@ -54,7 +58,7 @@ What just landed
 4. Validation
    - Full tests green:
      - `python3 -m unittest discover -s tests -p 'test_*.py' -v`
-   - Current full suite count: 42 tests.
+   - Current full suite count: 70 tests.
    - Determinism baselines were updated intentionally only where the runtime-identity reward slice changed final-state hashes; later RewardDraft and fixture-boundary slices kept baselines stable.
 
 Files most relevant right now
@@ -82,12 +86,12 @@ Files most relevant right now
 
 Important implementation notes
 - Card content is now data-driven via JSON, not large prefix-based switch tables.
-- Base card play contract is now authored in the catalog too: current live/runtime code consumes `base_cost`, `speed_class`, `timing_window`, and `zone_on_play` from card data.
-- The catalog now also carries broader library-authoring metadata (`cost_type`, targeting, play conditions, combo/chain tags, weight modifiers), and the live combat runner now consumes the first authored play-condition slice (`focus_at_least`).
+- Base card play contract is now authored in the catalog too: current live/runtime code consumes `base_cost`, `speed_class`, `timing_window`, and `zone_on_play` from card data, and smoke proof cards now explicitly lock `discard`, `exhaust`, `retain`, and `temp` lifecycle behavior.
+- The catalog now also carries broader library-authoring metadata (`cost_type`, targeting, play conditions, combo/chain tags, weight modifiers), and the live combat runner now consumes multiple authored play-condition slices (`focus_at_least`, `stack_top_is`, and `discard_at_least`).
 - The HUD/view-model now exposes per-card legality, so authored condition failures can appear as disabled-card affordances rather than only post-click rejects.
 - Event and queue readability have started to catch up with the larger card UI: visible queue/recent-event surfaces now prefer human-readable card names (with instance/debug brackets when useful) instead of only raw ids, and play rejects now render readable reasons in the recent-event feed.
 - The shared strike/defend card-art lanes under `assets/generated/cards/` were refreshed with stronger portrait-first variants so the enlarged cards read better at rest; utility/gem lanes are still on the prior pack.
-- Reward-family selection is now explicit at the caller boundary instead of inferred from `gsm_` checkpoint prefixes, and `RewardDraft` also consumes `unlock_key` and `weight_base` metadata.
+- Reward-family selection is now explicit at the caller boundary instead of inferred from `gsm_` checkpoint prefixes, and `RewardDraft` now consumes `unlock_key`, `weight_base`, and a bounded runtime subset of `weight_modifiers[]` metadata.
 - Live reward routing is now conservative-but-dynamic: the first live checkpoint still requests `base_reward`, while the second and later live checkpoints switch to `gsm_reward` only when the live run deck already contains a substantial GSM footprint (currently at least 4 `gsm_set` cards) and the GSM reward pool is populated. Fixture starter decks remain base-only, so determinism baselines stay on base rewards unless intentionally changed.
 - Fixture starter decks remain hardcoded/stable in `FIXTURE_STARTER_RUN_DECK` to avoid coupling live starter-deck iteration to determinism fixtures.
 - Determinism baselines updated intentionally after the data migration changed event payload representation.
@@ -107,8 +111,8 @@ Validation commands
 Likely next good slices
 1. Continue consuming more of the newly-authored card schema in runtime where it materially improves library expansion
    - likely next step: add compatibility-safe runtime handling for more `play_conditions` and begin honoring selected targeting metadata / explicit target legality instead of leaving them as validator-only scaffolding
-2. Decide whether the live runner should ever emit non-base reward contexts, and if so under what explicit combat/run conditions
-   - the reward-context contract is explicit now, but live gameplay still intentionally requests base rewards only
+2. Decide whether to extend `RewardDraft` beyond the bounded current subset
+   - likely next step: either add more explicit reward-context condition plumbing for `weight_modifiers[]` or validate/support more modifier `type` values without inventing hidden semantics
 3. Replace remaining stringly deck/zone payloads with explicit card-instance dictionaries where it is actually worth the churn
    - implementation plan drafted at `docs/plans/2026-04-05-card-instance-identity-split.md`
 

@@ -12,6 +12,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS_DIR = ROOT / "tools" / "imagegen" / "workflows"
+MODELS_DIR = ROOT / "tools" / "imagegen" / "models"
+VAE_DIR = MODELS_DIR / "vae"
+FLUX_WORKFLOW_FILENAME = "flux_schnell_fp8_api.json"
+FLUX_REQUIRED_AE_FILENAME = "ae.safetensors"
 DEFAULTS = {
     "__PROMPT__": "fantasy relic concept art, a brass dungeon key inset with a single glowing rune, clean silhouette, readable focal shape, dark neutral background, game asset concept",
     "__NEGATIVE__": "text, watermark, signature, border, frame, blurry, muddy, low contrast",
@@ -80,6 +84,32 @@ def collect_image_paths(history: dict[str, Any]) -> list[Path]:
     return results
 
 
+def apply_workflow_defaults(
+    workflow_name: str,
+    mapping: dict[str, Any],
+    overridden_keys: set[str] | None = None,
+    vae_dir: Path | None = None,
+) -> dict[str, Any]:
+    resolved: dict[str, Any] = dict(mapping)
+    overrides: set[str] = overridden_keys or set()
+    active_vae_dir: Path = vae_dir or VAE_DIR
+    if Path(workflow_name).name != FLUX_WORKFLOW_FILENAME:
+        return resolved
+    if "__VAE__" in overrides:
+        return resolved
+    if (active_vae_dir / FLUX_REQUIRED_AE_FILENAME).exists():
+        resolved["__VAE__"] = FLUX_REQUIRED_AE_FILENAME
+        return resolved
+    raise SystemExit(
+        "FLUX Schnell workflow requires a valid local VAE. "
+        "The lightweight taef1 VAE currently bundled in this repo is rejected by the local ComfyUI VAELoader, "
+        "so default FLUX runs now stop early unless `ae.safetensors` is installed. "
+        "Authenticate to Hugging Face / accept the Black Forest Labs license and run: "
+        "tools/imagegen/.venv/bin/python tools/imagegen/download_models.py flux-schnell-ae-auth "
+        "or explicitly override __VAE__ with --set if you know a valid local alternative."
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run a saved ComfyUI workflow template with placeholder substitution.")
     parser.add_argument("workflow", help="Workflow filename under tools/imagegen/workflows/")
@@ -109,15 +139,18 @@ def main() -> None:
         "__SEED__": args.seed if args.seed is not None else randint(1, 2**31 - 1),
     }
 
+    overridden_keys: set[str] = set()
     for item in args.set:
         if "=" not in item:
             raise SystemExit(f"Invalid --set value: {item}")
         key, raw = item.split("=", 1)
+        overridden_keys.add(key)
         try:
             mapping[key] = json.loads(raw)
         except json.JSONDecodeError:
             mapping[key] = raw
 
+    mapping = apply_workflow_defaults(args.workflow, mapping, overridden_keys)
     resolved_workflow = substitute(workflow, mapping)
     prompt_id = queue_prompt(args.server, resolved_workflow)
     print(f"Queued prompt_id={prompt_id}")

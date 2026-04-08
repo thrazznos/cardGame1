@@ -52,13 +52,13 @@ const CARD_FOOTER_NEUTRAL := Color("#b59d6f")
 const PLAYER_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png"
 const ENEMY_PORTRAIT_PATH := "res://src/ui/combat_hud/assets/enemy_badger_warden_068.png"
 const CREST_PATH := "res://src/ui/combat_hud/assets/banner_crest_steward_064.png"
-const REWARD_SEAL_PATH := "res://src/ui/combat_hud/assets/reward_wax_seal_centered_112.png"
+const REWARD_SEAL_PATH := "res://assets/generated/ui/reward/reward_seal_steward_polish.png"
 const CARD_ART_STRIKE_PATH := "res://assets/generated/cards/card_strike_cat_duelist_md.png"
 const CARD_ART_DEFEND_PATH := "res://assets/generated/cards/card_defend_badger_bulwark_md.png"
 const CARD_ART_UTILITY_PATH := "res://assets/generated/cards/card_scheme_seep_goblin_md.png"
 const CARD_ART_RUBY_PATH := "res://assets/generated/cards/card_ember_jab_ruby_md.png"
 const CARD_ART_SAPPHIRE_PATH := "res://assets/generated/cards/card_ward_polish_sapphire_md.png"
-const CARD_ART_FOCUS_PATH := "res://assets/generated/cards/card_vault_focus_seal_md.png"
+const CARD_ART_FOCUS_PATH := "res://assets/generated/cards/card_vault_focus_seal_polish_md.png"
 const CARD_ART_PLACEHOLDER_PATH := "res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png"
 const GEM_RUBY_ICON_PATH := "res://assets/generated/gems/obj_gem_ruby_token_md.png"
 const GEM_SAPPHIRE_ICON_PATH := "res://assets/generated/gems/obj_gem_sapphire_token_md.png"
@@ -671,6 +671,8 @@ func _hand_footer_text(play_reason: String, reward_open: bool) -> String:
 			return "Playable"
 		"ERR_FOCUS_REQUIRED":
 			return "Needs FOCUS"
+		"ERR_DISCARD_REQUIRED":
+			return "Need discard"
 		"ERR_STACK_EMPTY":
 			return "Stack empty"
 		"ERR_STACK_TOP_MISMATCH":
@@ -1482,6 +1484,8 @@ func _reason_text(reason_code: String) -> String:
 			return "That reward choice is not valid."
 		"ERR_FOCUS_REQUIRED":
 			return "This card needs FOCUS before it can resolve."
+		"ERR_DISCARD_REQUIRED":
+			return "This card needs more discard setup first."
 		"ERR_STACK_EMPTY":
 			return "This card needs a gem on the stack first."
 		"ERR_STACK_TOP_MISMATCH":
