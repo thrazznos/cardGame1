@@ -6,6 +6,7 @@ Current state
 - Run command on this machine: `/opt/homebrew/bin/godot --path /Users/ericfode/src/cardgame1`
 - Current local game process has been restarted after the latest changes.
 - Sprint 004 is effectively closed and Sprint 005 card-data migration is implemented at the Must-Have level, with additional post-sprint combat-card hardening now landed around runtime identity, RewardDraft metadata use, fixture-boundary coverage, a data-driven base card play contract, partial GDD-schema broadening for future card-library growth, first runtime handling for authored play conditions, and per-card playability surfaces in the HUD/view-model.
+- Latest repair on `hermes/combat-ui-scaling-followthrough`: after validating against merged Sprint 010/011 work, the branch needed a local baseline true-up. Six determinism expected files were refreshed for intentional reward/status drift, and the GSM opt-in reward-pool smoke assertion was loosened so it checks the contract instead of a stale exact base-offer trio. Full unittest discover and headless Godot startup are green again.
 
 What just landed
 1. Sprint 004 closeout

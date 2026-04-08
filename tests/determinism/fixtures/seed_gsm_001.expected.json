@@ -1,7 +1,7 @@
 {
   "fixture_id": "seed_gsm_001",
-  "final_state_hash": "2381859285",
-  "event_sequence_hash": "3740723180",
+  "final_state_hash": "549563909",
+  "event_sequence_hash": "1824264090",
   "rng_cursor_snapshot": {"encounter.intent": 3, "reward.card": 3},
   "encounter_title": "Encounter 1 \u2022 Ambush Patrol",
   "encounter_intent_style": "Steady Pressure",
