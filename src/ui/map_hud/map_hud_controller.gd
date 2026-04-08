@@ -54,6 +54,14 @@ static func _try_load(path: String) -> Texture2D:
 func bind_runner(p_runner: Variant) -> void:
 	runner = p_runner
 
+func _ui_scale() -> float:
+	var scale_x: float = size.x / 1600.0 if size.x > 0.0 else 1.0
+	var scale_y: float = size.y / 900.0 if size.y > 0.0 else 1.0
+	return clampf(min(scale_x, scale_y), 0.72, 1.15)
+
+func _scaled_font(base_size: int) -> int:
+	return max(12, int(round(float(base_size) * _ui_scale())))
+
 func refresh(vm: Dictionary, p_gem_stack: Array = [], p_gem_cap: int = 6) -> void:
 	floor_vm = vm
 	gem_stack = p_gem_stack
@@ -104,6 +112,7 @@ func dismiss_event() -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	var ui_scale: float = _ui_scale()
 	draw_rect(Rect2(Vector2.ZERO, size), PANEL_BG)
 	draw_circle(size * 0.5, min(size.x, size.y) * 0.28, Color(0.18, 0.20, 0.28, 0.10))
 	draw_circle(Vector2(size.x * 0.5, size.y * 0.35), min(size.x, size.y) * 0.18, Color(0.85, 0.70, 0.36, 0.05))
@@ -113,7 +122,7 @@ func _draw() -> void:
 		return
 
 	# Frame border
-	draw_rect(Rect2(Vector2(8, 8), size - Vector2(16, 16)), PANEL_BORDER, false, 2.0)
+	draw_rect(Rect2(Vector2(8, 8) * ui_scale, size - Vector2(16, 16) * ui_scale), PANEL_BORDER, false, 2.0 * ui_scale)
 
 	var graph: Dictionary = floor_vm.get("graph", {})
 	var nodes: Array = graph.get("nodes", [])
@@ -121,6 +130,8 @@ func _draw() -> void:
 	var current: int = int(floor_vm.get("current_node", -1))
 	var legal_moves: Array = floor_vm.get("legal_moves", [])
 	var font: Font = ThemeDB.fallback_font
+
+	var node_radius: float = NODE_RADIUS * ui_scale
 
 	# Draw edges
 	for edge in edges:
@@ -131,13 +142,13 @@ func _draw() -> void:
 		var is_legal_edge: bool = (a == current and legal_moves.has(b)) or (b == current and legal_moves.has(a))
 		var is_hover_edge: bool = _hovered_node_id >= 0 and ((a == current and b == _hovered_node_id) or (b == current and a == _hovered_node_id))
 		var edge_color: Color = EDGE_DEFAULT
-		var edge_width: float = 1.5
+		var edge_width: float = 1.5 * ui_scale
 		if is_legal_edge:
 			edge_color = EDGE_LEGAL
-			edge_width = 3.0
+			edge_width = 3.0 * ui_scale
 		if is_hover_edge:
 			edge_color = EDGE_HOVER
-			edge_width = 4.0
+			edge_width = 4.0 * ui_scale
 		draw_line(node_positions[a], node_positions[b], edge_color, edge_width)
 
 	# Draw nodes
@@ -160,38 +171,38 @@ func _draw() -> void:
 
 		# Legal ring (thick gold border on clickable rooms)
 		if is_legal and not cleared:
-			draw_circle(pos, NODE_RADIUS + 8.0, NODE_LEGAL_RING)
+			draw_circle(pos, node_radius + 8.0 * ui_scale, NODE_LEGAL_RING)
 		if is_hovered and not cleared:
-			draw_circle(pos, NODE_RADIUS + 14.0, NODE_HOVER_RING)
+			draw_circle(pos, node_radius + 14.0 * ui_scale, NODE_HOVER_RING)
 
 		# Current position ring (bright double ring)
 		if is_current:
-			draw_circle(pos, NODE_RADIUS + 12.0, NODE_CURRENT)
-			draw_circle(pos, NODE_RADIUS + 6.0, PANEL_BG)
+			draw_circle(pos, node_radius + 12.0 * ui_scale, NODE_CURRENT)
+			draw_circle(pos, node_radius + 6.0 * ui_scale, PANEL_BG)
 
 		# Node body
-		draw_circle(pos, NODE_RADIUS, fill_color)
+		draw_circle(pos, node_radius, fill_color)
 
 		# Room type label inside node
 		var type_label: String = _type_label(node_type)
 		var label_color: Color = TEXT_PRIMARY if not cleared else TEXT_MUTED
-		_draw_text_centered(pos + Vector2(0, -10), type_label, 22, label_color)
+		_draw_text_centered(pos + Vector2(0, -10.0 * ui_scale), type_label, _scaled_font(22), label_color)
 
 		# Affinity label below type
 		if not cleared:
 			var aff_label: String = affinity if affinity != "neutral" else "---"
-			_draw_text_centered(pos + Vector2(0, 18), aff_label, 18, TEXT_MUTED)
+			_draw_text_centered(pos + Vector2(0, 18.0 * ui_scale), aff_label, _scaled_font(18), TEXT_MUTED)
 
 		# Cleared overlay
 		if cleared and not is_current:
-			_draw_text_centered(pos, "DONE", 20, TEXT_MUTED)
+			_draw_text_centered(pos, "DONE", _scaled_font(20), TEXT_MUTED)
 
 		# Gem gate cost above node
 		var gem_gate: Variant = node.get("gem_gate", null)
 		if gem_gate is Dictionary and not cleared:
 			var gate_gem: String = str(gem_gate.get("gem", ""))
 			var gate_cost: int = int(gem_gate.get("cost", 0))
-			_draw_text_centered(pos + Vector2(0, -(NODE_RADIUS + 22)), "%d %s needed" % [gate_cost, gate_gem], 18, TEXT_WARN)
+			_draw_text_centered(pos + Vector2(0, -(node_radius + 22.0 * ui_scale)), "%d %s needed" % [gate_cost, gate_gem], _scaled_font(18), TEXT_WARN)
 
 	# HUD elements
 	_draw_gem_stack_bar()
@@ -220,18 +231,19 @@ func _draw_text_centered(pos: Vector2, text: String, font_size: int, color: Colo
 
 func _draw_gem_stack_bar() -> void:
 	var font: Font = ThemeDB.fallback_font
-	var y: float = size.y - 80.0
-	var icon_size := Vector2(36, 36)
+	var ui_scale: float = _ui_scale()
+	var y: float = size.y - 80.0 * ui_scale
+	var icon_size := Vector2(36, 36) * ui_scale
 
 	# Label
-	draw_string(font, Vector2(24, y - 4), "Gem Stack [%d/%d]" % [gem_stack.size(), gem_stack_cap], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_ACCENT)
+	draw_string(font, Vector2(24.0 * ui_scale, y - 4.0 * ui_scale), "Gem Stack [%d/%d]" % [gem_stack.size(), gem_stack_cap], HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(20), TEXT_ACCENT)
 
 	# Gem icon slots
 	for i in range(gem_stack_cap):
-		var slot_x: float = 24.0 + float(i) * 44.0
-		var slot_y: float = y + 20.0
+		var slot_x: float = 24.0 * ui_scale + float(i) * 44.0 * ui_scale
+		var slot_y: float = y + 20.0 * ui_scale
 		# Slot outline
-		draw_rect(Rect2(Vector2(slot_x - 2, slot_y - 2), Vector2(40, 40)), PANEL_BORDER, false, 1.5)
+		draw_rect(Rect2(Vector2(slot_x - 2.0 * ui_scale, slot_y - 2.0 * ui_scale), Vector2(40, 40) * ui_scale), PANEL_BORDER, false, 1.5 * ui_scale)
 		# Gem icon or empty
 		if i < gem_stack.size():
 			var gem: String = str(gem_stack[i])
@@ -243,17 +255,19 @@ func _draw_gem_stack_bar() -> void:
 
 func _draw_floor_banner() -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var floor_idx: int = int(floor_vm.get("floor_index", 1))
 	var rooms: int = int(floor_vm.get("rooms_cleared", 0))
 	var info: String = "FLOOR %d  |  Rooms cleared: %d" % [floor_idx, rooms]
-	draw_string(font, Vector2(24, 40), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_PRIMARY)
+	draw_string(font, Vector2(24.0 * ui_scale, 40.0 * ui_scale), info, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(24), TEXT_PRIMARY)
 
 func _draw_objective_banner() -> void:
 	var constraint: String = str(floor_vm.get("active_constraint", ""))
 	if constraint == "":
 		return
 	var font: Font = ThemeDB.fallback_font
-	var origin := Vector2(size.x - 400, 40)
+	var ui_scale: float = _ui_scale()
+	var origin := Vector2(size.x - 400.0 * ui_scale, 40.0 * ui_scale)
 
 	match constraint:
 		"conduit":
@@ -263,7 +277,7 @@ func _draw_objective_banner() -> void:
 			if pattern.is_empty():
 				return
 			if matched:
-				draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
+				draw_string(font, origin, "CONDUIT MATCHED!", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(24), TEXT_GOOD)
 				return
 			var label: String = "Conduit: "
 			for i in range(pattern.size()):
@@ -274,7 +288,7 @@ func _draw_objective_banner() -> void:
 					label += ">%s< " % gem_char
 				else:
 					label += " %s  " % gem_char
-			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_ACCENT)
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), TEXT_ACCENT)
 
 		"circuit":
 			var seq: Array = floor_vm.get("circuit_sequence", [])
@@ -283,7 +297,7 @@ func _draw_objective_banner() -> void:
 			if seq.is_empty():
 				return
 			if progress >= seq.size():
-				draw_string(font, origin, "CIRCUIT COMPLETE!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, TEXT_GOOD)
+				draw_string(font, origin, "CIRCUIT COMPLETE!", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(24), TEXT_GOOD)
 				return
 			var label: String = "Circuit: "
 			for i in range(seq.size()):
@@ -296,7 +310,7 @@ func _draw_objective_banner() -> void:
 					label += " %s  " % gem_char
 			if penalties > 0:
 				label += " (%d wrong)" % penalties
-			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT_WARN)
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), TEXT_WARN)
 
 		"seal":
 			var broken: int = int(floor_vm.get("seals_broken", 0))
@@ -306,10 +320,11 @@ func _draw_objective_banner() -> void:
 			if locked:
 				label += " (BOSS LOCKED)"
 			var color: Color = TEXT_GOOD if not locked else TEXT_WARN
-			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, color)
+			draw_string(font, origin, label, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), color)
 
 func _draw_instructions() -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var legal: Array = floor_vm.get("legal_moves", [])
 	var state: String = str(floor_vm.get("state", ""))
 	var text: String = ""
@@ -323,7 +338,7 @@ func _draw_instructions() -> void:
 	elif state == FloorController.STATE_FLOOR_COMPLETE:
 		text = "Floor complete!"
 	if text != "":
-		draw_string(font, Vector2(24, size.y - 20), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_MUTED)
+		draw_string(font, Vector2(24.0 * ui_scale, size.y - 20.0 * ui_scale), text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(20), TEXT_MUTED)
 
 func _draw_hover_panel() -> void:
 	if _hovered_node_id < 0:
@@ -418,14 +433,16 @@ func _handle_node_click(node_id: int) -> void:
 		runner.call("map_commit_room", node_id)
 
 func _node_at_position(pos: Vector2) -> int:
+	var ui_scale: float = _ui_scale()
 	for node_id in node_positions:
 		var node_pos: Vector2 = node_positions[node_id]
-		if pos.distance_to(node_pos) <= NODE_RADIUS + 12.0:
+		if pos.distance_to(node_pos) <= NODE_RADIUS * ui_scale + 12.0 * ui_scale:
 			return int(node_id)
 	return -1
 
 func _draw_event_screen() -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var w: float = size.x
 	var h: float = size.y
 
@@ -438,19 +455,19 @@ func _draw_event_screen() -> void:
 	var panel_x: float = (w - panel_w) / 2.0
 	var panel_y: float = (h - panel_h) / 2.0
 	draw_rect(Rect2(Vector2(panel_x, panel_y), Vector2(panel_w, panel_h)), PANEL_BG)
-	draw_rect(Rect2(Vector2(panel_x, panel_y), Vector2(panel_w, panel_h)), PANEL_BORDER, false, 2.0)
+	draw_rect(Rect2(Vector2(panel_x, panel_y), Vector2(panel_w, panel_h)), PANEL_BORDER, false, 2.0 * ui_scale)
 
 	# Title
-	draw_string(font, Vector2(panel_x + 24, panel_y + 40), "EVENT", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 28, TEXT_ACCENT)
+	draw_string(font, Vector2(panel_x + 24.0 * ui_scale, panel_y + 40.0 * ui_scale), "EVENT", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48.0 * ui_scale), _scaled_font(28), TEXT_ACCENT)
 
 	# Event text
 	if _event_text != "":
-		draw_string(font, Vector2(panel_x + 24, panel_y + 90), _event_text, HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 20, TEXT_PRIMARY)
+		draw_string(font, Vector2(panel_x + 24.0 * ui_scale, panel_y + 90.0 * ui_scale), _event_text, HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48.0 * ui_scale), _scaled_font(20), TEXT_PRIMARY)
 	else:
-		draw_string(font, Vector2(panel_x + 24, panel_y + 90), "You find a quiet moment to catch your breath.", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 20, TEXT_PRIMARY)
+		draw_string(font, Vector2(panel_x + 24.0 * ui_scale, panel_y + 90.0 * ui_scale), "You find a quiet moment to catch your breath.", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48.0 * ui_scale), _scaled_font(20), TEXT_PRIMARY)
 
 	# Continue prompt
-	draw_string(font, Vector2(panel_x + 24, panel_y + panel_h - 30), "Click or press SPACE to continue", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48), 18, TEXT_MUTED)
+	draw_string(font, Vector2(panel_x + 24.0 * ui_scale, panel_y + panel_h - 30.0 * ui_scale), "Click or press SPACE to continue", HORIZONTAL_ALIGNMENT_LEFT, int(panel_w - 48.0 * ui_scale), _scaled_font(18), TEXT_MUTED)
 
 func _type_label(node_type: String) -> String:
 	match node_type:

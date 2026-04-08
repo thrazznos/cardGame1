@@ -87,6 +87,14 @@ func refresh(new_vm: Dictionary) -> void:
 	vm = new_vm.duplicate(true)
 	queue_redraw()
 
+func _ui_scale() -> float:
+	var scale_x: float = size.x / 1600.0 if size.x > 0.0 else 1.0
+	var scale_y: float = size.y / 900.0 if size.y > 0.0 else 1.0
+	return clampf(min(scale_x, scale_y), 0.72, 1.15)
+
+func _scaled_font(base_size: int) -> int:
+	return max(12, int(round(float(base_size) * _ui_scale())))
+
 func _draw() -> void:
 	var w: float = size.x
 	var h: float = size.y
@@ -116,20 +124,24 @@ func _draw() -> void:
 
 func _draw_arena(w: float, arena_h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var center_y: float = arena_h * 0.45
-	var portrait_size := Vector2(160, 160)
+	var portrait_px: float = 160.0 * ui_scale
+	var portrait_size := Vector2(portrait_px, portrait_px)
 
 	# Player (left side)
 	var player_x: float = w * 0.2
+	var portrait_half: float = portrait_px * 0.5
+	var hp_bar_w: float = 128.0 * ui_scale
 	_draw_portrait_mount(Vector2(player_x, center_y), portrait_size, _player_portrait_tex, UITheme.CARD_BORDER_ATTACK)
 
 	var player_hp: int = int(vm.get("player_hp", 0))
 	var player_max: int = int(vm.get("player_max_hp", 40))
 	var player_block: int = int(vm.get("player_block", 0))
-	_draw_hp_bar(Vector2(player_x - 64, center_y + 72), 128.0, player_hp, player_max, UITheme.HP_PLAYER)
-	draw_string(font, Vector2(player_x - 64, center_y + 100), "HP %d/%d" % [player_hp, player_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, UITheme.TEXT_PRIMARY)
+	_draw_hp_bar(Vector2(player_x - portrait_half, center_y + portrait_half + 8.0 * ui_scale), hp_bar_w, player_hp, player_max, UITheme.HP_PLAYER)
+	draw_string(font, Vector2(player_x - portrait_half, center_y + portrait_half + 36.0 * ui_scale), "HP %d/%d" % [player_hp, player_max], HORIZONTAL_ALIGNMENT_LEFT, hp_bar_w, _scaled_font(18), UITheme.TEXT_PRIMARY)
 	if player_block > 0:
-		draw_string(font, Vector2(player_x - 64, center_y + 120), "Block %d" % player_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
+		draw_string(font, Vector2(player_x - portrait_half, center_y + portrait_half + 58.0 * ui_scale), "Block %d" % player_block, HORIZONTAL_ALIGNMENT_LEFT, hp_bar_w, _scaled_font(16), UITheme.BLOCK_COLOR)
 
 	# Enemy (right side)
 	var enemy_x: float = w * 0.8
@@ -138,18 +150,18 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	var enemy_hp: int = int(vm.get("enemy_hp", 0))
 	var enemy_max: int = int(vm.get("enemy_max_hp", 24))
 	var enemy_block: int = int(vm.get("enemy_block", 0))
-	_draw_hp_bar(Vector2(enemy_x - 64, center_y + 72), 128.0, enemy_hp, enemy_max, UITheme.HP_ENEMY)
-	draw_string(font, Vector2(enemy_x - 64, center_y + 100), "HP %d/%d" % [enemy_hp, enemy_max], HORIZONTAL_ALIGNMENT_LEFT, 128, 18, UITheme.TEXT_PRIMARY)
+	_draw_hp_bar(Vector2(enemy_x - portrait_half, center_y + portrait_half + 8.0 * ui_scale), hp_bar_w, enemy_hp, enemy_max, UITheme.HP_ENEMY)
+	draw_string(font, Vector2(enemy_x - portrait_half, center_y + portrait_half + 36.0 * ui_scale), "HP %d/%d" % [enemy_hp, enemy_max], HORIZONTAL_ALIGNMENT_LEFT, hp_bar_w, _scaled_font(18), UITheme.TEXT_PRIMARY)
 	if enemy_block > 0:
-		draw_string(font, Vector2(enemy_x - 64, center_y + 120), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, 128, 16, UITheme.BLOCK_COLOR)
+		draw_string(font, Vector2(enemy_x - portrait_half, center_y + portrait_half + 58.0 * ui_scale), "Block %d" % enemy_block, HORIZONTAL_ALIGNMENT_LEFT, hp_bar_w, _scaled_font(16), UITheme.BLOCK_COLOR)
 
 	# Player statuses below HP
 	var player_statuses: Array = vm.get("player_statuses", [])
-	_draw_status_strip(Vector2(player_x - 64, center_y + 138), player_statuses, font)
+	_draw_status_strip(Vector2(player_x - portrait_half, center_y + portrait_half + 78.0 * ui_scale), player_statuses, font)
 
 	# Enemy statuses below HP
 	var enemy_statuses_arr: Array = vm.get("enemy_statuses", [])
-	_draw_status_strip(Vector2(enemy_x - 64, center_y + 138), enemy_statuses_arr, font)
+	_draw_status_strip(Vector2(enemy_x - portrait_half, center_y + portrait_half + 78.0 * ui_scale), enemy_statuses_arr, font)
 
 	# Enemy intent (centered between portraits)
 	var intent: Dictionary = vm.get("enemy_intent", {})
@@ -157,22 +169,22 @@ func _draw_arena(w: float, arena_h: float) -> void:
 	if telegraph == "":
 		telegraph = "Intent: %d dmg" % int(vm.get("enemy_intent_damage", 0))
 	var intent_x: float = w * 0.5
-	var intent_y: float = center_y - 20
-	_draw_intent_banner(Vector2(intent_x, intent_y - 8), telegraph, font)
-	draw_line(Vector2(intent_x + 170, intent_y + 2), Vector2(enemy_x - 92, center_y - 6), Color(UITheme.TEXT_WARN.r, UITheme.TEXT_WARN.g, UITheme.TEXT_WARN.b, 0.38), 2.0)
+	var intent_y: float = center_y - 20.0 * ui_scale
+	_draw_intent_banner(Vector2(intent_x, intent_y - 8.0 * ui_scale), telegraph, font)
+	draw_line(Vector2(intent_x + 170.0 * ui_scale, intent_y + 2.0 * ui_scale), Vector2(enemy_x - 92.0 * ui_scale, center_y - 6.0 * ui_scale), Color(UITheme.TEXT_WARN.r, UITheme.TEXT_WARN.g, UITheme.TEXT_WARN.b, 0.38), 2.0 * ui_scale)
 
 	# Profile name below intent
 	var profile: String = str(vm.get("pressure_profile_name", ""))
 	if profile != "":
-		draw_string(font, Vector2(intent_x - 100, intent_y + 30), profile, HORIZONTAL_ALIGNMENT_CENTER, 200, 16, UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(intent_x - 100.0 * ui_scale, intent_y + 30.0 * ui_scale), profile, HORIZONTAL_ALIGNMENT_CENTER, 200.0 * ui_scale, _scaled_font(16), UITheme.TEXT_MUTED)
 
 	# Encounter title at top of arena
 	var title: String = str(vm.get("encounter_title", ""))
 	if title != "":
-		draw_string(font, Vector2(20, 30), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, UITheme.TEXT_PRIMARY)
+		draw_string(font, Vector2(20.0 * ui_scale, 30.0 * ui_scale), title, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(20), UITheme.TEXT_PRIMARY)
 
 func _draw_hp_bar(pos: Vector2, bar_width: float, current: int, maximum: int, fill_color: Color) -> void:
-	var bar_h: float = 12.0
+	var bar_h: float = 12.0 * _ui_scale()
 	draw_rect(Rect2(pos, Vector2(bar_width, bar_h)), UITheme.PANEL_BG)
 	if maximum > 0:
 		var fill_w: float = bar_width * clampf(float(current) / float(maximum), 0.0, 1.0)
@@ -189,35 +201,41 @@ func _draw_portrait_mount(center: Vector2, portrait_size: Vector2, tex: Texture2
 		draw_texture_rect(tex, Rect2(center - portrait_size * 0.5, portrait_size), false)
 
 func _draw_intent_banner(center: Vector2, telegraph: String, font: Font) -> void:
-	var box_size := Vector2(340, 42)
+	var ui_scale: float = _ui_scale()
+	var box_size := Vector2(340, 42) * ui_scale
 	var box_pos := center - box_size * 0.5
 	draw_rect(Rect2(box_pos, box_size), Color(0.10, 0.08, 0.12, 0.86))
-	draw_rect(Rect2(box_pos, box_size), UITheme.TEXT_WARN, false, 2.0)
+	draw_rect(Rect2(box_pos, box_size), UITheme.TEXT_WARN, false, 2.0 * ui_scale)
 	if _crest_tex != null:
-		draw_texture_rect(_crest_tex, Rect2(box_pos + Vector2(10, 5), Vector2(32, 32)), false)
-	draw_string(font, box_pos + Vector2(52, 28), telegraph, HORIZONTAL_ALIGNMENT_LEFT, int(box_size.x - 64), 22, UITheme.TEXT_WARN)
+		draw_texture_rect(_crest_tex, Rect2(box_pos + Vector2(10, 5) * ui_scale, Vector2(32, 32) * ui_scale), false)
+	draw_string(font, box_pos + Vector2(52, 28) * ui_scale, telegraph, HORIZONTAL_ALIGNMENT_LEFT, int(box_size.x - 64.0 * ui_scale), _scaled_font(22), UITheme.TEXT_WARN)
 
 func _draw_hand(w: float, h: float, hand_y: float) -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var hand: Array = vm.get("hand", [])
 	var hand_card_ids: Array = vm.get("hand_card_ids", [])
 	var hand_play_reasons: Array = vm.get("hand_play_reasons", [])
 	var energy: int = int(vm.get("energy", 0))
 	var max_energy: int = int(vm.get("turn_energy_max", 3))
 	var card_count: int = hand.size()
+	var card_w: float = UITheme.CARD_WIDTH * ui_scale
+	var card_h: float = UITheme.CARD_HEIGHT * ui_scale
+	var card_overlap: float = UITheme.CARD_OVERLAP * ui_scale
+	var hover_lift: float = UITheme.CARD_HOVER_LIFT * ui_scale
 
 	if card_count == 0:
-		draw_string(font, Vector2(w * 0.5 - 60, hand_y + 80), "Hand empty", HORIZONTAL_ALIGNMENT_CENTER, 120, 20, UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(w * 0.5 - 60.0 * ui_scale, hand_y + 80.0 * ui_scale), "Hand empty", HORIZONTAL_ALIGNMENT_CENTER, 120.0 * ui_scale, _scaled_font(20), UITheme.TEXT_MUTED)
 		return
 
 	# Calculate card positions for fan layout — cards overlap, centered
-	var total_width: float = UITheme.CARD_WIDTH + float(card_count - 1) * UITheme.CARD_OVERLAP
+	var total_width: float = card_w + float(card_count - 1) * card_overlap
 	var start_x: float = (w - total_width) / 2.0
-	var base_y: float = hand_y + 16.0
+	var base_y: float = hand_y + 16.0 * ui_scale
 
 	var hovered_payload: Dictionary = {}
 	for i in range(card_count):
-		var card_x: float = start_x + float(i) * UITheme.CARD_OVERLAP
+		var card_x: float = start_x + float(i) * card_overlap
 		var card_y: float = base_y
 		var is_hovered: bool = i == hovered_card_index
 		var card_id: String = str(hand_card_ids[i]) if i < hand_card_ids.size() else ""
@@ -226,7 +244,7 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 		var playable: bool = reject_reason == ""
 
 		if is_hovered:
-			card_y -= UITheme.CARD_HOVER_LIFT
+			card_y -= hover_lift
 			hovered_payload = {
 				"pos": Vector2(card_x, card_y),
 				"card_id": card_id,
@@ -250,7 +268,7 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 	# Energy counter
 	var energy_text: String = "Energy %d/%d" % [energy, max_energy]
-	draw_string(font, Vector2(w - 180, hand_y + UITheme.CARD_HEIGHT + 30), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, UITheme.ENERGY_COLOR)
+	draw_string(font, Vector2(w - 180.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), UITheme.ENERGY_COLOR)
 
 	# Phase / combat result
 	var phase: String = str(vm.get("ui_phase_text", ""))
@@ -263,23 +281,26 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 	elif result == CombatSliceRunner.RESULT_PLAYER_LOSE:
 		phase_text = "DEFEAT"
 		phase_color = UITheme.TEXT_BAD
-	draw_string(font, Vector2(20, hand_y + UITheme.CARD_HEIGHT + 30), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, phase_color)
+	draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), phase_color)
 
 	# Pass button hint
 	if result == CombatSliceRunner.RESULT_IN_PROGRESS:
-		draw_string(font, Vector2(20, hand_y + UITheme.CARD_HEIGHT + 56), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool, reject_reason: String = "") -> void:
 	var font: Font = ThemeDB.fallback_font
-	var card_w: float = UITheme.CARD_WIDTH
-	var card_h: float = UITheme.CARD_HEIGHT
+	var ui_scale: float = _ui_scale()
+	var card_w: float = UITheme.CARD_WIDTH * ui_scale
+	var card_h: float = UITheme.CARD_HEIGHT * ui_scale
 	var draw_pos: Vector2 = pos
+	var base_card_w: float = card_w
+	var base_card_h: float = card_h
 
 	if hovered:
 		card_w *= UITheme.CARD_HOVER_SCALE
 		card_h *= UITheme.CARD_HOVER_SCALE
-		draw_pos.x -= (card_w - UITheme.CARD_WIDTH) * 0.5
-		draw_pos.y -= (card_h - UITheme.CARD_HEIGHT)
+		draw_pos.x -= (card_w - base_card_w) * 0.5
+		draw_pos.y -= (card_h - base_card_h)
 
 	var body_color: Color = UITheme.CARD_BODY if playable else UITheme.CARD_BODY_DISABLED
 	var border_color: Color = _card_border_color(card_id)
@@ -310,6 +331,7 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	draw_rect(title_rect, UITheme.CARD_TITLE_BG)
 	var display_name: String = _resolve_display_name(card_id)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
+	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), max(12, int(title_h * 0.55)), UITheme.CARD_TITLE_TEXT)
 
 	# Cost badge (top-left circle)
 	var cost_center := draw_pos + Vector2(padding + cost_size * 0.5, 3 + title_h * 0.5)
@@ -426,6 +448,7 @@ func _card_border_color(card_id: String) -> Color:
 func _draw_status_strip(pos: Vector2, statuses: Array, font: Font) -> void:
 	if statuses.is_empty():
 		return
+	var ui_scale: float = _ui_scale()
 	var x_offset: float = 0.0
 	for status in statuses:
 		if not (status is Dictionary):
@@ -439,14 +462,17 @@ func _draw_status_strip(pos: Vector2, statuses: Array, font: Font) -> void:
 		var label: String = "%s %d" % [name, stacks] if stacks > 1 else name
 		if duration > 0:
 			label += " (%dt)" % duration
-		var pill_width: float = max(62.0, min(132.0, font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 18.0))
-		draw_rect(Rect2(pos + Vector2(x_offset, -12), Vector2(pill_width, 18)), bg)
-		draw_rect(Rect2(pos + Vector2(x_offset, -12), Vector2(pill_width, 18)), Color(color.r, color.g, color.b, 0.55), false, 1.0)
-		draw_string(font, pos + Vector2(x_offset + 8, 1), label, HORIZONTAL_ALIGNMENT_LEFT, int(pill_width - 10.0), 13, color)
-		x_offset += pill_width + 8.0
+		var pill_font_size: int = _scaled_font(13)
+		var pill_width: float = max(62.0 * ui_scale, min(132.0 * ui_scale, font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, pill_font_size).x + 18.0 * ui_scale))
+		var pill_rect := Rect2(pos + Vector2(x_offset, -12.0 * ui_scale), Vector2(pill_width, 18.0 * ui_scale))
+		draw_rect(pill_rect, bg)
+		draw_rect(pill_rect, Color(color.r, color.g, color.b, 0.55), false, 1.0 * ui_scale)
+		draw_string(font, pos + Vector2(x_offset + 8.0 * ui_scale, 1.0 * ui_scale), label, HORIZONTAL_ALIGNMENT_LEFT, int(pill_width - 10.0 * ui_scale), pill_font_size, color)
+		x_offset += pill_width + 8.0 * ui_scale
 
 func _draw_status_bar(w: float) -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var turn: int = int(vm.get("turn", 0))
 	var zones: Dictionary = vm.get("zones", {})
 	var status: String = "Turn %d  |  Draw %d  |  Discard %d" % [
@@ -454,37 +480,39 @@ func _draw_status_bar(w: float) -> void:
 		int(zones.get("draw", 0)),
 		int(zones.get("discard", 0)),
 	]
-	draw_string(font, Vector2(w - 320, 30), status, HORIZONTAL_ALIGNMENT_RIGHT, 300, 16, UITheme.TEXT_MUTED)
+	draw_string(font, Vector2(w - 320.0 * ui_scale, 30.0 * ui_scale), status, HORIZONTAL_ALIGNMENT_RIGHT, 300.0 * ui_scale, _scaled_font(16), UITheme.TEXT_MUTED)
 
 func _draw_gem_stack_icons(w: float, h: float) -> void:
+	var ui_scale: float = _ui_scale()
 	var gem_stack: Array = vm.get("gem_stack", [])
 	var gem_top: Array = vm.get("gem_stack_top", [])
 	var focus: int = int(vm.get("focus", 0))
-	var icon_size := Vector2(32, 32)
-	var slot_size := Vector2(36, 36)
-	var start_x: float = 20.0
-	var y: float = h - 50.0
+	var icon_size := Vector2(32, 32) * ui_scale
+	var slot_size := Vector2(36, 36) * ui_scale
+	var start_x: float = 20.0 * ui_scale
+	var y: float = h - 50.0 * ui_scale
 
 	# Draw gem icons for stack top
 	var display_gems: Array = gem_top if not gem_top.is_empty() else gem_stack
 	for i in range(display_gems.size()):
 		var gem: String = str(display_gems[i])
 		var tex: Texture2D = _gem_ruby_tex if gem == "Ruby" else _gem_sapphire_tex
-		var x: float = start_x + float(i) * 40.0
+		var x: float = start_x + float(i) * 40.0 * ui_scale
 		# Slot outline
-		draw_rect(Rect2(Vector2(x - 2, y - 2), slot_size), UITheme.PANEL_BORDER, false, 1.5)
+		draw_rect(Rect2(Vector2(x - 2.0 * ui_scale, y - 2.0 * ui_scale), slot_size), UITheme.PANEL_BORDER, false, 1.5 * ui_scale)
 		if tex != null:
 			draw_texture_rect(tex, Rect2(Vector2(x, y), icon_size), false)
 
 	# Focus indicator
 	var font: Font = ThemeDB.fallback_font
 	if focus > 0:
-		var focus_x: float = start_x + float(display_gems.size()) * 40.0 + 20.0
-		draw_string(font, Vector2(focus_x, y + 22), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, UITheme.TEXT_ACCENT)
+		var focus_x: float = start_x + float(display_gems.size()) * 40.0 * ui_scale + 20.0 * ui_scale
+		draw_string(font, Vector2(focus_x, y + 22.0 * ui_scale), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_ACCENT)
 
 func _event_feed_panel_rect(w: float, arena_h: float) -> Rect2:
-	var panel_size := Vector2(356, 148)
-	var panel_pos := Vector2(w - panel_size.x - 18.0, arena_h - panel_size.y - 18.0)
+	var ui_scale: float = _ui_scale()
+	var panel_size := Vector2(356, 148) * ui_scale
+	var panel_pos := Vector2(w - panel_size.x - 18.0 * ui_scale, arena_h - panel_size.y - 18.0 * ui_scale)
 	return Rect2(panel_pos, panel_size)
 
 func _event_feed_entries(limit: int = 3) -> Array:
@@ -588,40 +616,42 @@ func _draw_event_feed(w: float, arena_h: float) -> void:
 	if entries.is_empty():
 		return
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var panel_rect: Rect2 = _event_feed_panel_rect(w, arena_h)
 	var panel_pos: Vector2 = panel_rect.position
 	var panel_size: Vector2 = panel_rect.size
 	draw_rect(panel_rect, UITheme.FEED_PANEL_BG)
-	draw_rect(panel_rect, UITheme.FEED_PANEL_BORDER, false, 2.0)
-	draw_rect(Rect2(panel_pos + Vector2(10, 30), Vector2(panel_size.x - 20, panel_size.y - 40)), Color(1, 1, 1, 0.02))
-	draw_string(font, panel_pos + Vector2(12, 22), "Recent", HORIZONTAL_ALIGNMENT_LEFT, 120, 17, UITheme.TEXT_ACCENT)
-	draw_string(font, panel_pos + Vector2(panel_size.x - 74, 22), "Latest", HORIZONTAL_ALIGNMENT_RIGHT, 62, 14, UITheme.TEXT_MUTED)
-	var line_y: float = panel_pos.y + 52.0
+	draw_rect(panel_rect, UITheme.FEED_PANEL_BORDER, false, 2.0 * ui_scale)
+	draw_rect(Rect2(panel_pos + Vector2(10, 30) * ui_scale, Vector2(panel_size.x - 20.0 * ui_scale, panel_size.y - 40.0 * ui_scale)), Color(1, 1, 1, 0.02))
+	draw_string(font, panel_pos + Vector2(12, 22) * ui_scale, "Recent", HORIZONTAL_ALIGNMENT_LEFT, 120.0 * ui_scale, _scaled_font(17), UITheme.TEXT_ACCENT)
+	draw_string(font, panel_pos + Vector2(panel_size.x - 74.0 * ui_scale, 22.0 * ui_scale), "Latest", HORIZONTAL_ALIGNMENT_RIGHT, 62.0 * ui_scale, _scaled_font(14), UITheme.TEXT_MUTED)
+	var line_y: float = panel_pos.y + 52.0 * ui_scale
 	for entry_variant in entries:
 		if not (entry_variant is Dictionary):
 			continue
 		var entry: Dictionary = entry_variant
 		var is_primary: bool = bool(entry.get("is_primary", false))
 		var tone: String = str(entry.get("tone", "neutral"))
-		var row_height: float = 32.0 if is_primary else 24.0
-		var row_rect := Rect2(Vector2(panel_pos.x + 10.0, line_y - 18.0), Vector2(panel_size.x - 20.0, row_height))
+		var row_height: float = (32.0 if is_primary else 24.0) * ui_scale
+		var row_rect := Rect2(Vector2(panel_pos.x + 10.0 * ui_scale, line_y - 18.0 * ui_scale), Vector2(panel_size.x - 20.0 * ui_scale, row_height))
 		var row_bg: Color = _event_feed_row_bg(tone, is_primary)
 		var line_color: Color = _event_feed_text_color(tone, is_primary)
 		draw_rect(row_rect, row_bg)
-		draw_rect(row_rect, Color(line_color.r, line_color.g, line_color.b, 0.18 if is_primary else 0.10), false, 1.0)
-		var text_x: float = row_rect.position.x + 10.0
+		draw_rect(row_rect, Color(line_color.r, line_color.g, line_color.b, 0.18 if is_primary else 0.10), false, 1.0 * ui_scale)
+		var text_x: float = row_rect.position.x + 10.0 * ui_scale
 		var badge: String = str(entry.get("badge", ""))
 		if badge != "":
-			var badge_rect := Rect2(Vector2(row_rect.position.x + 8.0, row_rect.position.y + (6.0 if is_primary else 4.0)), Vector2(34.0, 18.0 if not is_primary else 20.0))
+			var badge_rect := Rect2(Vector2(row_rect.position.x + 8.0 * ui_scale, row_rect.position.y + (6.0 if is_primary else 4.0) * ui_scale), Vector2(34.0 * ui_scale, (18.0 if not is_primary else 20.0) * ui_scale))
 			draw_rect(badge_rect, _event_feed_badge_bg(tone, is_primary))
-			draw_rect(badge_rect, Color(line_color.r, line_color.g, line_color.b, 0.28), false, 1.0)
-			draw_string(font, badge_rect.position + Vector2(5, 14 if not is_primary else 15), badge, HORIZONTAL_ALIGNMENT_LEFT, 26, 13 if not is_primary else 14, UITheme.TEXT_PRIMARY)
-			text_x = badge_rect.position.x + badge_rect.size.x + 10.0
-		draw_string(font, Vector2(text_x, line_y), str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, int(panel_rect.end.x - text_x - 12.0), 16 if is_primary else 14, line_color)
-		line_y += row_height + (6.0 if is_primary else 4.0)
+			draw_rect(badge_rect, Color(line_color.r, line_color.g, line_color.b, 0.28), false, 1.0 * ui_scale)
+			draw_string(font, badge_rect.position + Vector2(5, 14 if not is_primary else 15) * ui_scale, badge, HORIZONTAL_ALIGNMENT_LEFT, 26.0 * ui_scale, _scaled_font(13 if not is_primary else 14), UITheme.TEXT_PRIMARY)
+			text_x = badge_rect.position.x + badge_rect.size.x + 10.0 * ui_scale
+		draw_string(font, Vector2(text_x, line_y), str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, int(panel_rect.end.x - text_x - 12.0 * ui_scale), _scaled_font(16 if is_primary else 14), line_color)
+		line_y += row_height + (6.0 if is_primary else 4.0) * ui_scale
 
 func _draw_reward_overlay(w: float, h: float) -> void:
 	var font: Font = ThemeDB.fallback_font
+	var ui_scale: float = _ui_scale()
 	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
 
 	# Scrim + framed panel
@@ -637,14 +667,14 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 	var title: String = "VICTORY — Choose a Reward"
 	if reward_state == CombatSliceRunner.REWARD_APPLIED:
 		title = "Card Added to Deck"
-	draw_string(font, Vector2(w * 0.5 - 220, 86), title, HORIZONTAL_ALIGNMENT_CENTER, 440, 28, UITheme.TEXT_GOOD)
+	draw_string(font, Vector2(w * 0.5 - 200.0 * ui_scale, 60.0 * ui_scale), title, HORIZONTAL_ALIGNMENT_CENTER, 400.0 * ui_scale, _scaled_font(28), UITheme.TEXT_GOOD)
 
 	# Subtitle
 	var summary: String = str(vm.get("reward_summary_text", ""))
 	if summary == "" and reward_state == CombatSliceRunner.REWARD_PRESENTED:
 		summary = "Hover a card for a closer look, then click to draft it."
 	if summary != "":
-		draw_string(font, Vector2(w * 0.5 - 260, 116), summary, HORIZONTAL_ALIGNMENT_CENTER, 520, 18, UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(w * 0.5 - 250.0 * ui_scale, 100.0 * ui_scale), summary, HORIZONTAL_ALIGNMENT_CENTER, 500.0 * ui_scale, _scaled_font(18), UITheme.TEXT_MUTED)
 
 	# Reward cards
 	var offers: Array = vm.get("reward_offer", [])
@@ -677,28 +707,31 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 		var body: Color = UITheme.CARD_BODY if is_pickable else UITheme.CARD_BODY_DISABLED
 		var pos := Vector2(x, card_y)
 		if is_hovered and is_pickable:
-			pos.y -= REWARD_CARD_HOVER_LIFT
+			pos.y -= REWARD_CARD_HOVER_LIFT * ui_scale
 
 		# Shadow + border
 		draw_rect(Rect2(pos + Vector2(10, 12), Vector2(card_w, card_h)), UITheme.CARD_SHADOW)
 		if is_hovered:
 			draw_rect(Rect2(pos + Vector2(-6, -6), Vector2(card_w + 12, card_h + 12)), UITheme.CARD_HOVER_GLOW)
 		draw_rect(Rect2(pos, Vector2(card_w, card_h)), border)
-		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, card_h - 6)), body)
+		draw_rect(Rect2(pos + Vector2(3, 3) * ui_scale, Vector2(card_w - 6.0 * ui_scale, card_h - 6.0 * ui_scale)), body)
 
 		# Title bar
 		var title_h: float = card_h * 0.1
-		draw_rect(Rect2(pos + Vector2(3, 3), Vector2(card_w - 6, title_h)), UITheme.CARD_TITLE_BG)
+		draw_rect(Rect2(pos + Vector2(3, 3) * ui_scale, Vector2(card_w - 6.0 * ui_scale, title_h)), UITheme.CARD_TITLE_BG)
 		var name: String = _resolve_display_name(card_id)
-		draw_string(font, pos + Vector2(12, title_h * 0.7), name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
+		draw_string(font, pos + Vector2(12, title_h * 0.7) * ui_scale, name, HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24.0 * ui_scale), max(12, int(title_h * 0.55)), UITheme.CARD_TITLE_TEXT)
 
 		# Cost badge
 		var cost: int = _resolve_cost(card_id)
-		draw_circle(pos + Vector2(card_w - 28, 3 + title_h * 0.5), 16.0, UITheme.CARD_COST_BG)
-		draw_string(font, pos + Vector2(card_w - 34, 3 + title_h * 0.5 + 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, 14, UITheme.CARD_COST_TEXT)
+		draw_circle(pos + Vector2(card_w - 28.0 * ui_scale, 3.0 * ui_scale + title_h * 0.5), 16.0 * ui_scale, UITheme.CARD_COST_BG)
+		draw_string(font, pos + Vector2(card_w - 34.0 * ui_scale, 3.0 * ui_scale + title_h * 0.5 + 6.0 * ui_scale), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12.0 * ui_scale, _scaled_font(14), UITheme.CARD_COST_TEXT)
 
 		# Art area
-		var art_rect := Rect2(pos + Vector2(12, title_h + 8), Vector2(card_w - 24, card_h * 0.35))
+		var art_h: float = card_h * 0.35
+		var padding: float = 12.0 * ui_scale
+		var inner_w: float = card_w - 24.0 * ui_scale
+		var art_rect := Rect2(pos + Vector2(12.0 * ui_scale, title_h + 8.0 * ui_scale), Vector2(inner_w, art_h))
 		var art_tex: Texture2D = _resolve_card_art(card_id)
 		if art_tex != null:
 			draw_texture_rect(art_tex, art_rect, false)
@@ -707,23 +740,30 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 		if is_hovered:
 			draw_rect(Rect2(art_rect.position, Vector2(art_rect.size.x, art_rect.size.y * 0.26)), Color(1, 1, 1, 0.07))
 
-		# Rules text
+		# Role marker badge
+		var role: String = _resolve_role(card_id)
+		if role != "":
+			var role_y: float = art_rect.position.y + art_h + 6.0 * ui_scale
+			draw_string(font, Vector2(pos.x + padding, role_y + 14.0 * ui_scale), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), max(12, int(card_h * 0.04)), UITheme.CARD_TEXT_MUTED)
+
+		# Rules text area
+		var rules_y: float = pos.y + 3.0 * ui_scale + title_h + art_h + 24.0 * ui_scale
 		var rules: String = ""
 		if runner != null and runner.card_catalog != null and runner.card_catalog.has_card(card_id):
 			rules = str(runner.card_catalog.reward_rules_text(card_id))
 		if rules != "":
-			var rules_y: float = pos.y + title_h + card_h * 0.35 + 24
+			var reward_rules_y: float = pos.y + title_h + card_h * 0.35 + 24.0 * ui_scale
 			var lines: Array = rules.split(" \u2022 ")
 			for li in range(lines.size()):
-				draw_string(font, Vector2(pos.x + 12, rules_y + float(li) * 22.0), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 15, UITheme.CARD_TEXT)
+				draw_string(font, Vector2(pos.x + 12.0 * ui_scale, reward_rules_y + float(li) * 22.0 * ui_scale), str(lines[li]).strip_edges(), HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24.0 * ui_scale), _scaled_font(15), UITheme.CARD_TEXT)
 
 		# Selected badge
 		if is_selected:
-			draw_string(font, pos + Vector2(12, card_h - 20), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24), 16, UITheme.TEXT_GOOD)
+			draw_string(font, pos + Vector2(12.0 * ui_scale, card_h - 20.0 * ui_scale), "SELECTED", HORIZONTAL_ALIGNMENT_LEFT, int(card_w - 24.0 * ui_scale), _scaled_font(16), UITheme.TEXT_GOOD)
 
 	# Continue prompt
 	if reward_state == CombatSliceRunner.REWARD_APPLIED:
-		draw_string(font, Vector2(w * 0.5 - 150, card_y + card_h + 50), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300, 20, UITheme.TEXT_ACCENT)
+		draw_string(font, Vector2(w * 0.5 - 150.0 * ui_scale, card_y + card_h + 50.0 * ui_scale), "Press SPACE to continue", HORIZONTAL_ALIGNMENT_CENTER, 300.0 * ui_scale, _scaled_font(20), UITheme.TEXT_ACCENT)
 
 var _reward_hover_index: int = -1
 
@@ -794,18 +834,23 @@ func _play_card_at_index(idx: int) -> void:
 	runner.player_play_card(instance_id)
 
 func _hand_card_rect(card_index: int, card_count: int) -> Rect2:
-	var total_width: float = UITheme.CARD_WIDTH + float(card_count - 1) * UITheme.CARD_OVERLAP
+	var ui_scale: float = _ui_scale()
+	var card_w: float = UITheme.CARD_WIDTH * ui_scale
+	var card_h: float = UITheme.CARD_HEIGHT * ui_scale
+	var overlap: float = UITheme.CARD_OVERLAP * ui_scale
+	var hover_lift: float = UITheme.CARD_HOVER_LIFT * ui_scale
+	var total_width: float = card_w + float(card_count - 1) * overlap
 	var start_x: float = (size.x - total_width) / 2.0
-	var card_x: float = start_x + float(card_index) * UITheme.CARD_OVERLAP
-	var card_y: float = size.y * 0.55 + 16.0
-	var card_w: float = UITheme.CARD_WIDTH
-	var card_h: float = UITheme.CARD_HEIGHT
+	var card_x: float = start_x + float(card_index) * overlap
+	var card_y: float = size.y * 0.55 + 16.0 * ui_scale
+	var base_card_w: float = card_w
+	var base_card_h: float = card_h
 	if card_index == hovered_card_index:
-		card_y -= UITheme.CARD_HOVER_LIFT
+		card_y -= hover_lift
 		card_w *= UITheme.CARD_HOVER_SCALE
 		card_h *= UITheme.CARD_HOVER_SCALE
-		card_x -= (card_w - UITheme.CARD_WIDTH) * 0.5
-		card_y -= (card_h - UITheme.CARD_HEIGHT)
+		card_x -= (card_w - base_card_w) * 0.5
+		card_y -= (card_h - base_card_h)
 	return Rect2(Vector2(card_x, card_y), Vector2(card_w, card_h))
 
 func _card_at_position(pos: Vector2) -> int:
@@ -813,6 +858,16 @@ func _card_at_position(pos: Vector2) -> int:
 	var card_count: int = hand.size()
 	if card_count == 0:
 		return -1
+	var ui_scale: float = _ui_scale()
+	var w: float = size.x
+	var arena_h: float = size.y * 0.55
+	var hand_y: float = arena_h
+	var card_w: float = UITheme.CARD_WIDTH * ui_scale
+	var card_h: float = UITheme.CARD_HEIGHT * ui_scale
+	var overlap: float = UITheme.CARD_OVERLAP * ui_scale
+	var hover_lift: float = UITheme.CARD_HOVER_LIFT * ui_scale
+	var total_width: float = card_w + float(card_count - 1) * overlap
+	var start_x: float = (w - total_width) / 2.0
 
 	if hovered_card_index >= 0 and hovered_card_index < card_count:
 		var hovered_rect := _hand_card_rect(hovered_card_index, card_count)
@@ -823,18 +878,23 @@ func _card_at_position(pos: Vector2) -> int:
 	for i in range(card_count - 1, -1, -1):
 		if i == hovered_card_index:
 			continue
-		var rect := _hand_card_rect(i, card_count)
+		var rect := Rect2(Vector2(start_x + float(i) * overlap, hand_y + 16.0 * ui_scale), Vector2(card_w, card_h))
 		if rect.has_point(pos):
 			return i
 	return -1
 
 func _reward_card_layout(offer_count: int) -> Dictionary:
-	var total_w: float = float(offer_count) * REWARD_CARD_WIDTH + float(max(0, offer_count - 1)) * REWARD_CARD_GAP
+	var ui_scale: float = _ui_scale()
+	var card_w: float = REWARD_CARD_WIDTH * ui_scale
+	var card_h: float = REWARD_CARD_HEIGHT * ui_scale
+	var gap: float = REWARD_CARD_GAP * ui_scale
+	var card_y: float = REWARD_CARD_Y * ui_scale
+	var total_w: float = float(offer_count) * card_w + float(max(0, offer_count - 1)) * gap
 	return {
-		"card_w": REWARD_CARD_WIDTH,
-		"card_h": REWARD_CARD_HEIGHT,
-		"gap": REWARD_CARD_GAP,
-		"card_y": REWARD_CARD_Y,
+		"card_w": card_w,
+		"card_h": card_h,
+		"gap": gap,
+		"card_y": card_y,
 		"start_x": (size.x - total_w) / 2.0,
 	}
 
@@ -853,7 +913,7 @@ func _reward_card_at_position(pos: Vector2) -> int:
 		var x: float = start_x + float(i) * (card_w + gap)
 		var y: float = card_y
 		if reward_state == CombatSliceRunner.REWARD_PRESENTED and i == _reward_hover_index:
-			y -= REWARD_CARD_HOVER_LIFT
+			y -= REWARD_CARD_HOVER_LIFT * _ui_scale()
 		var rect := Rect2(Vector2(x, y), Vector2(card_w, card_h))
 		if rect.has_point(pos):
 			return i
