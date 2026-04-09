@@ -27,7 +27,12 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 CURRENT_BRANCH="$(git branch --show-current)"
-[ -n "$CURRENT_BRANCH" ] || fail "could not determine current branch"
+if [ -z "$CURRENT_BRANCH" ]; then
+  if [ "$MODE" = "local" ]; then
+    fail "could not determine current branch"
+  fi
+  CURRENT_BRANCH="detached-head"
+fi
 
 log "mode: $MODE"
 log "branch: $CURRENT_BRANCH"
