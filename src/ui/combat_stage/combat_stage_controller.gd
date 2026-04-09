@@ -336,8 +336,18 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	# Cost badge (top-left circle)
 	var cost_center := draw_pos + Vector2(padding + cost_size * 0.5, 3 + title_h * 0.5)
 	var cost: int = _resolve_cost(card_id)
-	draw_circle(cost_center, cost_size * 0.5, UITheme.CARD_COST_BG)
-	draw_string(font, cost_center + Vector2(-6, 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, int(cost_size * 0.6), UITheme.CARD_COST_TEXT)
+	var cost_radius: float = cost_size * 0.5
+	var cost_font_size: int = max(12, int(cost_size * 0.6))
+	draw_circle(cost_center, cost_radius, UITheme.CARD_COST_BG)
+	draw_string(
+		font,
+		Vector2(cost_center.x - cost_size * 0.5, cost_center.y + cost_font_size * 0.35),
+		str(cost),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		cost_size,
+		cost_font_size,
+		UITheme.CARD_COST_TEXT
+	)
 
 	# Art area
 	var art_rect := Rect2(draw_pos + Vector2(padding, 3 + title_h + 4), Vector2(inner_w, art_h))
