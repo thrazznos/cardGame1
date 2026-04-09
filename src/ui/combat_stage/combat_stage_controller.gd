@@ -328,7 +328,6 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 
 	# Title bar
 	var title_rect := Rect2(draw_pos + Vector2(3, 3), Vector2(card_w - 6, title_h))
-	draw_rect(title_rect, UITheme.CARD_TITLE_BG)
 	var display_name: String = _resolve_display_name(card_id)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), max(12, int(title_h * 0.55)), UITheme.CARD_TITLE_TEXT)
@@ -362,7 +361,6 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	var role: String = _resolve_role(card_id)
 	if role != "":
 		var role_y: float = art_rect.position.y + art_h + 6
-		draw_rect(Rect2(Vector2(draw_pos.x + padding, role_y), Vector2(min(110.0, inner_w * 0.45), 20)), Color(0.17, 0.14, 0.19, 0.88))
 		draw_string(font, draw_pos + Vector2(padding + 8, role_y + 14), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(card_h * 0.04), UITheme.CARD_TEXT_MUTED)
 
 	# Rules text area
@@ -928,4 +926,3 @@ func _reward_card_at_position(pos: Vector2) -> int:
 		if rect.has_point(pos):
 			return i
 	return -1
-
