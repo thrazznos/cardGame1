@@ -268,7 +268,7 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 	# Energy counter
 	var energy_text: String = "Energy %d/%d" % [energy, max_energy]
-	draw_string(font, Vector2(w - 180.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), UITheme.ENERGY_COLOR)
+	draw_string(font, Vector2(24.0 * ui_scale, hand_y + 28.0 * ui_scale), energy_text, HORIZONTAL_ALIGNMENT_LEFT, 220.0 * ui_scale, _scaled_font(18), UITheme.ENERGY_COLOR)
 
 	# Phase / combat result
 	var phase: String = str(vm.get("ui_phase_text", ""))
