@@ -119,7 +119,7 @@ func _draw() -> void:
 		_draw_arena(w, arena_h)
 		_draw_hand(w, h, hand_y)
 		_draw_status_bar(w)
-		_draw_gem_stack_icons(w, h)
+		_draw_gem_stack_icons(w, hand_y)
 		_draw_event_feed(w, arena_h)
 
 func _draw_arena(w: float, arena_h: float) -> void:
@@ -268,7 +268,7 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 	# Energy counter
 	var energy_text: String = "Energy %d/%d" % [energy, max_energy]
-	draw_string(font, Vector2(w - 180.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), energy_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), UITheme.ENERGY_COLOR)
+	draw_string(font, Vector2(24.0 * ui_scale, hand_y + 28.0 * ui_scale), energy_text, HORIZONTAL_ALIGNMENT_LEFT, 220.0 * ui_scale, _scaled_font(18), UITheme.ENERGY_COLOR)
 
 	# Phase / combat result
 	var phase: String = str(vm.get("ui_phase_text", ""))
@@ -328,7 +328,6 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 
 	# Title bar
 	var title_rect := Rect2(draw_pos + Vector2(3, 3), Vector2(card_w - 6, title_h))
-	draw_rect(title_rect, UITheme.CARD_TITLE_BG)
 	var display_name: String = _resolve_display_name(card_id)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), max(12, int(title_h * 0.55)), UITheme.CARD_TITLE_TEXT)
@@ -336,8 +335,18 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	# Cost badge (top-left circle)
 	var cost_center := draw_pos + Vector2(padding + cost_size * 0.5, 3 + title_h * 0.5)
 	var cost: int = _resolve_cost(card_id)
-	draw_circle(cost_center, cost_size * 0.5, UITheme.CARD_COST_BG)
-	draw_string(font, cost_center + Vector2(-6, 6), str(cost), HORIZONTAL_ALIGNMENT_CENTER, 12, int(cost_size * 0.6), UITheme.CARD_COST_TEXT)
+	var cost_radius: float = cost_size * 0.5
+	var cost_font_size: int = max(12, int(cost_size * 0.6))
+	draw_circle(cost_center, cost_radius, UITheme.CARD_COST_BG)
+	draw_string(
+		font,
+		Vector2(cost_center.x - cost_size * 0.5, cost_center.y + cost_font_size * 0.35),
+		str(cost),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		cost_size,
+		cost_font_size,
+		UITheme.CARD_COST_TEXT
+	)
 
 	# Art area
 	var art_rect := Rect2(draw_pos + Vector2(padding, 3 + title_h + 4), Vector2(inner_w, art_h))
@@ -352,7 +361,6 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	var role: String = _resolve_role(card_id)
 	if role != "":
 		var role_y: float = art_rect.position.y + art_h + 6
-		draw_rect(Rect2(Vector2(draw_pos.x + padding, role_y), Vector2(min(110.0, inner_w * 0.45), 20)), Color(0.17, 0.14, 0.19, 0.88))
 		draw_string(font, draw_pos + Vector2(padding + 8, role_y + 14), role, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w), int(card_h * 0.04), UITheme.CARD_TEXT_MUTED)
 
 	# Rules text area
@@ -482,15 +490,19 @@ func _draw_status_bar(w: float) -> void:
 	]
 	draw_string(font, Vector2(w - 320.0 * ui_scale, 30.0 * ui_scale), status, HORIZONTAL_ALIGNMENT_RIGHT, 300.0 * ui_scale, _scaled_font(16), UITheme.TEXT_MUTED)
 
-func _draw_gem_stack_icons(w: float, h: float) -> void:
+func _draw_gem_stack_icons(w: float, hand_y: float) -> void:
 	var ui_scale: float = _ui_scale()
 	var gem_stack: Array = vm.get("gem_stack", [])
 	var gem_top: Array = vm.get("gem_stack_top", [])
 	var focus: int = int(vm.get("focus", 0))
 	var icon_size := Vector2(32, 32) * ui_scale
 	var slot_size := Vector2(36, 36) * ui_scale
-	var start_x: float = 20.0 * ui_scale
-	var y: float = h - 50.0 * ui_scale
+	var label_x: float = 24.0 * ui_scale
+	var start_x: float = 84.0 * ui_scale
+	var y: float = hand_y + 58.0 * ui_scale
+
+	var font: Font = ThemeDB.fallback_font
+	draw_string(font, Vector2(label_x, y + 22.0 * ui_scale), "Gems:", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_ACCENT)
 
 	# Draw gem icons for stack top
 	var display_gems: Array = gem_top if not gem_top.is_empty() else gem_stack
@@ -504,7 +516,6 @@ func _draw_gem_stack_icons(w: float, h: float) -> void:
 			draw_texture_rect(tex, Rect2(Vector2(x, y), icon_size), false)
 
 	# Focus indicator
-	var font: Font = ThemeDB.fallback_font
 	if focus > 0:
 		var focus_x: float = start_x + float(display_gems.size()) * 40.0 * ui_scale + 20.0 * ui_scale
 		draw_string(font, Vector2(focus_x, y + 22.0 * ui_scale), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_ACCENT)
@@ -512,7 +523,7 @@ func _draw_gem_stack_icons(w: float, h: float) -> void:
 func _event_feed_panel_rect(w: float, arena_h: float) -> Rect2:
 	var ui_scale: float = _ui_scale()
 	var panel_size := Vector2(356, 148) * ui_scale
-	var panel_pos := Vector2(w - panel_size.x - 18.0 * ui_scale, arena_h - panel_size.y - 18.0 * ui_scale)
+	var panel_pos := Vector2((w - panel_size.x) * 0.5, arena_h * 0.52)
 	return Rect2(panel_pos, panel_size)
 
 func _event_feed_entries(limit: int = 3) -> Array:
@@ -918,4 +929,3 @@ func _reward_card_at_position(pos: Vector2) -> int:
 		if rect.has_point(pos):
 			return i
 	return -1
-
