@@ -119,7 +119,7 @@ func _draw() -> void:
 		_draw_arena(w, arena_h)
 		_draw_hand(w, h, hand_y)
 		_draw_status_bar(w)
-		_draw_gem_stack_icons(w, h)
+		_draw_gem_stack_icons(w, hand_y)
 		_draw_event_feed(w, arena_h)
 
 func _draw_arena(w: float, arena_h: float) -> void:
@@ -490,15 +490,15 @@ func _draw_status_bar(w: float) -> void:
 	]
 	draw_string(font, Vector2(w - 320.0 * ui_scale, 30.0 * ui_scale), status, HORIZONTAL_ALIGNMENT_RIGHT, 300.0 * ui_scale, _scaled_font(16), UITheme.TEXT_MUTED)
 
-func _draw_gem_stack_icons(w: float, h: float) -> void:
+func _draw_gem_stack_icons(w: float, hand_y: float) -> void:
 	var ui_scale: float = _ui_scale()
 	var gem_stack: Array = vm.get("gem_stack", [])
 	var gem_top: Array = vm.get("gem_stack_top", [])
 	var focus: int = int(vm.get("focus", 0))
 	var icon_size := Vector2(32, 32) * ui_scale
 	var slot_size := Vector2(36, 36) * ui_scale
-	var start_x: float = 20.0 * ui_scale
-	var y: float = h - 50.0 * ui_scale
+	var start_x: float = 24.0 * ui_scale
+	var y: float = hand_y + 58.0 * ui_scale
 
 	# Draw gem icons for stack top
 	var display_gems: Array = gem_top if not gem_top.is_empty() else gem_stack
