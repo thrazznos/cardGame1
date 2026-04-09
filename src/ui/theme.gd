@@ -62,9 +62,9 @@ const EDGE_DEFAULT := Color("#403848")
 const EDGE_LEGAL := Color("#60d0ff")
 
 # ── Card layout ───────────────────────────────────────────────────────
-const CARD_WIDTH := 320.0
-const CARD_HEIGHT := 440.0
-const CARD_OVERLAP := 200.0
-const CARD_HOVER_LIFT := 72.0
-const CARD_HOVER_SCALE := 1.18
-const NODE_RADIUS := 72.0
+const CARD_WIDTH := 250.0
+const CARD_HEIGHT := 344.0
+const CARD_OVERLAP := 150.0
+const CARD_HOVER_LIFT := 44.0
+const CARD_HOVER_SCALE := 1.12
+const NODE_RADIUS := 60.0
