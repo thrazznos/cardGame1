@@ -497,8 +497,12 @@ func _draw_gem_stack_icons(w: float, hand_y: float) -> void:
 	var focus: int = int(vm.get("focus", 0))
 	var icon_size := Vector2(32, 32) * ui_scale
 	var slot_size := Vector2(36, 36) * ui_scale
-	var start_x: float = 24.0 * ui_scale
+	var label_x: float = 24.0 * ui_scale
+	var start_x: float = 84.0 * ui_scale
 	var y: float = hand_y + 58.0 * ui_scale
+
+	var font: Font = ThemeDB.fallback_font
+	draw_string(font, Vector2(label_x, y + 22.0 * ui_scale), "Gems:", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_ACCENT)
 
 	# Draw gem icons for stack top
 	var display_gems: Array = gem_top if not gem_top.is_empty() else gem_stack
@@ -512,7 +516,6 @@ func _draw_gem_stack_icons(w: float, hand_y: float) -> void:
 			draw_texture_rect(tex, Rect2(Vector2(x, y), icon_size), false)
 
 	# Focus indicator
-	var font: Font = ThemeDB.fallback_font
 	if focus > 0:
 		var focus_x: float = start_x + float(display_gems.size()) * 40.0 * ui_scale + 20.0 * ui_scale
 		draw_string(font, Vector2(focus_x, y + 22.0 * ui_scale), "FOCUS %d" % focus, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_ACCENT)
