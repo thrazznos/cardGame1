@@ -1,0 +1,41 @@
+name: preflight
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'fix/**'
+      - 'refactor/**'
+      - 'docs/**'
+      - 'ci/**'
+      - 'chore/**'
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Godot
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget xz-utils
+          wget -q https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip -O /tmp/godot.zip
+          python3 - <<'PY'
+import zipfile
+with zipfile.ZipFile('/tmp/godot.zip') as zf:
+    zf.extractall('/tmp/godot')
+PY
+          sudo install /tmp/godot/Godot_v4.6-stable_linux.x86_64 /usr/local/bin/godot
+
+      - name: Make preflight executable
+        run: chmod +x scripts/hermes/preflight.sh
+
+      - name: Run preflight in CI mode
+        run: ./scripts/hermes/preflight.sh ci
