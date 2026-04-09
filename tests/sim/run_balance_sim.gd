@@ -86,7 +86,8 @@ func _apply_deck_if_provided(node: Node, input_payload: Dictionary) -> void:
 
 	node.set("run_master_deck", deck_list.duplicate(true))
 	var dls: Variant = node.get("dls")
-	dls.draw_pile = deck_list.duplicate(true)
+	var runtime_scope: String = str(node.call("_encounter_runtime_scope", "sim_draw"))
+	dls.draw_pile = node.call("_card_instance_array", deck_list, runtime_scope)
 	dls.hand = []
 	dls.discard_pile = []
 	dls.exhaust_pile = []
@@ -168,4 +169,3 @@ func _build_report(node: Node, input_payload: Dictionary, runtime_policy_id: Str
 	}
 	canonical["determinism_hash"] = str(hash(JSON.stringify(canonical)))
 	return canonical
-

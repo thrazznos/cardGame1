@@ -99,6 +99,96 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing GAMEPLAY_ART_VISIBILITY_PROBE output")
         return json.loads(probe_line)
 
+    def _run_reward_overlay_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_reward_overlay_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("REWARD_OVERLAY_PROBE="):
+                probe_line = line[len("REWARD_OVERLAY_PROBE="):]
+        self.assertTrue(probe_line, "missing REWARD_OVERLAY_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_combat_stage_event_feed_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_combat_stage_event_feed_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("COMBAT_STAGE_EVENT_FEED_PROBE="):
+                probe_line = line[len("COMBAT_STAGE_EVENT_FEED_PROBE="):]
+        self.assertTrue(probe_line, "missing COMBAT_STAGE_EVENT_FEED_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_combat_stage_reward_hit_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_combat_stage_reward_hit_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("COMBAT_STAGE_REWARD_HIT_PROBE="):
+                probe_line = line[len("COMBAT_STAGE_REWARD_HIT_PROBE="):]
+        self.assertTrue(probe_line, "missing COMBAT_STAGE_REWARD_HIT_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_combat_stage_hand_hit_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_combat_stage_hand_hit_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("COMBAT_STAGE_HAND_HIT_PROBE="):
+                probe_line = line[len("COMBAT_STAGE_HAND_HIT_PROBE="):]
+        self.assertTrue(probe_line, "missing COMBAT_STAGE_HAND_HIT_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_map_hover_cursor_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_map_hover_cursor_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("MAP_HOVER_CURSOR_PROBE="):
+                probe_line = line[len("MAP_HOVER_CURSOR_PROBE="):]
+        self.assertTrue(probe_line, "missing MAP_HOVER_CURSOR_PROBE output")
+        return json.loads(probe_line)
+
     def _run_hud_contrast_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -501,6 +591,17 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("alias_resolved_id"), "strike")
         self.assertEqual(probe.get("reward_variant_name"), "Strike+")
         self.assertTrue(probe.get("has_effects"))
+        self.assertEqual(probe.get("invalid_weight_modifier_errors"), ["ERR_CARD_WEIGHT_MODIFIERS_INVALID:probe_invalid_weight_modifier"])
+        self.assertEqual(probe.get("valid_weight_modifier_errors"), [])
+        self.assertEqual(probe.get("strike_authored_effect_id"), "deal_damage")
+        self.assertEqual(probe.get("strike_authored_effect_params"), {"amount": 6})
+        self.assertEqual(probe.get("strike_normalized_effect", {}).get("type"), "deal_damage")
+        self.assertEqual(probe.get("strike_normalized_effect", {}).get("amount"), 6)
+        self.assertEqual(probe.get("strike_precise_authored_effect_ids"), ["deal_damage", "draw_n"])
+        self.assertEqual(
+            [effect.get("type") for effect in probe.get("strike_precise_normalized_effects", [])],
+            ["deal_damage", "draw_n"],
+        )
 
     def test_card_play_contract_comes_from_authored_data(self):
         probe = self._run_card_play_contract_probe()
@@ -518,6 +619,19 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("catalog_zone_on_play"), "exhaust")
         self.assertEqual(probe.get("normalized_effect", {}).get("type"), "deal_damage")
         self.assertEqual(probe.get("normalized_effect", {}).get("amount"), 1)
+        self.assertEqual(probe.get("retain_probe_zone_on_play"), "retain")
+        self.assertEqual(probe.get("temp_probe_zone_on_play"), "temp")
+        self.assertEqual(probe.get("stack_probe_target_mode"), "none")
+        self.assertEqual(probe.get("stack_probe_max_targets"), 0)
+        self.assertEqual(probe.get("stack_probe_invalid_target_policy"), "fizzle")
+        self.assertEqual(
+            probe.get("stack_probe_play_conditions"),
+            [{"condition_id": "stack_top_is", "gem": "Ruby"}],
+        )
+        self.assertEqual(
+            probe.get("discard_probe_play_conditions"),
+            [{"condition_id": "discard_at_least", "amount": 2}],
+        )
         self.assertFalse(probe.get("low_energy_ok"))
         self.assertEqual(probe.get("low_energy_reason"), "ERR_NOT_ENOUGH_ENERGY")
         self.assertEqual(probe.get("low_energy_hand_after"), ["probe_contract_anchor_runtime"])
@@ -534,6 +648,38 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("hand_after_play"), [])
         self.assertEqual(probe.get("exhaust_top_instance_id"), "probe_contract_anchor_runtime")
         self.assertEqual(probe.get("exhaust_top_card_id"), "probe_contract_anchor")
+        self.assertFalse(probe.get("stack_empty_ok"))
+        self.assertEqual(probe.get("stack_empty_reason"), "ERR_STACK_EMPTY")
+        self.assertEqual(probe.get("stack_empty_hand_after"), ["probe_stack_top_anchor_runtime"])
+        self.assertFalse(probe.get("stack_mismatch_ok"))
+        self.assertEqual(probe.get("stack_mismatch_reason"), "ERR_STACK_TOP_MISMATCH")
+        self.assertFalse(probe.get("discard_gate_ok"))
+        self.assertEqual(probe.get("discard_gate_reason"), "ERR_DISCARD_REQUIRED")
+        self.assertEqual(probe.get("discard_gate_hand_after"), ["probe_discard_ready_anchor_runtime"])
+        self.assertTrue(probe.get("discard_ready_ok"))
+        self.assertEqual(probe.get("discard_ready_energy_after"), 0)
+        self.assertEqual(probe.get("discard_ready_block_gain"), 4)
+        self.assertEqual(probe.get("discard_ready_last_resolved_card_id"), "probe_discard_ready_anchor")
+        self.assertTrue(probe.get("retain_ready_ok"))
+        self.assertEqual(probe.get("retain_ready_energy_after"), 0)
+        self.assertEqual(probe.get("retain_ready_block_gain"), 3)
+        self.assertEqual(probe.get("retain_ready_hand_after"), ["probe_retain_anchor_runtime"])
+        self.assertEqual(probe.get("retain_ready_discard_after"), 0)
+        self.assertEqual(probe.get("retain_ready_exhaust_after"), 0)
+        self.assertTrue(probe.get("temp_ready_ok"))
+        self.assertEqual(probe.get("temp_ready_energy_after"), 0)
+        self.assertEqual(probe.get("temp_ready_hand_after"), [])
+        self.assertEqual(probe.get("temp_ready_exhaust_after"), 1)
+        self.assertEqual(probe.get("temp_ready_exhaust_top_instance_id"), "probe_temp_anchor_runtime")
+        self.assertEqual(probe.get("temp_ready_exhaust_top_card_id"), "probe_temp_anchor")
+        self.assertFalse(probe.get("no_target_attack_ok"))
+        self.assertEqual(probe.get("no_target_attack_reason"), "ERR_NO_VALID_TARGETS")
+        self.assertTrue(probe.get("targetless_play_ok"))
+        self.assertEqual(probe.get("targetless_energy_after"), 0)
+        self.assertEqual(probe.get("targetless_hand_after"), ["probe_draw_strike_runtime"])
+        self.assertEqual(probe.get("targetless_last_resolved_card_id"), "probe_stack_top_anchor")
+        self.assertEqual(probe.get("targetless_last_resolved_effect_type"), "draw_n")
+        self.assertEqual(probe.get("targetless_last_resolved_effect_amount"), 1)
 
     def test_runtime_card_instances_preserve_instance_id_and_card_id(self):
         probe = self._run_card_instance_probe()
@@ -547,6 +693,8 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("hand_internal_uses_dictionaries"))
         self.assertTrue(probe.get("draw_internal_uses_dictionaries"))
         self.assertEqual(probe.get("view_hand_first"), "strike_01")
+        self.assertTrue(probe.get("raw_string_hand_normalized"))
+        self.assertTrue(probe.get("raw_string_draw_normalized"))
 
     def test_runtime_card_instances_resolve_authored_effects_without_alias_ids(self):
         probe = self._run_card_instance_probe()
@@ -621,6 +769,77 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("FOCUS", probe.get("zones_text", ""))
         self.assertIn("Gem Top", probe.get("zones_text", ""))
         self.assertIn("Sapphire", probe.get("zones_text", ""))
+
+    def test_reward_overlay_presents_and_then_confirms_reward_state_cleanly(self):
+        probe = self._run_reward_overlay_probe()
+        self.assertTrue(probe.get("presented_overlay_visible"))
+        self.assertTrue(probe.get("presented_seal_has_texture"))
+        self.assertGreaterEqual(probe.get("presented_visible_reward_count", 0), 3)
+        self.assertIn("Victory Reward", probe.get("presented_title", ""))
+        self.assertIn("Choose 1 card", probe.get("presented_subtitle", ""))
+        self.assertIn("Hotkeys: 1-3 pick reward", probe.get("presented_state_text", ""))
+        self.assertFalse(probe.get("presented_continue_visible"))
+        self.assertEqual(probe.get("presented_selected_footer"), "Add to deck")
+        self.assertTrue(probe.get("applied_overlay_visible"))
+        self.assertIn("Checkpoint Complete", probe.get("applied_title", ""))
+        self.assertIn("Reward secured", probe.get("applied_subtitle", ""))
+        self.assertIn("Reward claimed.", probe.get("applied_state_text", ""))
+        self.assertIn("Enter starts next encounter", probe.get("applied_state_text", ""))
+        self.assertTrue(probe.get("applied_continue_visible"))
+        self.assertEqual(probe.get("applied_selected_footer"), "Chosen")
+        self.assertEqual(probe.get("applied_unselected_footer"), "Reward secured")
+        self.assertTrue(probe.get("applied_selected_disabled"))
+        self.assertTrue(probe.get("applied_unselected_disabled"))
+
+    def test_combat_stage_event_feed_keeps_latest_event_readable_and_toned(self):
+        probe = self._run_combat_stage_event_feed_probe()
+        self.assertGreaterEqual(probe.get("panel_width", 0), 340)
+        self.assertGreaterEqual(probe.get("panel_height", 0), 140)
+        self.assertEqual(probe.get("row_count"), 3)
+        self.assertEqual(probe.get("latest_tone"), "bad")
+        self.assertEqual(probe.get("reward_tone"), "good")
+        self.assertEqual(probe.get("resolve_tone"), "neutral")
+        self.assertEqual(probe.get("latest_badge"), "#11")
+        self.assertEqual(probe.get("reward_badge"), "#10")
+        self.assertIn("Can't play Strike", probe.get("latest_text", ""))
+        self.assertIn("no living target matches this card", probe.get("latest_text", ""))
+        self.assertIn("Reward checkpoint opened", probe.get("reward_text", ""))
+        self.assertIn("Strike+", probe.get("reward_text", ""))
+        self.assertIn("Resolve Strike", probe.get("resolve_text", ""))
+        self.assertIn("Reward selection rejected", probe.get("reward_reject_text", ""))
+        self.assertIn("no reward is available", probe.get("reward_reject_text", "").lower())
+        self.assertEqual(probe.get("reward_reject_tone"), "bad")
+        self.assertLessEqual(probe.get("latest_text_length", 999), 72)
+        self.assertLessEqual(probe.get("reward_text_length", 999), 64)
+        self.assertTrue(probe.get("latest_is_primary"))
+        self.assertFalse(probe.get("reward_is_primary"))
+
+    def test_combat_stage_reward_overlay_hitboxes_match_visible_cards(self):
+        probe = self._run_combat_stage_reward_hit_probe()
+        self.assertEqual(probe.get("hit_first"), 0)
+        self.assertEqual(probe.get("hit_second"), 1)
+        self.assertEqual(probe.get("hit_third"), 2)
+        self.assertEqual(probe.get("gap_between_cards"), -1)
+        self.assertEqual(probe.get("space_above_first"), -1)
+        self.assertEqual(probe.get("hover_lift_second"), 1)
+        self.assertEqual(probe.get("hover_lift_above_range"), -1)
+
+    def test_combat_stage_hovered_hand_hitboxes_match_visible_card_bounds(self):
+        probe = self._run_combat_stage_hand_hit_probe()
+        self.assertEqual(probe.get("base_first"), 0)
+        self.assertEqual(probe.get("base_second"), 1)
+        self.assertEqual(probe.get("base_third"), 2)
+        self.assertEqual(probe.get("hovered_extension_hit"), 1)
+        self.assertEqual(probe.get("hovered_above_miss"), -1)
+
+    def test_map_hover_cursor_resets_when_state_changes(self):
+        probe = self._run_map_hover_cursor_probe()
+        self.assertEqual(probe.get("refresh_hovered_node"), -1)
+        self.assertEqual(probe.get("refresh_cursor"), 0)
+        self.assertEqual(probe.get("show_event_hovered_node"), -1)
+        self.assertEqual(probe.get("show_event_cursor"), 0)
+        self.assertEqual(probe.get("dismiss_hovered_node"), -1)
+        self.assertEqual(probe.get("dismiss_cursor"), 0)
 
     def test_hud_theme_contrast_ratios_meet_minimum_readability(self):
         probe = self._run_hud_contrast_probe()
@@ -768,15 +987,38 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
             probe.get("weighted_ids"),
             ["weighted_heavy", "weighted_light_a", "weighted_light_b"],
         )
+        self.assertEqual(probe.get("modifier_weight_ids"), ["mod_heavy", "mod_light", "mod_plain"])
+        self.assertEqual(
+            probe.get("conditional_inactive_ids"),
+            ["cond_plain_a", "cond_boost", "cond_plain_b"],
+        )
+        self.assertEqual(
+            probe.get("conditional_active_ids"),
+            ["cond_boost", "cond_plain_a", "cond_plain_b"],
+        )
+        self.assertEqual(
+            probe.get("real_catalog_modifier_inactive_ids"),
+            ["probe_reward_weight_boost", "probe_reward_weight_focus", "probe_reward_weight_plain"],
+        )
+        self.assertEqual(
+            probe.get("real_catalog_modifier_active_ids"),
+            ["probe_reward_weight_focus", "probe_reward_weight_boost", "probe_reward_weight_plain"],
+        )
         self.assertEqual(probe.get("equal_weight_ids"), ["equal_c", "equal_a", "equal_b"])
         self.assertEqual(probe.get("history_refill_ids"), ["history_a", "history_b", "history_c"])
 
     def test_live_reward_context_only_switches_to_gsm_on_second_live_checkpoint(self):
         probe = self._run_live_reward_context_probe()
+        self.assertEqual(probe.get("first_context_reward_pool_tag"), "base_reward")
+        self.assertEqual(probe.get("first_context_active_unlock_key"), "base_set")
         self.assertEqual(len(probe.get("first_offer_ids", [])), 3)
         self.assertTrue(probe.get("first_offer_all_base"))
+        self.assertEqual(probe.get("second_context_reward_pool_tag"), "gsm_reward")
+        self.assertEqual(probe.get("second_context_active_unlock_key"), "gsm_set")
         self.assertEqual(len(probe.get("second_offer_ids", [])), 3)
         self.assertTrue(probe.get("second_offer_all_gsm"))
+        self.assertEqual(probe.get("base_only_second_context_reward_pool_tag"), "base_reward")
+        self.assertEqual(probe.get("base_only_second_context_active_unlock_key"), "base_set")
         self.assertEqual(len(probe.get("base_only_second_offer_ids", [])), 3)
         self.assertTrue(probe.get("base_only_second_offer_all_base"))
 
@@ -790,7 +1032,11 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertIn("Defend+", probe.get("reward_line", ""))
         self.assertIn("Precise Strike", probe.get("reward_line", ""))
         self.assertIn("Offset Scalpel", probe.get("reject_line", ""))
-        self.assertIn("requires FOCUS", probe.get("reject_line", ""))
+        self.assertIn("needs FOCUS", probe.get("reject_line", ""))
+        self.assertIn("Strike", probe.get("no_target_reject_line", ""))
+        self.assertIn("living target", probe.get("no_target_reject_line", ""))
+        self.assertIn("Ruby Open", probe.get("stack_reject_line", ""))
+        self.assertIn("top gem does not match", probe.get("stack_reject_line", ""))
 
     def test_hybrid_cards_resolve_combat_and_gem_effects_together(self):
         probe = self._run_hybrid_payoff_probe()

@@ -7,6 +7,11 @@ class_name UITheme
 const PANEL_BG := Color("#1a1520")
 const PANEL_BORDER := Color("#4b3860")
 const ARENA_BG := Color("#0e0a14")
+const ARENA_SPOTLIGHT_PLAYER := Color(0.65, 0.25, 0.30, 0.14)
+const ARENA_SPOTLIGHT_ENEMY := Color(0.20, 0.38, 0.62, 0.12)
+const ARENA_SPOTLIGHT_CENTER := Color(0.82, 0.67, 0.34, 0.10)
+const FEED_PANEL_BG := Color(0.09, 0.08, 0.13, 0.78)
+const FEED_PANEL_BORDER := Color(0.37, 0.31, 0.45, 0.92)
 
 # ── Typography ────────────────────────────────────────────────────────
 const TEXT_PRIMARY := Color("#fffdf5")
@@ -41,6 +46,10 @@ const CARD_COST_BG := Color("#2a2040")
 const CARD_COST_TEXT := Color("#e0d8f0")
 const CARD_ART_BG := Color("#c8bda5")
 const CARD_FOOTER_LOCKED := Color("#402020")
+const CARD_SHADOW := Color(0, 0, 0, 0.22)
+const CARD_HOVER_GLOW := Color(1.0, 0.96, 0.84, 0.16)
+const CARD_REWARD_PANEL_BG := Color(0.14, 0.10, 0.16, 0.94)
+const CARD_REWARD_PANEL_BORDER := Color(0.62, 0.48, 0.30, 0.92)
 
 # ── Map nodes ─────────────────────────────────────────────────────────
 const NODE_RUBY := Color("#e04040")
@@ -56,6 +65,6 @@ const EDGE_LEGAL := Color("#60d0ff")
 const CARD_WIDTH := 320.0
 const CARD_HEIGHT := 440.0
 const CARD_OVERLAP := 200.0
-const CARD_HOVER_LIFT := 60.0
-const CARD_HOVER_SCALE := 1.15
+const CARD_HOVER_LIFT := 72.0
+const CARD_HOVER_SCALE := 1.18
 const NODE_RADIUS := 72.0

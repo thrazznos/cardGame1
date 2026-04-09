@@ -140,6 +140,18 @@ Presentation mapping currently follows shared family lanes rather than one-image
    - `card_scheme_seep_goblin_md.png` for a more explicitly seep-goblin read
    - `card_defend_badger_bulwark_md.png` if the civic badge language feels too modern
 
+## Polish pass additions -- 2026-04-08
+
+16. `assets/generated/ui/reward/reward_seal_steward_polish.png`
+- Intended usage: active `CombatStageController` reward-overlay seal / crest accent
+- Source: local ComfyUI SDXL relic workflow (`tools/imagegen/output/polish_pass/reward_seal_steward_00001_.png`), background knocked out and fit to 112x112 for runtime use
+- Notes: stronger ceremonial reward moment than the old flat seal; current runtime loads this first, then falls back to the older reward seal asset if missing.
+
+17. `assets/generated/cards/card_vault_focus_seal_polish_md.png`
+- Intended usage: active `CombatStageController` focus lane (`gem_focus`, `gem_hybrid_focus_guard`)
+- Source: local ComfyUI SDXL relic workflow (`tools/imagegen/output/polish_pass/focus_seal_card_00001_.png`), cropped to the stronger emblem half and scaled to 512 square
+- Notes: more premium emblematic focus read; current runtime loads this first, then falls back to the older focus seal card art if missing.
+
 ## Related handoff docs
 
 - `tools/imagegen/prompts/next-art-agent-prompts.md`

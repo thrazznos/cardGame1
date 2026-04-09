@@ -147,6 +147,7 @@ func reward_pool_entries(reward_pool_tag: String) -> Array:
 			"rarity": str(card.get("rarity", "common")),
 			"unlock_key": str(card.get("unlock_key", "base_set")),
 			"weight_base": float(card.get("weight_base", 1.0)),
+			"weight_modifiers": _dictionary_array(card.get("weight_modifiers", [])),
 			"reward_order": int(card.get("reward_order", 999)),
 		})
 	entries.sort_custom(func(a: Dictionary, b: Dictionary): return int(a.get("reward_order", 999)) < int(b.get("reward_order", 999)))

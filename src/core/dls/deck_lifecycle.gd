@@ -16,7 +16,15 @@ func _init() -> void:
 	card_catalog = CARD_CATALOG_SCRIPT.new()
 	card_instance = CARD_INSTANCE_SCRIPT.new()
 
+func normalize_zones() -> void:
+	draw_pile = _normalize_zone(draw_pile)
+	hand = _normalize_zone(hand)
+	discard_pile = _normalize_zone(discard_pile)
+	exhaust_pile = _normalize_zone(exhaust_pile)
+	limbo = _normalize_zone(limbo)
+
 func draw_one() -> Variant:
+	normalize_zones()
 	if draw_pile.is_empty():
 		_reshuffle_discard_into_draw()
 	if draw_pile.is_empty():
@@ -26,6 +34,7 @@ func draw_one() -> Variant:
 	return card
 
 func commit_play(card_id: String) -> Dictionary:
+	normalize_zones()
 	for i in range(hand.size()):
 		if _instance_id_of(hand[i]) == card_id:
 			var card: Dictionary = _normalize_card(hand.pop_at(i))
@@ -34,6 +43,7 @@ func commit_play(card_id: String) -> Dictionary:
 	return {"ok": false, "reason": "ERR_CARD_NOT_IN_HAND"}
 
 func finalize_play(card_id: String, destination: String = "") -> void:
+	normalize_zones()
 	for i in range(limbo.size()):
 		if _instance_id_of(limbo[i]) == card_id:
 			var card: Dictionary = _normalize_card(limbo.pop_at(i))
@@ -50,6 +60,12 @@ func finalize_play(card_id: String, destination: String = "") -> void:
 func _reshuffle_discard_into_draw() -> void:
 	draw_pile = discard_pile.duplicate(true)
 	discard_pile.clear()
+
+func _normalize_zone(zone: Array) -> Array:
+	var normalized: Array = []
+	for value in zone:
+		normalized.append(_normalize_card(value))
+	return normalized
 
 func _normalize_card(value: Variant) -> Dictionary:
 	return card_instance.from_value(value, card_catalog)

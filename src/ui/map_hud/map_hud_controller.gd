@@ -20,6 +20,10 @@ const NODE_CURRENT := Color("#f0c030")
 const NODE_LEGAL_RING := Color("#e0b840")
 const EDGE_DEFAULT := Color("#403848")
 const EDGE_LEGAL := Color("#60d0ff")
+const EDGE_HOVER := Color("#f5d98a")
+const NODE_HOVER_RING := Color("#fff1c2")
+const TOOLTIP_BG := Color(0.09, 0.08, 0.13, 0.92)
+const TOOLTIP_BORDER := Color(0.55, 0.46, 0.30, 0.96)
 const NODE_RADIUS := 72.0
 
 var _gem_ruby_tex: Texture2D
@@ -33,6 +37,7 @@ var node_positions: Dictionary = {}
 var _busy: bool = false
 var _event_text: String = ""
 var _showing_event: bool = false
+var _hovered_node_id: int = -1
 
 func _ready() -> void:
 	_gem_ruby_tex = _try_load("res://assets/generated/gems/obj_gem_ruby_token_md.png")
@@ -54,6 +59,8 @@ func refresh(vm: Dictionary, p_gem_stack: Array = [], p_gem_cap: int = 6) -> voi
 	gem_stack = p_gem_stack
 	gem_stack_cap = p_gem_cap
 	_busy = false
+	_hovered_node_id = -1
+	mouse_default_cursor_shape = CURSOR_ARROW
 	_compute_node_positions()
 	queue_redraw()
 
@@ -84,16 +91,22 @@ func show_event(event_text: String) -> void:
 	_showing_event = true
 	_event_text = event_text
 	_busy = true
+	_hovered_node_id = -1
+	mouse_default_cursor_shape = CURSOR_ARROW
 	queue_redraw()
 
 func dismiss_event() -> void:
 	_showing_event = false
 	_event_text = ""
 	_busy = false
+	_hovered_node_id = -1
+	mouse_default_cursor_shape = CURSOR_ARROW
 	queue_redraw()
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), PANEL_BG)
+	draw_circle(size * 0.5, min(size.x, size.y) * 0.28, Color(0.18, 0.20, 0.28, 0.10))
+	draw_circle(Vector2(size.x * 0.5, size.y * 0.35), min(size.x, size.y) * 0.18, Color(0.85, 0.70, 0.36, 0.05))
 
 	if _showing_event:
 		_draw_event_screen()
@@ -116,8 +129,15 @@ func _draw() -> void:
 		if not node_positions.has(a) or not node_positions.has(b):
 			continue
 		var is_legal_edge: bool = (a == current and legal_moves.has(b)) or (b == current and legal_moves.has(a))
-		var edge_color: Color = EDGE_LEGAL if is_legal_edge else EDGE_DEFAULT
-		var edge_width: float = 3.0 if is_legal_edge else 1.5
+		var is_hover_edge: bool = _hovered_node_id >= 0 and ((a == current and b == _hovered_node_id) or (b == current and a == _hovered_node_id))
+		var edge_color: Color = EDGE_DEFAULT
+		var edge_width: float = 1.5
+		if is_legal_edge:
+			edge_color = EDGE_LEGAL
+			edge_width = 3.0
+		if is_hover_edge:
+			edge_color = EDGE_HOVER
+			edge_width = 4.0
 		draw_line(node_positions[a], node_positions[b], edge_color, edge_width)
 
 	# Draw nodes
@@ -131,13 +151,18 @@ func _draw() -> void:
 		var node_type: String = str(node.get("node_type", "combat"))
 		var is_current: bool = node_id == current
 		var is_legal: bool = legal_moves.has(node_id)
+		var is_hovered: bool = node_id == _hovered_node_id
 
 		# Node fill
 		var fill_color: Color = _node_fill(affinity, cleared, is_current)
+		if is_hovered and not cleared:
+			fill_color = fill_color.lightened(0.08)
 
 		# Legal ring (thick gold border on clickable rooms)
 		if is_legal and not cleared:
 			draw_circle(pos, NODE_RADIUS + 8.0, NODE_LEGAL_RING)
+		if is_hovered and not cleared:
+			draw_circle(pos, NODE_RADIUS + 14.0, NODE_HOVER_RING)
 
 		# Current position ring (bright double ring)
 		if is_current:
@@ -173,6 +198,7 @@ func _draw() -> void:
 	_draw_floor_banner()
 	_draw_objective_banner()
 	_draw_instructions()
+	_draw_hover_panel()
 
 func _node_fill(affinity: String, cleared: bool, is_current: bool) -> Color:
 	if cleared and not is_current:
@@ -291,13 +317,62 @@ func _draw_instructions() -> void:
 		if legal.is_empty():
 			text = "No rooms available. Floor complete?"
 		else:
-			text = "Click a highlighted room to enter it."
+			text = "Hover a room for details, then click a highlighted room to enter it."
 	elif state == FloorController.STATE_COMBAT:
 		text = "Fighting..."
 	elif state == FloorController.STATE_FLOOR_COMPLETE:
 		text = "Floor complete!"
 	if text != "":
 		draw_string(font, Vector2(24, size.y - 20), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, TEXT_MUTED)
+
+func _draw_hover_panel() -> void:
+	if _hovered_node_id < 0:
+		return
+	var graph: Dictionary = floor_vm.get("graph", {})
+	var nodes: Array = graph.get("nodes", [])
+	var node: Dictionary = {}
+	for entry in nodes:
+		if entry is Dictionary and int(entry.get("node_id", -1)) == _hovered_node_id:
+			node = entry
+			break
+	if node.is_empty():
+		return
+	var title: String = _type_label(str(node.get("node_type", "room")))
+	var affinity: String = str(node.get("gem_affinity", "neutral"))
+	var legal_moves: Array = floor_vm.get("legal_moves", [])
+	var is_legal: bool = legal_moves.has(_hovered_node_id)
+	var lines: Array = []
+	lines.append("Affinity: %s" % affinity.capitalize())
+	var gem_gate: Variant = node.get("gem_gate", null)
+	if gem_gate is Dictionary:
+		var gate_gem: String = str(gem_gate.get("gem", ""))
+		var gate_cost: int = int(gem_gate.get("cost", 0))
+		lines.append("Gate: %d %s on top" % [gate_cost, gate_gem])
+		if not _can_afford_gate(gate_gem, gate_cost):
+			lines.append("Locked until you can pay it")
+	elif bool(node.get("is_exit", false)) and bool(floor_vm.get("boss_locked", false)):
+		lines.append("Boss gate still locked")
+	elif is_legal:
+		lines.append("Click to enter")
+	var panel_size := Vector2(260, 34 + float(lines.size()) * 20.0)
+	var panel_pos := Vector2(size.x - panel_size.x - 24.0, size.y - panel_size.y - 96.0)
+	draw_rect(Rect2(panel_pos, panel_size), TOOLTIP_BG)
+	draw_rect(Rect2(panel_pos, panel_size), TOOLTIP_BORDER, false, 2.0)
+	var font: Font = ThemeDB.fallback_font
+	draw_string(font, panel_pos + Vector2(14, 22), title, HORIZONTAL_ALIGNMENT_LEFT, int(panel_size.x - 28.0), 18, TEXT_PRIMARY)
+	for i in range(lines.size()):
+		draw_string(font, panel_pos + Vector2(14, 44 + float(i) * 18.0), str(lines[i]), HORIZONTAL_ALIGNMENT_LEFT, int(panel_size.x - 28.0), 16, TEXT_MUTED if i < 2 else TEXT_WARN)
+
+func _can_afford_gate(gate_gem: String, gate_cost: int) -> bool:
+	if gate_cost <= 0 or gate_gem == "":
+		return true
+	if gem_stack.size() < gate_cost:
+		return false
+	var start_index: int = gem_stack.size() - gate_cost
+	for i in range(start_index, gem_stack.size()):
+		if str(gem_stack[i]) != gate_gem:
+			return false
+	return true
 
 func _gui_input(event: InputEvent) -> void:
 	if _showing_event:
@@ -308,7 +383,14 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	if _busy:
 		return
-	if event is InputEventMouseButton:
+	if event is InputEventMouseMotion:
+		var mm: InputEventMouseMotion = event
+		var hovered_node: int = _node_at_position(mm.position)
+		if hovered_node != _hovered_node_id:
+			_hovered_node_id = hovered_node
+			mouse_default_cursor_shape = CURSOR_POINTING_HAND if hovered_node >= 0 and floor_vm.get("legal_moves", []).has(hovered_node) else CURSOR_ARROW
+			queue_redraw()
+	elif event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
 			var clicked_node: int = _node_at_position(mb.position)

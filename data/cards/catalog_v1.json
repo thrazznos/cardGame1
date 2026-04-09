@@ -24,8 +24,10 @@
       "reward_rules_text": "Add to deck \u2022 Deal 6 dmg \u2022 Cost 1",
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 6
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 6
+          }
         }
       ],
       "speed_class": "normal",
@@ -135,8 +137,10 @@
       },
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 7
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 7
+          }
         }
       ],
       "speed_class": "normal",
@@ -174,12 +178,16 @@
       },
       "effects": [
         {
-          "type": "deal_damage",
-          "amount": 6
+          "effect_id": "deal_damage",
+          "params": {
+            "amount": 6
+          }
         },
         {
-          "type": "draw_n",
-          "amount": 1
+          "effect_id": "draw_n",
+          "params": {
+            "amount": 1
+          }
         }
       ],
       "speed_class": "normal",
@@ -960,6 +968,278 @@
         "probe",
         "contract"
       ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_stack_top_anchor",
+      "aliases": [],
+      "display_name": "Ruby Open",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Top Ruby • Draw 1 • Cost 1",
+      "tooltip_text": "Debug probe card: requires Ruby on top of the gem stack and draws 1 card. No combat target required.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "effect_id": "draw_n",
+          "params": {
+            "amount": 1
+          },
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "none",
+      "max_targets": 0,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [
+        {
+          "condition_id": "stack_top_is",
+          "gem": "Ruby"
+        }
+      ],
+      "combo_tags": [
+        "probe",
+        "stack"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_discard_ready_anchor",
+      "aliases": [],
+      "display_name": "Discard Ready",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Discard 2+ • Gain 4 block • Cost 1",
+      "tooltip_text": "Debug probe card: requires at least two cards in discard before it can resolve, then gains 4 block.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 4,
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [
+        {
+          "condition_id": "discard_at_least",
+          "amount": 2
+        }
+      ],
+      "combo_tags": [
+        "probe",
+        "discard"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_retain_anchor",
+      "aliases": [],
+      "display_name": "Retain Anchor",
+      "role_marker": "[DEF]",
+      "palette": "defend",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "retain",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Gain 3 block • Retain on play • Cost 1",
+      "tooltip_text": "Debug probe card: gains 3 block and returns to hand after play via retain.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 3,
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [
+        "probe",
+        "retain"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_temp_anchor",
+      "aliases": [],
+      "display_name": "Temp Anchor",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "temp",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "pool_tags": [],
+      "hand_rules_text": "Gain 2 block • Temp exhaust on play • Cost 1",
+      "tooltip_text": "Debug probe card: gains 2 block and exhausts via temp zone-on-play semantics.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 2,
+          "preview_priority": 1,
+          "stack_behavior": "sequential"
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": [
+        "probe",
+        "temp"
+      ],
+      "chain_flags": [],
+      "weight_modifiers": []
+    },
+    {
+      "card_id": "probe_reward_weight_focus",
+      "aliases": [],
+      "display_name": "Focus Draft Probe",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 0,
+      "pool_tags": ["test_reward_weight_mod"],
+      "hand_rules_text": "Debug reward weight probe",
+      "tooltip_text": "Debug probe card for RewardDraft conditional weight modifier integration.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 1
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": ["probe", "reward_weight"],
+      "chain_flags": [],
+      "weight_modifiers": [
+        {
+          "modifier_id": "focus_bonus",
+          "type": "multiply",
+          "value": 2.0,
+          "condition_key": "focus_family"
+        }
+      ]
+    },
+    {
+      "card_id": "probe_reward_weight_boost",
+      "aliases": [],
+      "display_name": "Boost Draft Probe",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 1,
+      "pool_tags": ["test_reward_weight_mod"],
+      "hand_rules_text": "Debug reward weight probe",
+      "tooltip_text": "Debug probe card for RewardDraft unconditional weight modifier integration.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 1
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": ["probe", "reward_weight"],
+      "chain_flags": [],
+      "weight_modifiers": [
+        {
+          "modifier_id": "boost_cap",
+          "type": "multiply",
+          "value": 10.0
+        }
+      ]
+    },
+    {
+      "card_id": "probe_reward_weight_plain",
+      "aliases": [],
+      "display_name": "Plain Draft Probe",
+      "role_marker": "[UTL]",
+      "palette": "utility",
+      "base_cost": 1,
+      "speed_class": "normal",
+      "timing_window": "main",
+      "zone_on_play": "discard",
+      "rarity": "common",
+      "unlock_key": "base_set",
+      "weight_base": 1.0,
+      "reward_order": 2,
+      "pool_tags": ["test_reward_weight_mod"],
+      "hand_rules_text": "Debug reward weight probe",
+      "tooltip_text": "Debug probe card for RewardDraft plain-weight integration.",
+      "reward_rules_text": "Debug probe only",
+      "effects": [
+        {
+          "type": "gain_block",
+          "amount": 1
+        }
+      ],
+      "cost_type": "energy",
+      "target_mode": "self",
+      "max_targets": 1,
+      "invalid_target_policy": "fizzle",
+      "play_conditions": [],
+      "combo_tags": ["probe", "reward_weight"],
       "chain_flags": [],
       "weight_modifiers": []
     }

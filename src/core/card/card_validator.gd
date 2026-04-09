@@ -110,9 +110,26 @@ func validate_catalog(payload: Dictionary) -> Array[String]:
 				if not (condition_variant is Dictionary):
 					errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
 					break
-				if str((condition_variant as Dictionary).get("condition_id", "")).strip_edges() == "":
+				var condition: Dictionary = condition_variant
+				var condition_id: String = str(condition.get("condition_id", "")).strip_edges()
+				if condition_id == "":
 					errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
 					break
+				match condition_id:
+					"focus_at_least":
+						if not condition.has("amount"):
+							errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
+							break
+					"stack_top_is":
+						if str(condition.get("gem", "")).strip_edges() == "":
+							errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
+							break
+					"discard_at_least":
+						if not condition.has("amount") or int(condition.get("amount", 0)) < 1:
+							errors.append("ERR_CARD_PLAY_CONDITIONS_INVALID:%s" % card_id)
+							break
+					_:
+						pass
 		var combo_tags: Variant = card.get("combo_tags", [])
 		if not (combo_tags is Array):
 			errors.append("ERR_CARD_COMBO_TAGS_INVALID:%s" % card_id)
@@ -131,10 +148,18 @@ func validate_catalog(payload: Dictionary) -> Array[String]:
 				if str(modifier.get("modifier_id", "")).strip_edges() == "":
 					errors.append("ERR_CARD_WEIGHT_MODIFIERS_INVALID:%s" % card_id)
 					break
-				if str(modifier.get("type", "")).strip_edges() == "":
+				var modifier_type: String = str(modifier.get("type", "")).strip_edges()
+				if modifier_type == "":
+					errors.append("ERR_CARD_WEIGHT_MODIFIERS_INVALID:%s" % card_id)
+					break
+				if modifier_type != "multiply":
 					errors.append("ERR_CARD_WEIGHT_MODIFIERS_INVALID:%s" % card_id)
 					break
 				if not modifier.has("value"):
+					errors.append("ERR_CARD_WEIGHT_MODIFIERS_INVALID:%s" % card_id)
+					break
+				var modifier_value: Variant = modifier.get("value")
+				if not (modifier_value is int or modifier_value is float):
 					errors.append("ERR_CARD_WEIGHT_MODIFIERS_INVALID:%s" % card_id)
 					break
 		var effects: Array = card.get("effects", [])

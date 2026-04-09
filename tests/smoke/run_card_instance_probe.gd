@@ -30,6 +30,12 @@ func _init() -> void:
 	node.call("refresh_hud")
 	var normalized_vm: Dictionary = node.call("get_view_model")
 
+	dls.hand = ["strike_01"]
+	dls.draw_pile = ["defend_01"]
+	node.call("refresh_hud")
+	var raw_string_hand_normalized: bool = dls.hand.size() > 0 and dls.hand[0] is Dictionary
+	var raw_string_draw_normalized: bool = dls.draw_pile.size() > 0 and dls.draw_pile[0] is Dictionary
+
 	var runtime_instance: Dictionary = {
 		"instance_id": "combat_runtime_strike_alpha",
 		"card_id": "strike",
@@ -169,6 +175,8 @@ func _init() -> void:
 		"hand_internal_uses_dictionaries": hand_internal_uses_dictionaries,
 		"draw_internal_uses_dictionaries": draw_internal_uses_dictionaries,
 		"view_hand_first": str(normalized_vm.get("hand", [""])[0]),
+		"raw_string_hand_normalized": raw_string_hand_normalized,
+		"raw_string_draw_normalized": raw_string_draw_normalized,
 		"runtime_view_hand_before_play": runtime_vm_before.get("hand", []).duplicate(true),
 		"runtime_view_hand_after_play": runtime_vm_after.get("hand", []).duplicate(true),
 		"play_ok": bool(play_result.get("ok", false)),

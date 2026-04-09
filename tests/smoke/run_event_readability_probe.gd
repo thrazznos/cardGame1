@@ -84,6 +84,16 @@ func _init() -> void:
 		"kind": "play_reject",
 		"payload": {"card_id": "gem_offset_consume_ruby_ok", "reason": "ERR_FOCUS_REQUIRED"},
 	}))
+	var no_target_reject_line: String = str(runner.call("_format_event_line", {
+		"order_index": 11,
+		"kind": "play_reject",
+		"payload": {"card_id": "strike", "reason": "ERR_NO_VALID_TARGETS"},
+	}))
+	var stack_reject_line: String = str(runner.call("_format_event_line", {
+		"order_index": 12,
+		"kind": "play_reject",
+		"payload": {"card_id": "probe_stack_top_anchor", "reason": "ERR_STACK_TOP_MISMATCH"},
+	}))
 
 	var hud: Node = root_node.get_node("CombatHud")
 	hud.call("bind_runner", FakeRunner.new())
@@ -104,6 +114,8 @@ func _init() -> void:
 		"event_log_text": event_label.text,
 		"reward_line": reward_line,
 		"reject_line": reject_line,
+		"no_target_reject_line": no_target_reject_line,
+		"stack_reject_line": stack_reject_line,
 	}
 	print("EVENT_READABILITY_PROBE=" + JSON.stringify(payload))
 	root_node.queue_free()

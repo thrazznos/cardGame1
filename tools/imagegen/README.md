@@ -40,5 +40,6 @@ Notes:
 - The launch script is configured for Apple Silicon MPS.
 - Large local artifacts are intentionally gitignored.
 - Default server URL is `http://127.0.0.1:8188`.
-- Current local FLUX setup uses the FP8 Schnell checkpoint plus separate text encoders and the lightweight `taef1` VAE for practical Apple Silicon use.
-- If you authenticate to Hugging Face and accept the Black Forest Labs license, you can additionally run: `tools/imagegen/.venv/bin/python tools/imagegen/download_models.py flux-schnell-ae-auth` to fetch `ae.safetensors`.
+- Current local FLUX setup uses the FP8 Schnell checkpoint plus separate text encoders. In this repo's current ComfyUI stack, the lightweight bundled `taef1` VAE is rejected by `VAELoader`, so successful default FLUX runs require `ae.safetensors`.
+- If you authenticate to Hugging Face and accept the Black Forest Labs license, run: `tools/imagegen/.venv/bin/python tools/imagegen/download_models.py flux-schnell-ae-auth` to fetch `ae.safetensors`.
+- `tools/imagegen/run_workflow.py flux_schnell_fp8_api.json ...` now prefers `ae.safetensors` automatically when present and fails fast with an actionable message when it is missing, instead of queueing a doomed FLUX prompt.

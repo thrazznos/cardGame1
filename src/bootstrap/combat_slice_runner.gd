@@ -161,6 +161,8 @@ func _bootstrap_demo_state() -> void:
 		dls.draw_one()
 
 func get_view_model() -> Dictionary:
+	if dls != null and dls.has_method("normalize_zones"):
+		dls.normalize_zones()
 	return {
 		"turn": tsre.turn_index,
 		"phase": tsre.phase,
@@ -224,6 +226,8 @@ func refresh_hud() -> void:
 		hud.refresh(get_view_model())
 
 func player_play_card(instance_id: String) -> Dictionary:
+	if dls != null and dls.has_method("normalize_zones"):
+		dls.normalize_zones()
 	var play_gate_reason: String = _get_play_gate_reason()
 	if play_gate_reason != "":
 		return _reject_play(instance_id, {"ok": false, "reason": play_gate_reason})
@@ -278,7 +282,8 @@ func player_play_card(instance_id: String) -> Dictionary:
 	_resolve_queue_once()
 	tsre.resolve_lock = false
 	_record_event("play_commit", {
-		"card_id": source_instance_id,
+		"source_instance_id": source_instance_id,
+		"card_id": resolved_card_id,
 		"energy_after": energy,
 	})
 	_check_combat_end()
@@ -803,9 +808,7 @@ func _apply_step(step: Dictionary) -> void:
 	match action:
 		"set_hand":
 			var cards: Array = step.get("cards", [])
-			dls.hand = []
-			for card in cards:
-				dls.hand.append(_card_instance_value(card))
+			dls.hand = _card_instance_array(cards, _encounter_runtime_scope("fixture_hand"))
 			if bool(step.get("clear_other_zones", false)):
 				dls.draw_pile = []
 				dls.discard_pile = []
@@ -945,28 +948,78 @@ func _card_play_condition_reason(card_value: Variant) -> String:
 	for condition_variant in card_catalog.play_conditions(card_id):
 		if not (condition_variant is Dictionary):
 			continue
-		var condition: Dictionary = condition_variant
-		var condition_id: String = str(condition.get("condition_id", "")).strip_edges()
-		match condition_id:
-			"focus_at_least":
-				if gsm == null:
-					return "ERR_FOCUS_REQUIRED"
-				var required_focus: int = max(1, int(condition.get("amount", 1)))
-				if int(gsm.focus_snapshot()) < required_focus:
-					return "ERR_FOCUS_REQUIRED"
-			_:
-				pass
+		var condition_reason: String = _play_condition_reason(condition_variant)
+		if condition_reason != "":
+			return condition_reason
+	return ""
+
+func _play_condition_reason(condition_variant: Variant) -> String:
+	if not (condition_variant is Dictionary):
+		return ""
+	var condition: Dictionary = condition_variant
+	var condition_id: String = str(condition.get("condition_id", "")).strip_edges()
+	match condition_id:
+		"focus_at_least":
+			if gsm == null:
+				return "ERR_FOCUS_REQUIRED"
+			var required_focus: int = max(1, int(condition.get("amount", 1)))
+			if int(gsm.focus_snapshot()) < required_focus:
+				return "ERR_FOCUS_REQUIRED"
+		"stack_top_is":
+			if gsm == null:
+				return "ERR_STACK_EMPTY"
+			var expected_gem: String = _normalize_condition_gem(str(condition.get("gem", "")))
+			var actual_top: String = str(gsm.peek_top()).strip_edges()
+			if actual_top == "":
+				return "ERR_STACK_EMPTY"
+			if expected_gem != "" and actual_top != expected_gem:
+				return "ERR_STACK_TOP_MISMATCH"
+		"discard_at_least":
+			var required_discard: int = max(1, int(condition.get("amount", 1)))
+			if dls == null or dls.discard_pile.size() < required_discard:
+				return "ERR_DISCARD_REQUIRED"
+		_:
+			pass
+	return ""
+
+func _normalize_condition_gem(raw_gem: String) -> String:
+	var gem: String = raw_gem.strip_edges()
+	if gem == "ruby" or gem == "Ruby":
+		return "Ruby"
+	if gem == "sapphire" or gem == "Sapphire":
+		return "Sapphire"
 	return ""
 
 func _card_target_reason(card_value: Variant) -> String:
 	var card_id: String = _card_instance_card_id(card_value)
 	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
 		return ""
-	match card_catalog.target_mode(card_id):
+	var target_mode: String = card_catalog.target_mode(card_id)
+	var max_targets: int = max(0, int(card_catalog.max_targets(card_id)))
+	if target_mode == "none":
+		return ""
+	if max_targets < 1:
+		return _invalid_target_reason(card_id)
+	match target_mode:
+		"self":
+			return ""
 		"single_enemy":
 			if combat_result != RESULT_IN_PROGRESS or enemy_hp <= 0:
-				return "ERR_NO_VALID_TARGETS"
+				return _invalid_target_reason(card_id)
 	return ""
+
+func _invalid_target_reason(card_id: String) -> String:
+	if card_id == "" or card_catalog == null or not card_catalog.has_card(card_id):
+		return "ERR_NO_VALID_TARGETS"
+	match card_catalog.invalid_target_policy(card_id):
+		"fizzle":
+			return "ERR_NO_VALID_TARGETS"
+		"retarget_if_possible":
+			return "ERR_NO_VALID_TARGETS"
+		"retarget_random_deterministic":
+			return "ERR_NO_VALID_TARGETS"
+		_:
+			return "ERR_NO_VALID_TARGETS"
 
 func _reject_play(source_instance_id: String, result: Dictionary) -> Dictionary:
 	var payload: Dictionary = result.duplicate(true)
@@ -999,9 +1052,17 @@ func _present_reward_checkpoint() -> void:
 	})
 
 func _live_reward_context_for_checkpoint(checkpoint_id: String) -> Dictionary:
+	# Contract:
+	# - first live checkpoint stays on base rewards
+	# - second+ live checkpoints may switch to gsm rewards
+	# - switch only happens when the live deck already has meaningful gsm density
+	#   and the gsm reward pool is actually populated
+	return _live_reward_context_for_checkpoint_count(checkpoint_id, reward_checkpoint_count)
+
+func _live_reward_context_for_checkpoint_count(checkpoint_id: String, checkpoint_count: int) -> Dictionary:
 	var reward_pool_tag: String = "base_reward"
 	var active_unlock_key: String = "base_set"
-	if reward_checkpoint_count >= 2 and _run_contains_unlock_key("gsm_set", 4) and _reward_pool_has_entries("gsm_reward", 3):
+	if checkpoint_count >= 2 and _run_contains_unlock_key("gsm_set", 4) and _reward_pool_has_entries("gsm_reward", 3):
 		reward_pool_tag = "gsm_reward"
 		active_unlock_key = "gsm_set"
 	return _reward_context(checkpoint_id, reward_pool_tag, active_unlock_key)
@@ -1071,17 +1132,17 @@ func _event_card_label_from_ids(card_id: String, instance_id: String = "") -> St
 func _reason_text(reason_code: String) -> String:
 	match reason_code:
 		"ERR_RESOLVE_LOCKED":
-			return "Effects are resolving right now"
+			return "effects are still resolving"
 		"ERR_NOT_ENOUGH_ENERGY":
-			return "you need 1 more energy"
+			return "not enough energy"
 		"ERR_COMBAT_COMPLETE":
 			return "combat is already over"
 		"ERR_NO_VALID_TARGETS":
-			return "no valid target is available"
+			return "no living target matches this card"
 		"ERR_CARD_NOT_IN_HAND":
 			return "that card is no longer in hand"
 		"ERR_PHASE_DISALLOWS_INPUT":
-			return "you cannot act during this phase"
+			return "you can only act during your turn"
 		"ERR_REWARD_NOT_AVAILABLE":
 			return "no reward is available right now"
 		"ERR_REWARD_ALREADY_CLAIMED":
@@ -1089,15 +1150,17 @@ func _reason_text(reason_code: String) -> String:
 		"ERR_INVALID_REWARD_SELECTION":
 			return "that reward choice is not valid"
 		"ERR_FOCUS_REQUIRED":
-			return "this advanced gem action requires FOCUS"
+			return "this card needs FOCUS before it can resolve"
+		"ERR_DISCARD_REQUIRED":
+			return "this card needs more discard setup first"
 		"ERR_STACK_EMPTY":
-			return "the gem stack is empty"
+			return "this card needs a gem on the stack first"
 		"ERR_STACK_TOP_MISMATCH":
 			return "top gem does not match this card"
 		"ERR_STACK_TARGET_MISMATCH":
-			return "targeted gem does not match this card"
+			return "selected gem does not match this card"
 		"ERR_SELECTOR_INVALID":
-			return "that gem selector is out of range"
+			return "selected gem position is out of range"
 		_:
 			return reason_code if reason_code != "" else "action unavailable"
 
@@ -1124,7 +1187,7 @@ func _format_event_line(event: Dictionary) -> String:
 		"play_commit":
 			return "#%d Played %s. Energy %d." % [
 				order_index,
-				_event_card_label_from_ids(str(payload.get("card_id", "-")), str(payload.get("card_id", "-"))),
+				_event_card_label_from_ids(str(payload.get("card_id", "-")), str(payload.get("source_instance_id", payload.get("card_id", "-")))),
 				int(payload.get("energy_after", 0)),
 			]
 		"effect_resolve":
@@ -1243,6 +1306,16 @@ func _format_event_line(event: Dictionary) -> String:
 				order_index,
 				_display_name_for_card(str(payload.get("card_id", "-"))),
 			]
+		"reward_reject":
+			var rejected_card_id: String = str(payload.get("card_id", "")).strip_edges()
+			var reward_reason: String = _reason_text(str(payload.get("reason", "")))
+			if rejected_card_id != "":
+				return "#%d Reward selection rejected for %s: %s." % [
+					order_index,
+					_display_name_for_card(rejected_card_id),
+					reward_reason,
+				]
+			return "#%d Reward selection rejected: %s." % [order_index, reward_reason]
 		"reward_checkpoint_closed":
 			return "#%d Reward panel closed." % order_index
 		_:
