@@ -523,7 +523,7 @@ func _draw_gem_stack_icons(w: float, hand_y: float) -> void:
 func _event_feed_panel_rect(w: float, arena_h: float) -> Rect2:
 	var ui_scale: float = _ui_scale()
 	var panel_size := Vector2(356, 148) * ui_scale
-	var panel_pos := Vector2(w - panel_size.x - 18.0 * ui_scale, arena_h - panel_size.y - 18.0 * ui_scale)
+	var panel_pos := Vector2((w - panel_size.x) * 0.5, arena_h * 0.52)
 	return Rect2(panel_pos, panel_size)
 
 func _event_feed_entries(limit: int = 3) -> Array:
