@@ -329,7 +329,6 @@ func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bo
 	# Title bar
 	var title_rect := Rect2(draw_pos + Vector2(3, 3), Vector2(card_w - 6, title_h))
 	var display_name: String = _resolve_display_name(card_id)
-	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), int(title_h * 0.55), UITheme.CARD_TITLE_TEXT)
 	draw_string(font, draw_pos + Vector2(padding + cost_size + 8, title_h * 0.7), display_name, HORIZONTAL_ALIGNMENT_LEFT, int(inner_w - cost_size - 8), max(12, int(title_h * 0.55)), UITheme.CARD_TITLE_TEXT)
 
 	# Cost badge (top-left circle)
