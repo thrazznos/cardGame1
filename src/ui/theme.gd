@@ -39,7 +39,7 @@ const CARD_BORDER_UTILITY := Color("#c09030")
 
 # ── Card inner regions ────────────────────────────────────────────────
 const CARD_TITLE_BG := Color("#33261a")
-const CARD_TITLE_TEXT := Color("#f7efe2")
+const CARD_TITLE_TEXT := Color("#2c2218")
 const CARD_TEXT := Color("#2c2218")
 const CARD_TEXT_MUTED := Color("#6d5d49")
 const CARD_COST_BG := Color("#2a2040")
