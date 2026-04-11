@@ -67,6 +67,7 @@ const ROLE_ICON_DEFEND_PATH := "res://assets/generated/ui/icons/ui_icon_defend_s
 const ROLE_ICON_UTILITY_PATH := "res://assets/generated/ui/icons/ui_icon_utility_sm.png"
 const FOCUS_ICON_PATH := "res://assets/generated/ui/icons/ui_icon_focus_sm.png"
 const LOCK_ICON_PATH := "res://assets/generated/ui/icons/ui_icon_locked_sm.png"
+const DECK_INSPECTION_OVERLAY_SCENE := preload("res://scenes/ui/deck_inspection_overlay.tscn")
 const BUTTON_ART_SIZE := Vector2(56, 56)
 const BUTTON_ROLE_ICON_SIZE := Vector2(20, 20)
 const STATUS_ICON_SIZE := Vector2(24, 24)
@@ -87,6 +88,7 @@ var previous_vm: Dictionary = {}
 var fx_tweens: Dictionary = {}
 var next_encounter_transition_pending: bool = false
 var card_style_variant: String = "classic"
+var deck_inspection_overlay: Variant = null
 
 func bind_runner(runtime_runner: Variant) -> void:
 	runner = runtime_runner
@@ -97,10 +99,13 @@ func _ready() -> void:
 	_apply_generated_art()
 	if has_node("Margin/VBox/Buttons/Pass"):
 		$Margin/VBox/Buttons/Pass.pressed.connect(_on_pass)
+	if has_node("Margin/VBox/Buttons/Deck"):
+		$Margin/VBox/Buttons/Deck.pressed.connect(_on_deck)
 	if has_node("Margin/VBox/Buttons/Restart"):
 		$Margin/VBox/Buttons/Restart.pressed.connect(_on_restart)
 	_connect_hand_buttons()
 	_connect_reward_buttons()
+	_ensure_deck_inspection_overlay()
 
 func _connect_hand_buttons() -> void:
 	if not has_node("Margin/VBox/HandPanel/HandVBox/HandButtons"):
@@ -1530,6 +1535,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			viewport_style.set_input_as_handled()
 		return
 
+	if _is_deck_hotkey(key_event):
+		if _is_deck_inspection_visible():
+			_close_deck_inspection()
+		else:
+			_open_deck_inspection("combat_full")
+		var viewport_deck := get_viewport()
+		if viewport_deck != null:
+			viewport_deck.set_input_as_handled()
+		return
+
+	if _is_deck_inspection_visible():
+		var viewport_overlay := get_viewport()
+		if viewport_overlay != null:
+			viewport_overlay.set_input_as_handled()
+		return
+
 	var handled: bool = _handle_reward_hotkey(key_event)
 	if not handled:
 		handled = _handle_combat_hotkey(key_event)
@@ -1597,6 +1618,40 @@ func _is_enter_key(key_event: InputEventKey) -> bool:
 func _is_style_toggle_key(key_event: InputEventKey) -> bool:
 	return key_event.keycode == KEY_V
 
+func _is_deck_hotkey(key_event: InputEventKey) -> bool:
+	return key_event.keycode == KEY_D
+
+func _ensure_deck_inspection_overlay() -> Control:
+	if deck_inspection_overlay is Control and is_instance_valid(deck_inspection_overlay):
+		return deck_inspection_overlay
+	var overlay: Control = DECK_INSPECTION_OVERLAY_SCENE.instantiate()
+	overlay.name = "DeckInspectionOverlay"
+	overlay.visible = false
+	add_child(overlay)
+	move_child(overlay, get_child_count() - 1)
+	deck_inspection_overlay = overlay
+	return overlay
+
+func _open_deck_inspection(mode: String = "combat_full") -> void:
+	if runner == null or not runner.has_method("get_deck_inspection_snapshot"):
+		return
+	var overlay := _ensure_deck_inspection_overlay()
+	var snapshot: Dictionary = runner.get_deck_inspection_snapshot(mode)
+	if overlay.has_method("open_with_snapshot"):
+		overlay.open_with_snapshot(snapshot)
+
+func _close_deck_inspection() -> void:
+	if not _is_deck_inspection_visible():
+		return
+	var overlay: Control = deck_inspection_overlay
+	if overlay != null and overlay.has_method("close_overlay"):
+		overlay.close_overlay()
+
+func _is_deck_inspection_visible() -> bool:
+	if not (deck_inspection_overlay is Control) or not is_instance_valid(deck_inspection_overlay):
+		return false
+	return (deck_inspection_overlay as Control).visible
+
 func _on_hand_card_pressed(button: Button) -> void:
 	if runner == null:
 		return
@@ -1612,6 +1667,12 @@ func _on_pass() -> void:
 	if runner == null:
 		return
 	runner.player_pass()
+
+func _on_deck() -> void:
+	if _is_deck_inspection_visible():
+		_close_deck_inspection()
+		return
+	_open_deck_inspection("combat_full")
 
 func _on_restart() -> void:
 	if runner == null:

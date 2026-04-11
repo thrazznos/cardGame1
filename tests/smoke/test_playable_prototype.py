@@ -405,6 +405,60 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing HYBRID_PAYOFF_PROBE output")
         return json.loads(probe_line)
 
+    def _run_deck_inspection_snapshot_builder_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_deck_inspection_snapshot_builder_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("DECK_INSPECTION_SNAPSHOT_BUILDER_PROBE="):
+                probe_line = line[len("DECK_INSPECTION_SNAPSHOT_BUILDER_PROBE="):]
+        self.assertTrue(probe_line, "missing DECK_INSPECTION_SNAPSHOT_BUILDER_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_deck_inspection_overlay_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_deck_inspection_overlay_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("DECK_INSPECTION_OVERLAY_PROBE="):
+                probe_line = line[len("DECK_INSPECTION_OVERLAY_PROBE="):]
+        self.assertTrue(probe_line, "missing DECK_INSPECTION_OVERLAY_PROBE output")
+        return json.loads(probe_line)
+
+    def _run_combat_deck_overlay_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_combat_deck_overlay_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("COMBAT_DECK_OVERLAY_PROBE="):
+                probe_line = line[len("COMBAT_DECK_OVERLAY_PROBE="):]
+        self.assertTrue(probe_line, "missing COMBAT_DECK_OVERLAY_PROBE output")
+        return json.loads(probe_line)
+
     def _run_gsm_pilot_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -1050,6 +1104,87 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("resolve_count_sapphire_burst"), 2)
         self.assertIn("Hybrid", probe.get("hybrid_button_text", ""))
         self.assertIn("Produce 1 Ruby", probe.get("hybrid_button_text", ""))
+
+    def test_deck_inspection_snapshot_builder_normalizes_shared_modes(self):
+        probe = self._run_deck_inspection_snapshot_builder_probe()
+        combat_full = probe.get("combat_full", {})
+        combat_discard = probe.get("combat_discard", {})
+        map_run_deck = probe.get("map_run_deck", {})
+        combat_full_repeat = probe.get("combat_full_repeat", {})
+
+        self.assertEqual(combat_full.get("context"), "combat")
+        self.assertEqual(combat_full.get("title"), "Combat Deck")
+        self.assertTrue(combat_full.get("read_only"))
+        self.assertEqual(combat_full.get("active_filter"), "all")
+        self.assertEqual(combat_full.get("total_count"), 5)
+        self.assertEqual(
+            [section.get("id") for section in combat_full.get("sections", [])],
+            ["draw", "hand", "discard", "exhaust"],
+        )
+        self.assertEqual(
+            [section.get("count") for section in combat_full.get("sections", [])],
+            [2, 1, 1, 1],
+        )
+        self.assertEqual(
+            [card.get("zone") for card in combat_full.get("cards", [])],
+            ["draw", "draw", "hand", "discard", "exhaust"],
+        )
+        self.assertEqual(combat_full.get("cards", [])[0].get("display_name"), "Strike")
+        self.assertEqual(combat_full.get("cards", [])[0].get("card_instance_id"), "strike_01")
+        self.assertEqual(combat_full.get("cards", [])[2].get("card_instance_id"), "runtime_scheme_alpha")
+        self.assertEqual(combat_full.get("cards", [])[2].get("role_label"), "[UTL]")
+        self.assertEqual(combat_full.get("cards", [])[2].get("rules_text"), "Utility • Draw 1 • Cost 1")
+        self.assertEqual(combat_full.get("cards", [])[0].get("art_path"), "")
+        self.assertEqual(combat_full.get("cards", [])[0].get("flags"), {})
+        self.assertEqual(combat_full, combat_full_repeat)
+
+        self.assertEqual(combat_discard.get("context"), "combat")
+        self.assertEqual(combat_discard.get("active_filter"), "discard")
+        self.assertEqual(combat_discard.get("total_count"), 1)
+        self.assertEqual(len(combat_discard.get("cards", [])), 1)
+        self.assertEqual(combat_discard.get("cards", [])[0].get("zone"), "discard")
+        self.assertEqual(combat_discard.get("cards", [])[0].get("display_name"), "Strike+")
+
+        self.assertEqual(map_run_deck.get("context"), "map")
+        self.assertEqual(map_run_deck.get("title"), "Run Deck")
+        self.assertEqual(map_run_deck.get("active_filter"), "all")
+        self.assertEqual(map_run_deck.get("total_count"), 4)
+        self.assertEqual(map_run_deck.get("sections"), [{"id": "deck", "label": "Deck", "count": 4}])
+        self.assertEqual(
+            [card.get("display_name") for card in map_run_deck.get("cards", [])],
+            ["Defend", "Scheme", "Strike", "Strike+"],
+        )
+        self.assertTrue(all(card.get("zone") == "deck" for card in map_run_deck.get("cards", [])))
+        self.assertTrue(all(card.get("zone_label") == "Deck" for card in map_run_deck.get("cards", [])))
+
+    def test_deck_inspection_overlay_renders_snapshot_and_filters_cards(self):
+        probe = self._run_deck_inspection_overlay_probe()
+        self.assertFalse(probe.get("initially_visible"))
+        self.assertTrue(probe.get("after_open_visible"))
+        self.assertEqual(probe.get("title_text"), "Combat Deck")
+        self.assertEqual(probe.get("count_after_open"), "3 cards")
+        self.assertEqual(probe.get("filter_texts"), ["Draw (1)", "Hand (1)", "Discard (1)"])
+        self.assertEqual(probe.get("visible_card_count_after_open"), 3)
+        self.assertEqual(probe.get("detail_title_after_open"), "Strike")
+        self.assertIn("[ATK]", probe.get("detail_meta_after_open", ""))
+        self.assertIn("Draw", probe.get("detail_meta_after_open", ""))
+        self.assertEqual(probe.get("detail_rules_after_open"), "Attack • 6 dmg • Cost 1")
+        self.assertEqual(probe.get("visible_card_count_after_discard"), 1)
+        self.assertEqual(probe.get("detail_title_after_discard"), "Strike+")
+        self.assertEqual(probe.get("count_after_discard"), "1 card")
+        self.assertFalse(probe.get("after_close_visible"))
+
+    def test_combat_deck_overlay_opens_from_hotkey_and_button(self):
+        probe = self._run_combat_deck_overlay_probe()
+        self.assertTrue(probe.get("deck_button_exists"))
+        self.assertFalse(probe.get("initial_visible"))
+        self.assertTrue(probe.get("after_hotkey_open_visible"))
+        self.assertEqual(probe.get("title_text"), "Combat Deck")
+        self.assertTrue(probe.get("count_text", "").endswith("cards"))
+        self.assertGreaterEqual(probe.get("card_grid_count", 0), 1)
+        self.assertEqual(probe.get("hand_before_block"), probe.get("hand_after_block"))
+        self.assertFalse(probe.get("after_hotkey_close_visible"))
+        self.assertTrue(probe.get("after_button_open_visible"))
 
 
 if __name__ == "__main__":

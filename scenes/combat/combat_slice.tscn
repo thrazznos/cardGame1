@@ -336,6 +336,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Pass Turn"
 
+[node name="Deck" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Deck"
+
 [node name="Restart" type="Button" parent="CombatHud/Margin/VBox/Buttons"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2

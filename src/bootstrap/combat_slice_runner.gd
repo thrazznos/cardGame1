@@ -13,6 +13,7 @@ const CARD_CATALOG_SCRIPT := preload("res://src/core/card/card_catalog.gd")
 const CARD_PRESENTER_SCRIPT := preload("res://src/core/card/card_presenter.gd")
 const CARD_INSTANCE_SCRIPT := preload("res://src/core/card/card_instance.gd")
 const STATUS_TRACKER_SCRIPT := preload("res://src/core/status/status_tracker.gd")
+const DECK_INSPECTION_SNAPSHOT_BUILDER_SCRIPT := preload("res://src/ui/deck_inspection/deck_inspection_snapshot_builder.gd")
 
 const PRESSURE_PROFILES_PATH := "res://data/encounters/pressure_profiles_v1.json"
 const PLAYER_MAX_HP := 40
@@ -46,6 +47,7 @@ var reward_draft: Variant
 var card_catalog: Variant
 var card_presenter: Variant
 var card_instance: Variant
+var deck_inspection_snapshot_builder: Variant
 var hud: Variant
 
 var event_stream: Array[Dictionary] = []
@@ -91,6 +93,7 @@ func _ready() -> void:
 	card_catalog = CARD_CATALOG_SCRIPT.new()
 	card_presenter = CARD_PRESENTER_SCRIPT.new()
 	card_instance = CARD_INSTANCE_SCRIPT.new()
+	deck_inspection_snapshot_builder = DECK_INSPECTION_SNAPSHOT_BUILDER_SCRIPT.new()
 	reward_draft = REWARD_DRAFT_SCRIPT.new()
 	reward_draft.set_card_catalog(card_catalog)
 	_load_pressure_profiles()
@@ -224,6 +227,18 @@ func refresh_hud() -> void:
 			hud.bind_runner(self)
 	if hud != null:
 		hud.refresh(get_view_model())
+
+func get_deck_inspection_snapshot(mode: String = "combat_full") -> Dictionary:
+	if dls != null and dls.has_method("normalize_zones"):
+		dls.normalize_zones()
+	if deck_inspection_snapshot_builder == null:
+		deck_inspection_snapshot_builder = DECK_INSPECTION_SNAPSHOT_BUILDER_SCRIPT.new()
+	return deck_inspection_snapshot_builder.build_snapshot(mode, {
+		"draw": dls.draw_pile.duplicate(true),
+		"hand": dls.hand.duplicate(true),
+		"discard": dls.discard_pile.duplicate(true),
+		"exhaust": dls.exhaust_pile.duplicate(true),
+	})
 
 func player_play_card(instance_id: String) -> Dictionary:
 	if dls != null and dls.has_method("normalize_zones"):

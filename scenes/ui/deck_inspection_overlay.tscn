@@ -1,0 +1,118 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/deck_inspection/deck_inspection_controller.gd" id="1_controller"]
+
+[node name="DeckInspectionOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_controller")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(1160, 720)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="Center/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Panel/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Deck Inspection"
+
+[node name="ContextBadge" type="Label" parent="Center/Panel/VBox/HeaderRow"]
+layout_mode = 2
+text = "context"
+
+[node name="CountLabel" type="Label" parent="Center/Panel/VBox/HeaderRow"]
+layout_mode = 2
+text = "0 cards"
+
+[node name="CloseButton" type="Button" parent="Center/Panel/VBox/HeaderRow"]
+layout_mode = 2
+text = "Close"
+
+[node name="FilterRow" type="HBoxContainer" parent="Center/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BodyRow" type="HBoxContainer" parent="Center/Panel/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="CardScroll" type="ScrollContainer" parent="Center/Panel/VBox/BodyRow"]
+custom_minimum_size = Vector2(0, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CardGrid" type="GridContainer" parent="Center/Panel/VBox/BodyRow/CardScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="DetailPanel" type="PanelContainer" parent="Center/Panel/VBox/BodyRow"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DetailVBox" type="VBoxContainer" parent="Center/Panel/VBox/BodyRow/DetailPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="DetailTitle" type="Label" parent="Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox"]
+layout_mode = 2
+text = ""
+
+[node name="DetailMeta" type="Label" parent="Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="DetailRules" type="Label" parent="Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="FooterHint" type="Label" parent="Center/Panel/VBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Read-only inspection"
