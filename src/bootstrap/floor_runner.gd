@@ -53,9 +53,15 @@ func _start_floor() -> void:
 
 func _show_map() -> void:
 	if combat_runner != null:
-		(combat_runner as Control).visible = false
+		var combat_control: Control = combat_runner as Control
+		combat_control.visible = false
+		combat_control.set_process_input(false)
+		combat_control.set_process_unhandled_input(false)
 	if map_hud != null:
-		(map_hud as Control).visible = true
+		var map_control: Control = map_hud as Control
+		map_control.visible = true
+		map_control.set_process_input(true)
+		map_control.set_process_unhandled_input(true)
 		map_hud.refresh(
 			floor_controller.get_view_model(),
 			gsm.stack_snapshot(),
@@ -64,10 +70,16 @@ func _show_map() -> void:
 
 func _show_combat() -> void:
 	if map_hud != null:
-		(map_hud as Control).visible = false
+		var map_control: Control = map_hud as Control
+		map_control.visible = false
+		map_control.set_process_input(false)
+		map_control.set_process_unhandled_input(false)
 	_close_map_deck_overlay()
 	if combat_runner != null:
-		(combat_runner as Control).visible = true
+		var combat_control: Control = combat_runner as Control
+		combat_control.visible = true
+		combat_control.set_process_input(true)
+		combat_control.set_process_unhandled_input(true)
 
 func map_commit_room(node_id: int) -> void:
 	var select_result: Dictionary = floor_controller.select_room(node_id)
