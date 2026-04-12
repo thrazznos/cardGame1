@@ -21,10 +21,13 @@ var _art_sapphire: Texture2D
 var _art_focus: Texture2D
 var _art_placeholder: Texture2D
 
+const DECK_INSPECTION_OVERLAY_SCENE := preload("res://scenes/ui/deck_inspection_overlay.tscn")
+
 var runner: Variant = null
 var vm: Dictionary = {}
 var previous_vm: Dictionary = {}
 var hovered_card_index: int = -1
+var deck_inspection_overlay: Variant = null
 
 const REWARD_CARD_WIDTH: float = 308.0
 const REWARD_CARD_HEIGHT: float = 418.0
@@ -37,6 +40,7 @@ func bind_runner(runtime_runner: Variant) -> void:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_ensure_deck_inspection_overlay()
 	_player_portrait_tex = _try_load_first([
 		"res://assets/generated/stage/player_cat_steward_polish_bust.png",
 		"res://src/ui/combat_hud/assets/player_cat_steward_bust_128.png",
@@ -283,9 +287,9 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 		phase_color = UITheme.TEXT_BAD
 	draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), phase_color)
 
-	# Pass button hint
+	# Combat controls hint
 	if result == CombatSliceRunner.RESULT_IN_PROGRESS:
-		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "D = Deck  |  SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool, reject_reason: String = "") -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -777,9 +781,43 @@ func _draw_reward_overlay(w: float, h: float) -> void:
 
 var _reward_hover_index: int = -1
 
+func _ensure_deck_inspection_overlay() -> Control:
+	if deck_inspection_overlay is Control and is_instance_valid(deck_inspection_overlay):
+		return deck_inspection_overlay
+	var overlay: Control = DECK_INSPECTION_OVERLAY_SCENE.instantiate()
+	overlay.name = "DeckInspectionOverlay"
+	overlay.visible = false
+	add_child(overlay)
+	move_child(overlay, get_child_count() - 1)
+	deck_inspection_overlay = overlay
+	return overlay
+
+func _is_deck_inspection_visible() -> bool:
+	if not (deck_inspection_overlay is Control) or not is_instance_valid(deck_inspection_overlay):
+		return false
+	return (deck_inspection_overlay as Control).visible
+
+func _open_deck_inspection(mode: String = "combat_full") -> void:
+	if runner == null or not runner.has_method("get_deck_inspection_snapshot"):
+		return
+	var overlay := _ensure_deck_inspection_overlay()
+	var snapshot: Dictionary = runner.get_deck_inspection_snapshot(mode)
+	if overlay.has_method("open_with_snapshot"):
+		overlay.open_with_snapshot(snapshot)
+
+func _close_deck_inspection() -> void:
+	if not _is_deck_inspection_visible():
+		return
+	var overlay: Control = deck_inspection_overlay
+	if overlay != null and overlay.has_method("close_overlay"):
+		overlay.close_overlay()
+
 func _gui_input(event: InputEvent) -> void:
 	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
 	var in_reward: bool = reward_state == CombatSliceRunner.REWARD_PRESENTED or reward_state == CombatSliceRunner.REWARD_APPLIED
+
+	if _is_deck_inspection_visible():
+		return
 
 	if event is InputEventMouseMotion:
 		var mm: InputEventMouseMotion = event
@@ -814,11 +852,25 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not key.pressed or key.echo:
 		return
 	match key.keycode:
+		KEY_D:
+			if _is_deck_inspection_visible():
+				_close_deck_inspection()
+			else:
+				_open_deck_inspection("combat_full")
+			var viewport_deck := get_viewport()
+			if viewport_deck != null:
+				viewport_deck.set_input_as_handled()
 		KEY_SPACE:
+			if _is_deck_inspection_visible():
+				return
 			_handle_pass_or_continue()
 		KEY_R:
+			if _is_deck_inspection_visible():
+				return
 			runner.reset_battle(13371337)
 		KEY_1, KEY_2, KEY_3, KEY_4, KEY_5:
+			if _is_deck_inspection_visible():
+				return
 			var idx: int = int(key.keycode) - int(KEY_1)
 			_play_card_at_index(idx)
 

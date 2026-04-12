@@ -1174,9 +1174,9 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("count_after_discard"), "1 card")
         self.assertFalse(probe.get("after_close_visible"))
 
-    def test_combat_deck_overlay_opens_from_hotkey_and_button(self):
+    def test_combat_deck_overlay_opens_from_live_stage_hotkey(self):
         probe = self._run_combat_deck_overlay_probe()
-        self.assertTrue(probe.get("deck_button_exists"))
+        self.assertTrue(probe.get("has_unhandled_input"))
         self.assertFalse(probe.get("initial_visible"))
         self.assertTrue(probe.get("after_hotkey_open_visible"))
         self.assertEqual(probe.get("title_text"), "Combat Deck")
@@ -1184,7 +1184,6 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertGreaterEqual(probe.get("card_grid_count", 0), 1)
         self.assertEqual(probe.get("hand_before_block"), probe.get("hand_after_block"))
         self.assertFalse(probe.get("after_hotkey_close_visible"))
-        self.assertTrue(probe.get("after_button_open_visible"))
 
 
 if __name__ == "__main__":
