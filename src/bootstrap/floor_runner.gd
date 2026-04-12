@@ -17,6 +17,7 @@ var combat_runner: Variant
 var map_hud: Variant
 var exit_overlay: Variant
 var keybindings_overlay: Variant
+var map_deck_overlay: Variant
 var floor_index: int = 1
 var run_seed: int = 42424242
 var active_constraint: String = ""
@@ -32,6 +33,7 @@ func _ready() -> void:
 	combat_runner = get_node_or_null("CombatStage")
 	exit_overlay = get_node_or_null("ExitOverlay")
 	keybindings_overlay = get_node_or_null("KeybindingsOverlay")
+	map_deck_overlay = get_node_or_null("MapDeckOverlay")
 
 	if map_hud != null:
 		map_hud.bind_runner(self)
@@ -63,6 +65,7 @@ func _show_map() -> void:
 func _show_combat() -> void:
 	if map_hud != null:
 		(map_hud as Control).visible = false
+	_close_map_deck_overlay()
 	if combat_runner != null:
 		(combat_runner as Control).visible = true
 
@@ -167,6 +170,9 @@ func _is_exit_overlay_visible() -> bool:
 func _is_keybindings_overlay_visible() -> bool:
 	return keybindings_overlay is Control and (keybindings_overlay as Control).visible
 
+func _is_map_deck_overlay_visible() -> bool:
+	return map_deck_overlay is Control and (map_deck_overlay as Control).visible
+
 func _open_exit_overlay() -> void:
 	if exit_overlay != null and exit_overlay.has_method("open_overlay"):
 		exit_overlay.open_overlay()
@@ -181,6 +187,18 @@ func _toggle_keybindings_overlay() -> void:
 		return
 	_open_keybindings_overlay()
 
+func toggle_map_deck_overlay() -> void:
+	if _is_map_deck_overlay_visible():
+		_close_map_deck_overlay()
+		return
+	_open_map_deck_overlay()
+
+func _toggle_map_deck_overlay() -> void:
+	toggle_map_deck_overlay()
+
+func toggle_keybindings_overlay() -> void:
+	_toggle_keybindings_overlay()
+
 func _open_keybindings_overlay() -> void:
 	if keybindings_overlay != null and keybindings_overlay.has_method("open_overlay"):
 		keybindings_overlay.open_overlay()
@@ -189,9 +207,27 @@ func _close_keybindings_overlay() -> void:
 	if keybindings_overlay != null and keybindings_overlay.has_method("close_overlay"):
 		keybindings_overlay.close_overlay()
 
+func _open_map_deck_overlay() -> void:
+	if map_deck_overlay == null or not combat_runner.has_method("get_run_deck_snapshot"):
+		return
+	if map_deck_overlay is Control:
+		var overlay_control: Control = map_deck_overlay
+		overlay_control.visible = false
+		move_child(overlay_control, get_child_count() - 1)
+	var snapshot: Dictionary = combat_runner.get_run_deck_snapshot()
+	if map_deck_overlay.has_method("open_with_snapshot"):
+		map_deck_overlay.open_with_snapshot(snapshot)
+
+func _close_map_deck_overlay() -> void:
+	if map_deck_overlay != null and map_deck_overlay.has_method("close_overlay"):
+		map_deck_overlay.close_overlay()
+
 func _close_any_open_window() -> bool:
 	if combat_runner != null and combat_runner.has_method("is_deck_inspection_open") and combat_runner.is_deck_inspection_open():
 		combat_runner.close_deck_inspection()
+		return true
+	if _is_map_deck_overlay_visible():
+		_close_map_deck_overlay()
 		return true
 	if _is_keybindings_overlay_visible():
 		_close_keybindings_overlay()
@@ -207,7 +243,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var key: InputEventKey = event
 	if not key.pressed or key.echo:
 		return
-	if key.keycode == KEY_F2:
+	if key.keycode == KEY_F2 and (map_hud == null or not (map_hud as Control).visible):
 		_toggle_keybindings_overlay()
 		var viewport_keys := get_viewport()
 		if viewport_keys != null:

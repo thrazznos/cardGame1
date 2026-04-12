@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://src/bootstrap/floor_runner.gd" id="1_floor"]
 [ext_resource type="Script" path="res://src/ui/map_hud/map_hud_controller.gd" id="2_map"]
 [ext_resource type="PackedScene" path="res://scenes/combat/combat_stage.tscn" id="3_combat"]
 [ext_resource type="PackedScene" path="res://scenes/ui/exit_overlay.tscn" id="4_exit"]
 [ext_resource type="PackedScene" path="res://scenes/ui/keybindings_overlay.tscn" id="5_keys"]
+[ext_resource type="PackedScene" path="res://scenes/ui/deck_inspection_overlay.tscn" id="6_map_deck"]
 
 [node name="FloorRun" type="Control"]
 layout_mode = 3
@@ -48,3 +49,8 @@ layout_mode = 1
 
 [node name="KeybindingsOverlay" parent="." instance=ExtResource("5_keys")]
 layout_mode = 1
+
+[node name="MapDeckOverlay" parent="." instance=ExtResource("6_map_deck")]
+visible = false
+layout_mode = 1
+z_index = 100

@@ -251,6 +251,16 @@ func get_deck_inspection_snapshot(mode: String = "combat_full") -> Dictionary:
 		"exhaust": dls.exhaust_pile.duplicate(true),
 	})
 
+func get_run_deck_snapshot() -> Dictionary:
+	if deck_inspection_snapshot_builder == null:
+		deck_inspection_snapshot_builder = DECK_INSPECTION_SNAPSHOT_BUILDER_SCRIPT.new()
+	var deck_cards: Array = run_master_deck.duplicate(true)
+	if deck_cards.is_empty() and card_catalog != null:
+		deck_cards = card_catalog.starter_run_deck()
+	return deck_inspection_snapshot_builder.build_snapshot("map_run_deck", {
+		"deck": deck_cards,
+	})
+
 func player_play_card(instance_id: String) -> Dictionary:
 	if dls != null and dls.has_method("normalize_zones"):
 		dls.normalize_zones()

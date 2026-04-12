@@ -16,12 +16,13 @@ func _init() -> void:
 	await process_frame
 	await process_frame
 
+	var map_hud: Node = floor_run.get_node("MapHud")
 	var exit_overlay := floor_run.get_node_or_null("ExitOverlay")
 	var keybindings_overlay := floor_run.get_node_or_null("KeybindingsOverlay")
 	var initial_exit_visible: bool = exit_overlay is Control and (exit_overlay as Control).visible
 	var initial_keybindings_visible: bool = keybindings_overlay is Control and (keybindings_overlay as Control).visible
 
-	_press_key(floor_run, KEY_F2)
+	_press_key(map_hud, KEY_F2)
 	await process_frame
 	keybindings_overlay = floor_run.get_node_or_null("KeybindingsOverlay")
 	var keybindings_visible_after_f9: bool = keybindings_overlay is Control and (keybindings_overlay as Control).visible

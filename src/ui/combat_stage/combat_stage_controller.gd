@@ -832,6 +832,8 @@ func _toggle_deck_inspection_mode(mode: String) -> void:
 	_open_deck_inspection(mode)
 
 func _gui_input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
 	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
 	var in_reward: bool = reward_state == CombatSliceRunner.REWARD_PRESENTED or reward_state == CombatSliceRunner.REWARD_APPLIED
 
@@ -863,6 +865,8 @@ func _gui_input(event: InputEvent) -> void:
 					_play_card_at_index(card_idx)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		return
 	if runner == null:
 		return
 	if not (event is InputEventKey):

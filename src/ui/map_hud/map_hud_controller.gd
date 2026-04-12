@@ -332,7 +332,7 @@ func _draw_instructions() -> void:
 		if legal.is_empty():
 			text = "No rooms available. Floor complete?"
 		else:
-			text = "Hover a room for details, then click a highlighted room to enter it."
+			text = "Hover a room for details, click a highlighted room to enter it, or press D for Deck / F2 for Controls."
 	elif state == FloorController.STATE_COMBAT:
 		text = "Fighting..."
 	elif state == FloorController.STATE_FLOOR_COMPLETE:
@@ -413,10 +413,27 @@ func _gui_input(event: InputEvent) -> void:
 				_handle_node_click(clicked_node)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _showing_event and event is InputEventKey:
-		var key: InputEventKey = event
-		if key.pressed and not key.echo and key.keycode == KEY_SPACE:
-			_dismiss_event_and_continue()
+	if not (event is InputEventKey):
+		return
+	var key: InputEventKey = event
+	if not key.pressed or key.echo:
+		return
+	if _showing_event and key.keycode == KEY_SPACE:
+		_dismiss_event_and_continue()
+		return
+	if runner == null:
+		return
+	if key.keycode == KEY_D and runner.has_method("toggle_map_deck_overlay"):
+		runner.toggle_map_deck_overlay()
+		var viewport_deck := get_viewport()
+		if viewport_deck != null:
+			viewport_deck.set_input_as_handled()
+		return
+	if key.keycode == KEY_F2 and runner.has_method("toggle_keybindings_overlay"):
+		runner.toggle_keybindings_overlay()
+		var viewport_keys := get_viewport()
+		if viewport_keys != null:
+			viewport_keys.set_input_as_handled()
 
 func _dismiss_event_and_continue() -> void:
 	dismiss_event()

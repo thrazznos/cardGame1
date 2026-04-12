@@ -477,6 +477,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing ESCAPE_EXIT_OVERLAY_PROBE output")
         return json.loads(probe_line)
 
+    def _run_map_deck_overlay_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_map_deck_overlay_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("MAP_DECK_OVERLAY_PROBE="):
+                probe_line = line[len("MAP_DECK_OVERLAY_PROBE="):]
+        self.assertTrue(probe_line, "missing MAP_DECK_OVERLAY_PROBE output")
+        return json.loads(probe_line)
+
     def _run_gsm_pilot_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -1224,6 +1242,15 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertFalse(probe.get("deck_visible_after_escape"))
         self.assertFalse(probe.get("exit_visible_after_closing_deck"))
         self.assertTrue(probe.get("exit_visible_after_opening_from_combat"))
+
+    def test_map_deck_overlay_opens_and_closes_from_map_screen(self):
+        probe = self._run_map_deck_overlay_probe()
+        self.assertFalse(probe.get("initial_visible"))
+        self.assertTrue(probe.get("after_open_visible"))
+        self.assertEqual(probe.get("title_text"), "Run Deck")
+        self.assertTrue(probe.get("count_text", "").endswith("cards"))
+        self.assertGreaterEqual(probe.get("card_grid_count", 0), 1)
+        self.assertFalse(probe.get("after_close_visible"))
 
 
 if __name__ == "__main__":
