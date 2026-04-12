@@ -812,6 +812,12 @@ func _close_deck_inspection() -> void:
 	if overlay != null and overlay.has_method("close_overlay"):
 		overlay.close_overlay()
 
+func is_deck_inspection_open() -> bool:
+	return _is_deck_inspection_visible()
+
+func close_deck_inspection() -> void:
+	_close_deck_inspection()
+
 func _gui_input(event: InputEvent) -> void:
 	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
 	var in_reward: bool = reward_state == CombatSliceRunner.REWARD_PRESENTED or reward_state == CombatSliceRunner.REWARD_APPLIED

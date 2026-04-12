@@ -228,6 +228,17 @@ func refresh_hud() -> void:
 	if hud != null:
 		hud.refresh(get_view_model())
 
+func is_deck_inspection_open() -> bool:
+	if hud == null:
+		hud = get_node_or_null("CombatHud")
+	return hud != null and hud.has_method("is_deck_inspection_open") and hud.is_deck_inspection_open()
+
+func close_deck_inspection() -> void:
+	if hud == null:
+		hud = get_node_or_null("CombatHud")
+	if hud != null and hud.has_method("close_deck_inspection"):
+		hud.close_deck_inspection()
+
 func get_deck_inspection_snapshot(mode: String = "combat_full") -> Dictionary:
 	if dls != null and dls.has_method("normalize_zones"):
 		dls.normalize_zones()

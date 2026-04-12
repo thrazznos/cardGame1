@@ -15,6 +15,7 @@ var rng: Variant
 var gsm: Variant
 var combat_runner: Variant
 var map_hud: Variant
+var exit_overlay: Variant
 var floor_index: int = 1
 var run_seed: int = 42424242
 var active_constraint: String = ""
@@ -28,6 +29,7 @@ func _ready() -> void:
 
 	map_hud = get_node_or_null("MapHud")
 	combat_runner = get_node_or_null("CombatStage")
+	exit_overlay = get_node_or_null("ExitOverlay")
 
 	if map_hud != null:
 		map_hud.bind_runner(self)
@@ -156,6 +158,44 @@ func _on_floor_complete() -> void:
 	floor_index += 1
 	# TODO: show floor clear screen, constraint draft, then start next floor
 	_start_floor()
+
+func _is_exit_overlay_visible() -> bool:
+	return exit_overlay is Control and (exit_overlay as Control).visible
+
+func _open_exit_overlay() -> void:
+	if exit_overlay != null and exit_overlay.has_method("open_overlay"):
+		exit_overlay.open_overlay()
+
+func _close_exit_overlay() -> void:
+	if exit_overlay != null and exit_overlay.has_method("close_overlay"):
+		exit_overlay.close_overlay()
+
+func _close_any_open_window() -> bool:
+	if combat_runner != null and combat_runner.has_method("is_deck_inspection_open") and combat_runner.is_deck_inspection_open():
+		combat_runner.close_deck_inspection()
+		return true
+	if _is_exit_overlay_visible():
+		_close_exit_overlay()
+		return true
+	return false
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventKey):
+		return
+	var key: InputEventKey = event
+	if not key.pressed or key.echo:
+		return
+	if key.keycode != KEY_ESCAPE:
+		return
+	if _close_any_open_window():
+		var viewport_close := get_viewport()
+		if viewport_close != null:
+			viewport_close.set_input_as_handled()
+		return
+	_open_exit_overlay()
+	var viewport_open := get_viewport()
+	if viewport_open != null:
+		viewport_open.set_input_as_handled()
 
 func get_floor_view_model() -> Dictionary:
 	var fc_vm: Dictionary = floor_controller.get_view_model() if floor_controller != null else {}
