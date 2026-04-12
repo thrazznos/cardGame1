@@ -16,6 +16,7 @@ var gsm: Variant
 var combat_runner: Variant
 var map_hud: Variant
 var exit_overlay: Variant
+var keybindings_overlay: Variant
 var floor_index: int = 1
 var run_seed: int = 42424242
 var active_constraint: String = ""
@@ -30,6 +31,7 @@ func _ready() -> void:
 	map_hud = get_node_or_null("MapHud")
 	combat_runner = get_node_or_null("CombatStage")
 	exit_overlay = get_node_or_null("ExitOverlay")
+	keybindings_overlay = get_node_or_null("KeybindingsOverlay")
 
 	if map_hud != null:
 		map_hud.bind_runner(self)
@@ -162,6 +164,9 @@ func _on_floor_complete() -> void:
 func _is_exit_overlay_visible() -> bool:
 	return exit_overlay is Control and (exit_overlay as Control).visible
 
+func _is_keybindings_overlay_visible() -> bool:
+	return keybindings_overlay is Control and (keybindings_overlay as Control).visible
+
 func _open_exit_overlay() -> void:
 	if exit_overlay != null and exit_overlay.has_method("open_overlay"):
 		exit_overlay.open_overlay()
@@ -170,9 +175,26 @@ func _close_exit_overlay() -> void:
 	if exit_overlay != null and exit_overlay.has_method("close_overlay"):
 		exit_overlay.close_overlay()
 
+func _toggle_keybindings_overlay() -> void:
+	if _is_keybindings_overlay_visible():
+		_close_keybindings_overlay()
+		return
+	_open_keybindings_overlay()
+
+func _open_keybindings_overlay() -> void:
+	if keybindings_overlay != null and keybindings_overlay.has_method("open_overlay"):
+		keybindings_overlay.open_overlay()
+
+func _close_keybindings_overlay() -> void:
+	if keybindings_overlay != null and keybindings_overlay.has_method("close_overlay"):
+		keybindings_overlay.close_overlay()
+
 func _close_any_open_window() -> bool:
 	if combat_runner != null and combat_runner.has_method("is_deck_inspection_open") and combat_runner.is_deck_inspection_open():
 		combat_runner.close_deck_inspection()
+		return true
+	if _is_keybindings_overlay_visible():
+		_close_keybindings_overlay()
 		return true
 	if _is_exit_overlay_visible():
 		_close_exit_overlay()
@@ -184,6 +206,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key: InputEventKey = event
 	if not key.pressed or key.echo:
+		return
+	if key.keycode == KEY_F2:
+		_toggle_keybindings_overlay()
+		var viewport_keys := get_viewport()
+		if viewport_keys != null:
+			viewport_keys.set_input_as_handled()
 		return
 	if key.keycode != KEY_ESCAPE:
 		return

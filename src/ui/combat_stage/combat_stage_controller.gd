@@ -287,9 +287,9 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 		phase_color = UITheme.TEXT_BAD
 	draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 30.0 * ui_scale), phase_text, HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(22), phase_color)
 
-	# Combat controls hint
+	# Footer hint
 	if result == CombatSliceRunner.RESULT_IN_PROGRESS:
-		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "D = Deck  |  S = Discard  |  SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "F2 = Controls", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool, reject_reason: String = "") -> void:
 	var font: Font = ThemeDB.fallback_font

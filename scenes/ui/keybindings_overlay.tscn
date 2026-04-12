@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/keybindings_overlay_controller.gd" id="1_controller"]
+
+[node name="KeybindingsOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_controller")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.72)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(420, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Center/Panel/VBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "Controls"
+
+[node name="Bindings" type="Label" parent="Center/Panel/VBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = "1-5 = Play card\nD = Deck\nS = Discard\nSPACE = Pass / Continue\nR = Restart\nESC = Close window / Exit menu\nF2 = Controls"
+
+[node name="CloseButton" type="Button" parent="Center/Panel/VBox"]
+layout_mode = 2
+text = "Close"

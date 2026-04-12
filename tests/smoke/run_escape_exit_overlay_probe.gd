@@ -17,7 +17,21 @@ func _init() -> void:
 	await process_frame
 
 	var exit_overlay := floor_run.get_node_or_null("ExitOverlay")
+	var keybindings_overlay := floor_run.get_node_or_null("KeybindingsOverlay")
 	var initial_exit_visible: bool = exit_overlay is Control and (exit_overlay as Control).visible
+	var initial_keybindings_visible: bool = keybindings_overlay is Control and (keybindings_overlay as Control).visible
+
+	_press_key(floor_run, KEY_F2)
+	await process_frame
+	keybindings_overlay = floor_run.get_node_or_null("KeybindingsOverlay")
+	var keybindings_visible_after_f9: bool = keybindings_overlay is Control and (keybindings_overlay as Control).visible
+
+	_press_key(floor_run, KEY_ESCAPE)
+	await process_frame
+	keybindings_overlay = floor_run.get_node_or_null("KeybindingsOverlay")
+	exit_overlay = floor_run.get_node_or_null("ExitOverlay")
+	var keybindings_visible_after_escape: bool = keybindings_overlay is Control and (keybindings_overlay as Control).visible
+	var exit_visible_after_closing_keybindings: bool = exit_overlay is Control and (exit_overlay as Control).visible
 
 	_press_key(floor_run, KEY_ESCAPE)
 	await process_frame
@@ -52,6 +66,10 @@ func _init() -> void:
 
 	var payload := {
 		"initial_exit_visible": initial_exit_visible,
+		"initial_keybindings_visible": initial_keybindings_visible,
+		"keybindings_visible_after_f9": keybindings_visible_after_f9,
+		"keybindings_visible_after_escape": keybindings_visible_after_escape,
+		"exit_visible_after_closing_keybindings": exit_visible_after_closing_keybindings,
 		"exit_visible_after_first_escape": exit_visible_after_first_escape,
 		"exit_visible_after_second_escape": exit_visible_after_second_escape,
 		"deck_visible_before_escape": deck_visible_before_escape,

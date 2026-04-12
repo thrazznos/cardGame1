@@ -1214,6 +1214,10 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
     def test_escape_closes_open_windows_before_opening_exit_overlay(self):
         probe = self._run_escape_exit_overlay_probe()
         self.assertFalse(probe.get("initial_exit_visible"))
+        self.assertFalse(probe.get("initial_keybindings_visible"))
+        self.assertTrue(probe.get("keybindings_visible_after_f9"))
+        self.assertFalse(probe.get("keybindings_visible_after_escape"))
+        self.assertFalse(probe.get("exit_visible_after_closing_keybindings"))
         self.assertTrue(probe.get("exit_visible_after_first_escape"))
         self.assertFalse(probe.get("exit_visible_after_second_escape"))
         self.assertTrue(probe.get("deck_visible_before_escape"))
