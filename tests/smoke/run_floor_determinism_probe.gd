@@ -81,7 +81,7 @@ func _run_floor(seed_root: int) -> Dictionary:
 
 		# Check if we're in combat
 		fvm = runner.call("get_floor_view_model")
-		var combat_runner: Node = runner.get_node_or_null("CombatSlice")
+		var combat_runner: Node = runner.get_node_or_null("CombatStage")
 		var combat_result: String = "skipped"
 
 		if combat_runner != null and combat_runner.visible:

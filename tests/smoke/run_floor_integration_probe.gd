@@ -32,7 +32,7 @@ func _init() -> void:
 
 		# Check if we're in combat or auto-completed
 		fvm = floor_runner.call("get_floor_view_model")
-		var combat_runner: Node = floor_runner.get_node_or_null("CombatSlice")
+		var combat_runner: Node = floor_runner.get_node_or_null("CombatStage")
 
 		results.append({
 			"step": "after_first_room",

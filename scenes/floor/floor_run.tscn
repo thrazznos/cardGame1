@@ -37,6 +37,6 @@ grow_vertical = 0
 text = "Select a room to enter"
 horizontal_alignment = 1
 
-[node name="CombatSlice" parent="." instance=ExtResource("3_combat")]
+[node name="CombatStage" parent="." instance=ExtResource("3_combat")]
 visible = false
 layout_mode = 1

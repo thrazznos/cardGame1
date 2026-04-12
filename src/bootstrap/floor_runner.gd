@@ -27,7 +27,7 @@ func _ready() -> void:
 	floor_controller = FLOOR_CONTROLLER_SCRIPT.new()
 
 	map_hud = get_node_or_null("MapHud")
-	combat_runner = get_node_or_null("CombatSlice")
+	combat_runner = get_node_or_null("CombatStage")
 
 	if map_hud != null:
 		map_hud.bind_runner(self)
