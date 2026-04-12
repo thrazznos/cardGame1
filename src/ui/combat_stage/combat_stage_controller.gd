@@ -289,7 +289,7 @@ func _draw_hand(w: float, h: float, hand_y: float) -> void:
 
 	# Combat controls hint
 	if result == CombatSliceRunner.RESULT_IN_PROGRESS:
-		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "D = Deck  |  SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
+		draw_string(font, Vector2(20.0 * ui_scale, hand_y + card_h + 56.0 * ui_scale), "D = Deck  |  S = Discard  |  SPACE = Pass Turn  |  R = Restart", HORIZONTAL_ALIGNMENT_LEFT, -1, _scaled_font(16), UITheme.TEXT_MUTED)
 
 func _draw_card(pos: Vector2, card_id: String, instance_id: String, playable: bool, hovered: bool, reject_reason: String = "") -> void:
 	var font: Font = ThemeDB.fallback_font
@@ -803,6 +803,7 @@ func _open_deck_inspection(mode: String = "combat_full") -> void:
 	var overlay := _ensure_deck_inspection_overlay()
 	var snapshot: Dictionary = runner.get_deck_inspection_snapshot(mode)
 	if overlay.has_method("open_with_snapshot"):
+		overlay.set_meta("inspection_mode", mode)
 		overlay.open_with_snapshot(snapshot)
 
 func _close_deck_inspection() -> void:
@@ -817,6 +818,18 @@ func is_deck_inspection_open() -> bool:
 
 func close_deck_inspection() -> void:
 	_close_deck_inspection()
+
+func _deck_inspection_mode() -> String:
+	if not _is_deck_inspection_visible():
+		return ""
+	var overlay: Control = deck_inspection_overlay
+	return str(overlay.get_meta("inspection_mode", "")) if overlay != null else ""
+
+func _toggle_deck_inspection_mode(mode: String) -> void:
+	if _is_deck_inspection_visible() and _deck_inspection_mode() == mode:
+		_close_deck_inspection()
+		return
+	_open_deck_inspection(mode)
 
 func _gui_input(event: InputEvent) -> void:
 	var reward_state: String = str(vm.get("reward_state", CombatSliceRunner.REWARD_NONE))
@@ -859,13 +872,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	match key.keycode:
 		KEY_D:
-			if _is_deck_inspection_visible():
-				_close_deck_inspection()
-			else:
-				_open_deck_inspection("combat_full")
+			_toggle_deck_inspection_mode("combat_full")
 			var viewport_deck := get_viewport()
 			if viewport_deck != null:
 				viewport_deck.set_input_as_handled()
+		KEY_S:
+			_toggle_deck_inspection_mode("combat_discard")
+			var viewport_discard := get_viewport()
+			if viewport_discard != null:
+				viewport_discard.set_input_as_handled()
 		KEY_SPACE:
 			if _is_deck_inspection_visible():
 				return

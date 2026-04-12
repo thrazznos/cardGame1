@@ -1194,16 +1194,22 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertEqual(probe.get("count_after_discard"), "1 card")
         self.assertFalse(probe.get("after_close_visible"))
 
-    def test_combat_deck_overlay_opens_from_live_stage_hotkey(self):
+    def test_combat_deck_and_discard_hotkeys_work_on_live_stage(self):
         probe = self._run_combat_deck_overlay_probe()
         self.assertTrue(probe.get("has_unhandled_input"))
         self.assertFalse(probe.get("initial_visible"))
-        self.assertTrue(probe.get("after_hotkey_open_visible"))
-        self.assertEqual(probe.get("title_text"), "Combat Deck")
-        self.assertTrue(probe.get("count_text", "").endswith("cards"))
-        self.assertGreaterEqual(probe.get("card_grid_count", 0), 1)
+        self.assertTrue(probe.get("after_deck_hotkey_visible"))
+        self.assertEqual(probe.get("deck_title_text"), "Combat Deck")
+        self.assertTrue(probe.get("deck_count_text", "").endswith("cards"))
+        self.assertGreaterEqual(probe.get("deck_card_grid_count", 0), 1)
         self.assertEqual(probe.get("hand_before_block"), probe.get("hand_after_block"))
-        self.assertFalse(probe.get("after_hotkey_close_visible"))
+        self.assertTrue(probe.get("after_discard_switch_visible"))
+        self.assertEqual(probe.get("discard_title_text"), "Combat Deck")
+        self.assertEqual(probe.get("discard_count_text"), "0 cards")
+        self.assertEqual(probe.get("discard_card_grid_count"), 0)
+        self.assertFalse(probe.get("after_discard_toggle_close_visible"))
+        self.assertTrue(probe.get("discard_open_from_closed_visible"))
+        self.assertEqual(probe.get("discard_open_from_closed_title"), "Combat Deck")
 
     def test_escape_closes_open_windows_before_opening_exit_overlay(self):
         probe = self._run_escape_exit_overlay_probe()
