@@ -36,7 +36,7 @@ func _init() -> void:
 				"rules_text": "Attack • 6 dmg • Cost 1",
 				"zone": "draw",
 				"zone_label": "Draw",
-				"art_path": "",
+				"art_path": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
 				"sort_key": [0, 0, "strike", "strike_01"],
 				"flags": {},
 			},
@@ -49,7 +49,7 @@ func _init() -> void:
 				"rules_text": "Utility • Draw 1 • Cost 1",
 				"zone": "hand",
 				"zone_label": "Hand",
-				"art_path": "",
+				"art_path": "res://assets/generated/cards/card_scheme_seep_goblin_md.png",
 				"sort_key": [1, 0, "scheme_flow", "runtime_scheme_alpha"],
 				"flags": {},
 			},
@@ -62,7 +62,7 @@ func _init() -> void:
 				"rules_text": "Attack • 9 dmg • Cost 1",
 				"zone": "discard",
 				"zone_label": "Discard",
-				"art_path": "",
+				"art_path": "res://assets/generated/cards/card_strike_cat_duelist_md.png",
 				"sort_key": [2, 0, "strike_plus", "strike_plus"],
 				"flags": {},
 			},
@@ -77,6 +77,7 @@ func _init() -> void:
 	var count_label: Label = overlay.get_node("Center/Panel/VBox/HeaderRow/CountLabel")
 	var filter_row: HBoxContainer = overlay.get_node("Center/Panel/VBox/FilterRow")
 	var card_grid: GridContainer = overlay.get_node("Center/Panel/VBox/BodyRow/CardScroll/CardGrid")
+	var detail_art: TextureRect = overlay.get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailArtFrame/DetailArt")
 	var detail_title: Label = overlay.get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailTitle")
 	var detail_meta: Label = overlay.get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailMeta")
 	var detail_rules: Label = overlay.get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailRules")
@@ -84,6 +85,7 @@ func _init() -> void:
 	var after_open_visible: bool = overlay.visible
 	var filter_texts: Array = _button_texts(filter_row)
 	var visible_card_count_after_open: int = card_grid.get_child_count()
+	var detail_art_has_texture_after_open: bool = detail_art.texture != null
 	var detail_title_after_open: String = detail_title.text
 	var detail_meta_after_open: String = detail_meta.text
 	var detail_rules_after_open: String = detail_rules.text
@@ -92,6 +94,7 @@ func _init() -> void:
 	controller.set_active_filter("discard")
 	await process_frame
 	var visible_card_count_after_discard: int = card_grid.get_child_count()
+	var detail_art_has_texture_after_discard: bool = detail_art.texture != null
 	var detail_title_after_discard: String = detail_title.text
 	var count_after_discard: String = count_label.text
 
@@ -106,10 +109,12 @@ func _init() -> void:
 		"count_after_open": count_after_open,
 		"filter_texts": filter_texts,
 		"visible_card_count_after_open": visible_card_count_after_open,
+		"detail_art_has_texture_after_open": detail_art_has_texture_after_open,
 		"detail_title_after_open": detail_title_after_open,
 		"detail_meta_after_open": detail_meta_after_open,
 		"detail_rules_after_open": detail_rules_after_open,
 		"visible_card_count_after_discard": visible_card_count_after_discard,
+		"detail_art_has_texture_after_discard": detail_art_has_texture_after_discard,
 		"detail_title_after_discard": detail_title_after_discard,
 		"count_after_discard": count_after_discard,
 		"after_close_visible": after_close_visible,

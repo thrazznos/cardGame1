@@ -1,6 +1,8 @@
 extends Control
 class_name DeckInspectionController
 
+const PLACEHOLDER_TINT := Color(1, 1, 1, 1)
+
 var snapshot: Dictionary = {}
 var active_filter: String = "all"
 var selected_card: Dictionary = {}
@@ -94,14 +96,17 @@ func _visible_cards() -> Array:
 	return cards
 
 func _set_detail(card: Dictionary) -> void:
+	var art := _detail_art()
 	var title := _detail_title()
 	var meta := _detail_meta()
 	var rules := _detail_rules()
 	if card.is_empty():
+		art.texture = null
 		title.text = ""
 		meta.text = ""
 		rules.text = ""
 		return
+	_apply_detail_art(str(card.get("art_path", "")))
 	title.text = str(card.get("display_name", "Unknown"))
 	meta.text = "%s  Cost %d  %s" % [
 		str(card.get("role_label", "")),
@@ -109,6 +114,17 @@ func _set_detail(card: Dictionary) -> void:
 		str(card.get("zone_label", "")),
 	]
 	rules.text = str(card.get("rules_text", ""))
+
+func _apply_detail_art(art_path: String) -> void:
+	var art := _detail_art()
+	art.texture = null
+	art.modulate = PLACEHOLDER_TINT
+	var path: String = art_path.strip_edges()
+	if path == "" or not ResourceLoader.exists(path):
+		return
+	var resource: Resource = load(path)
+	if resource is Texture2D:
+		art.texture = resource
 
 func _on_filter_pressed(filter_id: String) -> void:
 	set_active_filter(filter_id)
@@ -146,6 +162,9 @@ func _filter_row() -> HBoxContainer:
 
 func _card_grid() -> GridContainer:
 	return get_node("Center/Panel/VBox/BodyRow/CardScroll/CardGrid") as GridContainer
+
+func _detail_art() -> TextureRect:
+	return get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailArtFrame/DetailArt") as TextureRect
 
 func _detail_title() -> Label:
 	return get_node("Center/Panel/VBox/BodyRow/DetailPanel/DetailVBox/DetailTitle") as Label

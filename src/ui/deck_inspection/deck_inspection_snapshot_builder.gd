@@ -20,6 +20,14 @@ const ZONE_LABELS := {
 	"deck": "Deck",
 }
 
+const CARD_ART_STRIKE_PATH := "res://assets/generated/cards/card_strike_cat_duelist_md.png"
+const CARD_ART_DEFEND_PATH := "res://assets/generated/cards/card_defend_badger_bulwark_md.png"
+const CARD_ART_UTILITY_PATH := "res://assets/generated/cards/card_scheme_seep_goblin_md.png"
+const CARD_ART_RUBY_PATH := "res://assets/generated/cards/card_ember_jab_ruby_md.png"
+const CARD_ART_SAPPHIRE_PATH := "res://assets/generated/cards/card_ward_polish_sapphire_md.png"
+const CARD_ART_FOCUS_PATH := "res://assets/generated/cards/card_vault_focus_seal_polish_md.png"
+const CARD_ART_PLACEHOLDER_PATH := "res://assets/generated/cards/placeholders/card_placeholder_steward_warrant_md.png"
+
 var card_catalog: Variant
 var card_instance: Variant
 var card_presenter: Variant
@@ -106,7 +114,7 @@ func _normalize_card(value: Variant, zone_id: String, source_index: int) -> Dict
 		"rules_text": card_catalog.hand_rules_text(card_id),
 		"zone": zone_id,
 		"zone_label": _zone_label(zone_id),
-		"art_path": "",
+		"art_path": _art_path_for_card(card_id),
 		"sort_key": _sort_key(zone_id, source_index, card_id, instance_id),
 		"flags": {},
 	}
@@ -148,6 +156,24 @@ func _map_card_less(a: Dictionary, b: Dictionary) -> bool:
 
 func _zone_label(zone_id: String) -> String:
 	return str(ZONE_LABELS.get(zone_id, zone_id.capitalize()))
+
+func _art_path_for_card(card_id: String) -> String:
+	var resolved: String = str(card_catalog.resolved_card_id(card_id)) if card_catalog != null else card_id
+	match resolved:
+		"strike", "strike_plus", "strike_precise", "quick_slash":
+			return CARD_ART_STRIKE_PATH
+		"defend", "defend_plus", "defend_hold", "heavy_guard":
+			return CARD_ART_DEFEND_PATH
+		"scheme_flow", "steady_hand":
+			return CARD_ART_UTILITY_PATH
+		"gem_produce_ruby", "gem_hybrid_ruby_strike", "gem_consume_top_ruby", "gem_offset_consume_ruby":
+			return CARD_ART_RUBY_PATH
+		"gem_produce_sapphire", "gem_hybrid_sapphire_guard", "gem_hybrid_sapphire_burst", "gem_consume_top_sapphire", "gem_offset_consume_sapphire":
+			return CARD_ART_SAPPHIRE_PATH
+		"gem_focus", "gem_hybrid_focus_guard":
+			return CARD_ART_FOCUS_PATH
+		_:
+			return CARD_ART_PLACEHOLDER_PATH
 
 func _variant_array(value: Variant) -> Array:
 	if value is Array:
