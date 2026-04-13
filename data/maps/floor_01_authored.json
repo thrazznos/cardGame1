@@ -1,0 +1,31 @@
+{
+  "floor_id": "floor_01_authored",
+  "start_node": 0,
+  "exit_node": 9,
+  "nodes": [
+    {"node_id": 0, "node_type": "start", "gem_affinity": "neutral", "cleared": false, "is_start": true, "is_exit": false, "pos": {"x": 0.10, "y": 0.50}},
+    {"node_id": 1, "node_type": "combat", "gem_affinity": "Ruby", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.25, "y": 0.28}},
+    {"node_id": 2, "node_type": "combat", "gem_affinity": "Sapphire", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.25, "y": 0.72}},
+    {"node_id": 3, "node_type": "event", "gem_affinity": "neutral", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.42, "y": 0.18}},
+    {"node_id": 4, "node_type": "combat", "gem_affinity": "Ruby", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.42, "y": 0.42}},
+    {"node_id": 5, "node_type": "rest", "gem_affinity": "neutral", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.42, "y": 0.78}},
+    {"node_id": 6, "node_type": "combat", "gem_affinity": "Sapphire", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.62, "y": 0.30}},
+    {"node_id": 7, "node_type": "combat", "gem_affinity": "Ruby", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.62, "y": 0.62}},
+    {"node_id": 8, "node_type": "combat", "gem_affinity": "Sapphire", "cleared": false, "is_start": false, "is_exit": false, "pos": {"x": 0.80, "y": 0.46}},
+    {"node_id": 9, "node_type": "boss", "gem_affinity": "neutral", "cleared": false, "is_start": false, "is_exit": true, "pos": {"x": 0.92, "y": 0.50}}
+  ],
+  "edges": [
+    [0, 1],
+    [0, 2],
+    [1, 3],
+    [1, 4],
+    [2, 5],
+    [3, 6],
+    [4, 6],
+    [4, 7],
+    [5, 7],
+    [6, 8],
+    [7, 8],
+    [8, 9]
+  ]
+}

@@ -4,6 +4,7 @@ class_name FloorGraph
 ## Generates and holds a gem-attuned floor graph from polyhedra projections.
 ## Deterministic from seed. Nodes have gem affinity, type, and adjacency.
 
+const FLOOR_01_AUTHORED_PATH := "res://data/maps/floor_01_authored.json"
 const GEM_AFFINITIES := ["Ruby", "Sapphire", "neutral"]
 const NODE_TYPES := ["combat", "combat", "combat", "event", "rest", "boss"]
 
@@ -48,6 +49,10 @@ var floor_index: int = 1
 
 func generate(rng: Variant, p_floor_index: int = 1) -> Dictionary:
 	floor_index = p_floor_index
+	if floor_index == 1:
+		var authored_result: Dictionary = _load_authored_graph(FLOOR_01_AUTHORED_PATH)
+		if authored_result.get("ok", false):
+			return authored_result
 	var shape: String = _shape_for_floor(p_floor_index)
 	var base_edges: Array = _base_edges(shape)
 	var node_count: int = _base_node_count(shape)
@@ -148,6 +153,42 @@ func get_view_model() -> Dictionary:
 		"start_node": start_node,
 		"exit_node": exit_node,
 		"floor_index": floor_index,
+	}
+
+func _load_authored_graph(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {"ok": false, "reason": "ERR_AUTHORED_MAP_NOT_FOUND", "path": path}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {"ok": false, "reason": "ERR_AUTHORED_MAP_OPEN_FAILED", "path": path}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if not (parsed is Dictionary):
+		return {"ok": false, "reason": "ERR_AUTHORED_MAP_PARSE_FAILED", "path": path}
+	var data: Dictionary = parsed
+	var raw_nodes: Variant = data.get("nodes", [])
+	var raw_edges: Variant = data.get("edges", [])
+	if not (raw_nodes is Array) or not (raw_edges is Array):
+		return {"ok": false, "reason": "ERR_AUTHORED_MAP_INVALID_SHAPE", "path": path}
+	nodes = []
+	for node_variant in raw_nodes:
+		if not (node_variant is Dictionary):
+			continue
+		nodes.append((node_variant as Dictionary).duplicate(true))
+	edges = []
+	for edge_variant in raw_edges:
+		if edge_variant is Array and (edge_variant as Array).size() >= 2:
+			var edge_arr: Array = edge_variant
+			edges.append([int(edge_arr[0]), int(edge_arr[1])])
+	start_node = int(data.get("start_node", 0))
+	exit_node = int(data.get("exit_node", max(0, nodes.size() - 1)))
+	_rebuild_adjacency()
+	return {
+		"ok": true,
+		"shape": "authored",
+		"node_count": nodes.size(),
+		"edge_count": edges.size(),
+		"start_node": start_node,
+		"exit_node": exit_node,
 	}
 
 func _shape_for_floor(f_index: int) -> String:

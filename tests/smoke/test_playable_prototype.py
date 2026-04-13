@@ -189,6 +189,24 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe_line, "missing MAP_HOVER_CURSOR_PROBE output")
         return json.loads(probe_line)
 
+    def _run_floor_graph_probe(self) -> dict:
+        cmd = [
+            resolve_godot_executable(),
+            "--headless",
+            "--path",
+            ".",
+            "-s",
+            "res://tests/smoke/run_floor_graph_probe.gd",
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        probe_line = ""
+        for line in proc.stdout.splitlines():
+            if line.startswith("FLOOR_GRAPH_PROBE="):
+                probe_line = line[len("FLOOR_GRAPH_PROBE="):]
+        self.assertTrue(probe_line, "missing FLOOR_GRAPH_PROBE output")
+        return json.loads(probe_line)
+
     def _run_hud_contrast_probe(self) -> dict:
         cmd = [
             resolve_godot_executable(),
@@ -1251,6 +1269,18 @@ class PlayablePrototypeSmokeTests(unittest.TestCase):
         self.assertTrue(probe.get("count_text", "").endswith("cards"))
         self.assertGreaterEqual(probe.get("card_grid_count", 0), 1)
         self.assertFalse(probe.get("after_close_visible"))
+
+    def test_floor_one_uses_authored_ten_node_map(self):
+        probe = self._run_floor_graph_probe()
+        self.assertTrue(probe.get("deterministic"))
+        results = probe.get("results", [])
+        floor_one = next((entry for entry in results if entry.get("floor_index") == 1), {})
+        self.assertEqual(floor_one.get("node_count"), 10)
+        self.assertEqual(floor_one.get("start_type"), "start")
+        self.assertEqual(floor_one.get("exit_type"), "boss")
+        self.assertTrue(floor_one.get("start_is_neutral"))
+        self.assertTrue(floor_one.get("exit_is_neutral"))
+        self.assertEqual(floor_one.get("legal_moves_from_start"), [1, 2])
 
 
 if __name__ == "__main__":

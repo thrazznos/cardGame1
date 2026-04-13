@@ -44,6 +44,7 @@ func _init() -> void:
 			"exit_type": str(exit.get("node_type", "")),
 			"start_is_neutral": str(start.get("gem_affinity", "")) == "neutral",
 			"exit_is_neutral": str(exit.get("gem_affinity", "")) == "neutral",
+			"legal_moves_from_start": graph.get_legal_moves(graph.start_node),
 		})
 
 	# Determinism check: same seed should produce same graph

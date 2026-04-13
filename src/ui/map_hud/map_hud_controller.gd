@@ -82,17 +82,37 @@ func _compute_node_positions() -> void:
 	if nodes.is_empty():
 		return
 
+	var authored_positions_found: bool = false
+	for node_variant in nodes:
+		if not (node_variant is Dictionary):
+			continue
+		var node: Dictionary = node_variant
+		var node_id: int = int(node.get("node_id", -1))
+		var pos_variant: Variant = node.get("pos", null)
+		if node_id < 0 or not (pos_variant is Dictionary):
+			continue
+		var pos_dict: Dictionary = pos_variant
+		var px: float = clampf(float(pos_dict.get("x", 0.5)), 0.0, 1.0)
+		var py: float = clampf(float(pos_dict.get("y", 0.5)), 0.0, 1.0)
+		node_positions[node_id] = Vector2(size.x * px, size.y * py)
+		authored_positions_found = true
+
+	if authored_positions_found and node_positions.size() == nodes.size():
+		return
+
 	var node_count: int = nodes.size()
 	var start_id: int = int(floor_vm.get("start_node", 0))
 	var exit_id: int = int(floor_vm.get("exit_node", -1))
 
 	for i in range(node_count):
+		if node_positions.has(i):
+			continue
 		var angle: float = -PI / 2.0 + (2.0 * PI * float(i) / float(node_count))
 		node_positions[i] = center + Vector2(cos(angle), sin(angle)) * radius
 
-	if node_positions.has(start_id):
+	if node_positions.has(start_id) and not authored_positions_found:
 		node_positions[start_id] = center + Vector2(0, -radius)
-	if node_positions.has(exit_id) and exit_id >= 0:
+	if node_positions.has(exit_id) and exit_id >= 0 and not authored_positions_found:
 		node_positions[exit_id] = center + Vector2(0, radius)
 
 func show_event(event_text: String) -> void:
