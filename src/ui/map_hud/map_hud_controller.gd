@@ -471,10 +471,23 @@ func _handle_node_click(node_id: int) -> void:
 
 func _node_at_position(pos: Vector2) -> int:
 	var ui_scale: float = _ui_scale()
+	var legal_moves: Array = floor_vm.get("legal_moves", [])
+	var graph: Dictionary = floor_vm.get("graph", {})
+	var nodes: Array = graph.get("nodes", [])
+	var cleared_by_id: Dictionary = {}
+	for node_variant in nodes:
+		if node_variant is Dictionary:
+			var node: Dictionary = node_variant
+			cleared_by_id[int(node.get("node_id", -1))] = bool(node.get("cleared", false))
 	for node_id in node_positions:
+		var resolved_id: int = int(node_id)
+		if not legal_moves.has(resolved_id):
+			continue
+		if bool(cleared_by_id.get(resolved_id, false)):
+			continue
 		var node_pos: Vector2 = node_positions[node_id]
 		if pos.distance_to(node_pos) <= NODE_RADIUS * ui_scale + 12.0 * ui_scale:
-			return int(node_id)
+			return resolved_id
 	return -1
 
 func _draw_event_screen() -> void:
